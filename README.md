@@ -2,33 +2,6 @@
 
 Reusable content packs for Labki-based wikis. This repository provides modular, versioned pages (templates, forms, properties, and categories) that can be imported via the LabkiPackManager extension.
 
-## Repository structure
-
-`
-labki-packs/
- manifest.yml             # Master manifest of all packs
- packs/
-   publication/
-      manifest.yml
-      pages/
-           Template_Publication.wiki           # Title: Template:Publication
-           Form_Publication.wiki               # Title: Form:Publication
-           Category_Publication.wiki           # Title: Category:Publication
-           Property_Has author.wiki            # Title: Property:Has author
-│  ├─ onboarding/
-│  │   ├─ manifest.yml
-│  │   └─ pages/
-│  │        ├─ Template_Onboarding.wiki            # Title: Template:Onboarding
-│  │        ├─ Form_Onboarding.wiki                # Title: Form:Onboarding
-           Category_Onboarding.wiki            # Title: Category:Onboarding
-   meeting_notes/
-       manifest.yml
-       pages/
-            Template_MeetingNotes.wiki          # Title: Template:MeetingNotes
-            Form_MeetingNotes.wiki              # Title: Form:MeetingNotes
-            Category_Meeting.wiki               # Title: Category:Meeting
-`
-
 Note about filenames: Windows does not allow : in filenames. We save pages using underscores (e.g., Template_Publication.wiki) and place the intended wiki page title in the first line as an HTML comment, e.g.:
 
 `wiki
