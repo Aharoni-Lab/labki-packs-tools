@@ -1,0 +1,3 @@
+﻿<!-- Title: Property:Has author -->
+[[Has type::Text]]
+[[Allows multiple values::true]]

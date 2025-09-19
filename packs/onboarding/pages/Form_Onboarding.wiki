@@ -1,0 +1,9 @@
+﻿<!-- Title: Form:Onboarding -->
+{{{for template|Onboarding}}}
+{{{field|Person|input type=text}}}
+{{{field|Start date|input type=date}}}
+{{{field|Tasks|input type=textarea}}}
+{{{end template}}}
+
+{{{standard input|free text|summary}}}
+{{{save}}}
