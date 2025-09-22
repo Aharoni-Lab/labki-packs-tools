@@ -28,9 +28,11 @@
         "type": "object",
         "properties": {
           "description": { "type": "string" },
+          "version": { "type": "string" },
           "pages": { "type": "array", "items": { "type": "string" } },
           "children": { "$ref": "#/$defs/packNodeMap" }
         },
+        "required": ["version"],
         "additionalProperties": false
       }
     }

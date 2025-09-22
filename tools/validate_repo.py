@@ -76,13 +76,21 @@ def check_root_manifest(manifest_path: Path, schema_path: Path) -> int:
                 error(f"Page file not found: {file_rel} (for {title})")
                 rc = 1
 
-    def recurse(node_map):
+    def recurse(node_map, path_stack=None):
+        if path_stack is None:
+            path_stack = []
         nonlocal rc
         if not isinstance(node_map, dict):
             error("packs must be a mapping")
             rc = 1
             return
         for key, node in node_map.items():
+            current_path = path_stack + [key]
+            # Require version and basic semver-ish format (x.y.z)
+            version = node.get('version')
+            if not isinstance(version, str) or not re.match(r"^\d+\.\d+\.\d+$", version):
+                error(f"Pack '{'.'.join(current_path)}' must have semantic version (MAJOR.MINOR.PATCH)")
+                rc = 1
             pages_list = node.get('pages', [])
             if pages_list and not isinstance(pages_list, list):
                 error(f"Node '{key}' pages must be an array")
@@ -93,7 +101,7 @@ def check_root_manifest(manifest_path: Path, schema_path: Path) -> int:
                     rc = 1
             children = node.get('children')
             if children is not None:
-                recurse(children)
+                recurse(children, current_path)
 
     recurse(manifest.get('packs', {}))
     return rc
