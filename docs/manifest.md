@@ -3,6 +3,7 @@
 ## Root manifest (manifest.yml)
 
 Fields:
+
 - `version` (string): manifest schema/version of the registry (v2 and up)
 - `last_updated` (date/string): informational timestamp
 - `pages` (mapping): global flat registry of pages

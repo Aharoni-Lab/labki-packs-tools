@@ -10,7 +10,7 @@ Upstream repository: `Aharoni-Lab/labki-packs` on GitHub.
 
 ## Repository structure
 
-```
+```text
 labki-packs/
 ├─ manifest.yml          # Root registry: pages (flat) + packs (hierarchy of includes)
 ├─ README.md

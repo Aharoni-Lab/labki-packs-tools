@@ -5,6 +5,7 @@
 LabkiPackManager integrates the `labki-packs` repository with MediaWiki 1.44 to import predefined wiki content (layouts, templates, forms) stored as `.wiki`/`.md` files. The upstream packs repo is `Aharoni-Lab/labki-packs` on GitHub.
 
 ### Key objectives
+
 - Minimal MediaWiki extension structure visible on `Special:Version`. [Implemented]
 - Special page `Special:LabkiPackManager` for admins. [Implemented]
 - Fetch and parse root YAML manifest and display packs. [Implemented]
@@ -13,6 +14,7 @@ LabkiPackManager integrates the `labki-packs` repository with MediaWiki 1.44 to 
 - Plan for exporting changes back to the repo via PRs.
 
 ## Current Status
+
 - Root manifest fetching via HTTP and YAML parsing implemented.
 - Cached storage and refresh flow implemented.
 - `Special:LabkiPackManager` lists available packs.
@@ -34,7 +36,7 @@ LabkiPackManager integrates the `labki-packs` repository with MediaWiki 1.44 to 
 
 ### Example
 
-```
+```text
 packs/
 
 ├─ lab-operations/
@@ -89,7 +91,6 @@ packs:
     description: Lab operations content
     pages:
       - Template:Microscope
-      - Form:Microscope
     children:
       equipment:
         description: Equipment-related packs
@@ -111,47 +112,56 @@ packs:
 ## Steps
 
 ### Step 1: Bare-Bones Extension
+
 - Directory: `extensions/LabkiPackManager/`
 - Files: `extension.json`, `includes/`, `i18n/`, `README.md`
 - Registration: `wfLoadExtension( 'LabkiPackManager' );`
 - Verify on `Special:Version`.
 
 ### Step 2: Special Page (LabkiPackManager)
+
 - Class: `LabkiPackManager\\Special\\SpecialLabkiPackManager` extending `SpecialPage`.
 - Register via `extension.json` `SpecialPages`.
 - Placeholder output confirming page loads.
 
 ### Step 3: Fetch Manifest (Implemented)
+
 - Config: `LabkiContentManifestURL` (exposed as `$wgLabkiContentManifestURL`).
 - Use MediaWiki HTTP facilities; parse YAML; handle errors.
 - Future: recursively fetch folder-level manifests.
 
 ### Step 4: List Packs (UI) (Implemented)
+
 - Render a form listing packs with checkboxes and CSRF token.
 - Refresh control for re-fetch and cache.
 - On POST, capture selected pack IDs for import.
 
 ### Step 5: Import `.wiki` Packs
+
 - Config: `LabkiContentBaseURL` to construct raw file URLs.
 - For each selected pack, fetch `pack.yml`, then fetch each file under `<pack>/pages/`.
 - Save text via `WikiPageFactory` / `PageUpdater`.
 - Provide success/error feedback per pack.
 
 ### Step 6: Permissions & Security
+
 - Define `labkipackmanager-manage` right; grant to `sysop` by default.
 - Restrict `Special:LabkiPackManager` accordingly.
 - Validate POST token and selected IDs against the manifest.
 
 ### Step 7: Future Export & PRs
+
 - Export selected pages’ wikitext.
 - Commit to a new branch using GitHub REST API with `$wgLabkiGitHubToken`.
 - Open a pull request and link back.
 
 ### Step 8: Testing & Docs
+
 - PHPUnit tests for manifest parsing and import routines.
 - GitHub Actions CI for PHPCS and PHPUnit.
 - Expand README with Docker clone instructions and configuration.
 
 ## Docker Integration
+
 - Clone this repository in your MediaWiki image build or bind mount under `extensions/LabkiPackManager`.
 - Add `wfLoadExtension( 'LabkiPackManager' );` to `LocalSettings.php`.
