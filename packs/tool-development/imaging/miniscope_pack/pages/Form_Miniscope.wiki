@@ -1,5 +1,0 @@
-﻿{{{for template|Miniscope}}}
-{{{field|Version|input type=text}}}
-{{{field|Components|input type=textarea}}}
-{{{end template}}}
-{{{save}}}

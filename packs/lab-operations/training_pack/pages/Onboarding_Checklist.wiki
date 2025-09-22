@@ -1,4 +1,0 @@
-﻿== Onboarding Checklist ==
-* Get credentials
-* Safety training
-* Workspace setup

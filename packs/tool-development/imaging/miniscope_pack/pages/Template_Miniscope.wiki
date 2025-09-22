@@ -1,3 +1,0 @@
-﻿== Miniscope Template ==
-; Version: {{{Version|}}}
-; Components: {{{Components|}}}

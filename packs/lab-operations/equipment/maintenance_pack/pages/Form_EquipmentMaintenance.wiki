@@ -1,5 +1,0 @@
-﻿{{{for template|EquipmentMaintenance}}}
-{{{field|Equipment|input type=text}}}
-{{{field|Last service|input type=date}}}
-{{{end template}}}
-{{{save}}}

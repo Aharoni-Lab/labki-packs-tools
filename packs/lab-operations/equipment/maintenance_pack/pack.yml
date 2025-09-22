@@ -1,8 +1,0 @@
-﻿name: maintenance_pack
-version: 0.2.0
-description: "Equipment maintenance templates and forms."
-pages:
-  - pages/Template_EquipmentMaintenance.wiki
-  - pages/Form_EquipmentMaintenance.wiki
-  - pages/Category_Equipment.wiki
-dependencies: []

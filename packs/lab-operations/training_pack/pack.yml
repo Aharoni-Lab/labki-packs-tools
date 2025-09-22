@@ -1,6 +1,0 @@
-﻿name: training_pack
-version: 1.0.0
-description: "Training resources and checklists."
-pages:
-  - pages/Onboarding_Checklist.wiki
-dependencies: []

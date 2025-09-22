@@ -1,4 +1,0 @@
-﻿<!-- Title: Template:Scale -->
-== Scale Template ==
-; Model: {{{Model|}}}
-; Calibration date: {{{Calibration date|}}}
