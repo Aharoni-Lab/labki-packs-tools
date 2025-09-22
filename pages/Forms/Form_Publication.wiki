@@ -1,0 +1,7 @@
+﻿{{{for template|Publication}}}
+{{{field|Title|input type=text}}}
+{{{field|Authors|input type=textarea}}}
+{{{field|Year|input type=number}}}
+{{{field|DOI|input type=text}}}
+{{{end template}}}
+{{{save}}}

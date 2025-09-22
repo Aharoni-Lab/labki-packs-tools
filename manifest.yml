@@ -1,0 +1,63 @@
+﻿version: 2.0.0
+last_updated: "2025-09-22"
+
+pages:
+  Template:Publication:
+    file: pages/Templates/Template_Publication.wiki
+    type: template
+    version: 1.0.0
+  Form:Publication:
+    file: pages/Forms/Form_Publication.wiki
+    type: form
+    version: 1.0.0
+  Category:Publication:
+    file: pages/Categories/Category_Publication.wiki
+    type: category
+    version: 1.0.0
+  Property:Has author:
+    file: pages/Properties/Property_Has author.wiki
+    type: property
+    version: 1.0.0
+  Template:MeetingNotes:
+    file: pages/Templates/Template_MeetingNotes.wiki
+    type: template
+    version: 1.0.0
+  Form:MeetingNotes:
+    file: pages/Forms/Form_MeetingNotes.wiki
+    type: form
+    version: 1.0.0
+  Category:Meeting:
+    file: pages/Categories/Category_Meeting.wiki
+    type: category
+    version: 1.0.0
+  Onboarding:
+    file: pages/Layouts/Onboarding.md
+    type: layout
+    version: 1.0.0
+
+packs:
+  publication:
+    description: Templates and forms for managing publications
+    version: 1.0.0
+    pages:
+      - Template:Publication
+      - Form:Publication
+      - Category:Publication
+      - Property:Has author
+  meeting_notes:
+    description: Templates and forms for meeting notes
+    version: 1.0.0
+    pages:
+      - Template:MeetingNotes
+      - Form:MeetingNotes
+      - Category:Meeting
+  onboarding:
+    description: Onboarding layout and example
+    version: 1.0.0
+    pages:
+      - Onboarding
+    children:
+      onboarding_subpack:
+        description: Nested example (inherits no pages by default)
+        version: 1.0.0
+        pages: []

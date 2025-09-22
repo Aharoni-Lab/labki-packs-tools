@@ -1,0 +1,5 @@
+﻿== Meeting Notes ==
+; Date: {{{Date|}}}
+; Attendees: {{{Attendees|}}}
+; Notes: {{{Notes|}}}
+; Action items: {{{Action items|}}}
