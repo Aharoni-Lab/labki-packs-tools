@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["version", "pages", "packs"],
+  "properties": {
+    "version": { "type": "string" },
+    "last_updated": { "type": "string" },
+    "pages": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["file", "type", "version"],
+        "properties": {
+          "file": { "type": "string" },
+          "type": { "type": "string", "enum": ["template", "form", "category", "property", "layout", "other"] },
+          "version": { "type": "string" },
+          "description": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "packs": { "$ref": "#/$defs/packNodeMap" }
+  },
+  "$defs": {
+    "packNodeMap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "description": { "type": "string" },
+          "pages": { "type": "array", "items": { "type": "string" } },
+          "children": { "$ref": "#/$defs/packNodeMap" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
