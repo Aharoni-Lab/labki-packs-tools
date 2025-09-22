@@ -1,0 +1,8 @@
+﻿name: scale_pack
+version: 0.1.0
+description: "Scale calibration procedures."
+pages:
+  - pages/Template_Scale.wiki
+  - pages/Form_Scale.wiki
+  - pages/Category_Scale.wiki
+dependencies: []

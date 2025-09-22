@@ -1,0 +1,7 @@
+﻿name: lab-operations
+version: 2.1.0
+description: "Guides and procedures for day-to-day lab operations."
+pages:
+  - pages/safety_overview.wiki
+  - pages/general_policies.md
+dependencies: []

@@ -1,0 +1,4 @@
+﻿== Microscope Template ==
+; Model: {{{Model|}}}
+; Magnification: {{{Magnification|}}}
+{{#set: Has model={{{Model|}}} }}

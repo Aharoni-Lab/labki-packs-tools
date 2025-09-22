@@ -1,0 +1,5 @@
+﻿{{{for template|Microscope}}}
+{{{field|Model|input type=text}}}
+{{{field|Magnification|input type=number}}}
+{{{end template}}}
+{{{save}}}

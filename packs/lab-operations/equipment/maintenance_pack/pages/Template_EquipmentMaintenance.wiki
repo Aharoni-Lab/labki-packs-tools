@@ -1,0 +1,3 @@
+﻿== Equipment Maintenance ==
+; Equipment: {{{Equipment|}}}
+; Last service: {{{Last service|}}}

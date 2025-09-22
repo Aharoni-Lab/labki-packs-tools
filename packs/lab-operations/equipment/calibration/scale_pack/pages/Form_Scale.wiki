@@ -1,0 +1,6 @@
+﻿<!-- Title: Form:Scale -->
+{{{for template|Scale}}}
+{{{field|Model|input type=text}}}
+{{{field|Calibration date|input type=date}}}
+{{{end template}}}
+{{{save}}}

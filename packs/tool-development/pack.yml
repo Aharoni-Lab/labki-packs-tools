@@ -1,0 +1,6 @@
+﻿name: tool-development
+version: 1.0.0
+description: "Tools and development packs."
+pages:
+  - pages/readme.md
+dependencies: []
