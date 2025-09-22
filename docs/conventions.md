@@ -1,23 +1,25 @@
-﻿## Conventions
+﻿# Conventions
 
-### Filenames and titles
-- Use underscores in filenames instead of : (Windows-safe)
-- Always include the first-line comment: <!-- Title: Namespace:PageName -->
-- One page per .wiki file
+## Layout
+- Every directory under `packs/` is a pack and includes a `pack.yml`.
+- Packs may contain a `pages/` folder with one file per page.
+- Use `.wiki` for wikitext content and `.md` for Markdown content.
 
-### Templates and forms
-- Pair Template:Name with Form:Name where applicable
-- Use Semantic MediaWiki annotations in templates (e.g., {{#set: ... }})
-- Prefer descriptive, readable field names
+## Filenames and titles
+- Avoid `:` in filenames for cross-platform compatibility (Windows).
+- Prefer explicit mapping in `pack.yml` using `pages:` entries with `title` or `namespace`+`name`.
+- Optionally include a first-line comment `<!-- Title: Namespace:Name -->` inside the file as a secondary hint.
+- One page per file.
 
-### Properties and categories
-- Properties: Property:Has something with clear types, e.g., [[Has type::Text]]
-- Categories: create a clear category page explaining its purpose
+## Templates, forms, properties, categories
+- Templates (`Template:Name`) and forms (`Form:Name`) should be paired where applicable.
+- Semantic properties should declare types (e.g., `[[Has type::Text]]`).
+- Categories should include a concise description of scope and usage.
 
-### Versioning
-- Use semantic versioning (MAJOR.MINOR.PATCH)
-- Update root and pack manifests together
+## Versioning
+- Use semantic versioning (MAJOR.MINOR.PATCH) in each `pack.yml`.
+- Keep the root `manifest.yml` up-to-date and maintain `last_updated`.
 
-### Style
-- Keep wikitext minimal and portable
-- Avoid environment-specific hardcoding
+## Style
+- Keep wikitext minimal and portable.
+- Avoid environment-specific hardcoding or external dependencies.

@@ -1,8 +1,0 @@
-﻿<!-- Title: Template:Publication -->
-== Publication ==
-; Title: {{{Title|}}}
-; Authors: {{{Authors|}}}
-; Year: {{{Year|}}}
-; DOI: {{{DOI|}}}
-
-{{#set: Has author={{{Authors|}}} }}

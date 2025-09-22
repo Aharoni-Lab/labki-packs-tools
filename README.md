@@ -1,76 +1,182 @@
-﻿# Labki Packs
+﻿# labki-packs
 
-Reusable content packs for Labki-based wikis. This repository provides modular, versioned pages (templates, forms, properties, and categories) that can be imported via the LabkiPackManager extension.
+Hierarchical, version-controlled content packs for Labki/MediaWiki. Packs contain reusable wiki pages (templates, forms, categories, properties, layouts) stored as plain `.wiki` or `.md` files and indexed by YAML manifests for import via the LabkiPackManager extension.
 
-Note about filenames: Windows does not allow : in filenames. We save pages using underscores (e.g., Template_Publication.wiki) and place the intended wiki page title in the first line as an HTML comment, e.g.:
+- Root manifest: `manifest.yml` (hierarchical registry referencing each pack's `pack.yml`)
+- Packs live under `packs/` and may be nested; every directory is a pack with its own `pack.yml`
+- Pages live in a `pages/` folder under any pack directory
 
-`wiki
-<!-- Title: Template:Publication -->
-`
+Upstream repository: `Aharoni-Lab/labki-packs` on GitHub.
 
-## Manifests
+## Repository structure
 
-- Root manifest.yml indexes all packs
-- Each pack has its own manifest.yml describing its contents and dependencies
+```
+labki-packs/
+├─ manifest.yml          # Root registry with tree of packs (refs to pack.yml)
+├─ README.md
+├─ schema/               # (optional) JSON/YAML schemas for validation
+└─ packs/
+   ├─ lab-operations/
+   │  ├─ pack.yml
+   │  ├─ pages/
+   │  │  └─ safety_overview.wiki
+   │  ├─ equipment/
+   │  │  ├─ calibration/
+   │  │  │  ├─ microscope_pack/
+   │  │  │  │  ├─ pack.yml
+   │  │  │  │  └─ pages/
+   │  │  │  │     ├─ intro.wiki
+   │  │  │  │     └─ procedure.wiki
+   │  │  │  └─ scale_pack/
+   │  │  │     ├─ pack.yml
+   │  │  │     └─ pages/...
+   │  │  └─ maintenance_pack/
+   │  │     ├─ pack.yml
+   │  │     └─ pages/...
+   │  └─ training_pack/
+   │     ├─ pack.yml
+   │     └─ pages/...
+   └─ tool-development/
+      ├─ imaging/
+      │  └─ miniscope_pack/
+      │     ├─ pack.yml
+      │     └─ pages/...
+      └─ acquisition_pack/
+         ├─ pack.yml
+         └─ pages/...
+```
 
-Example (root):
+## Root manifest (manifest.yml)
 
-`yaml
-packs:
-  - id: publication
-    path: packs/publication
-    version: 1.0.0
-    description: Templates and forms for managing publications
-  - id: onboarding
-    path: packs/onboarding
-    version: 1.1.0
-    description: Standardized onboarding checklists
-  - id: meeting_notes
-    path: packs/meeting_notes
-    version: 1.0.0
-    description: Templates and forms for meeting notes
-`
+Tracks the hierarchy and points to each pack's `pack.yml` via `ref`. Parent nodes can include nested `children`.
 
-Example (pack):
-
-`yaml
-name: Publication Pack
-id: publication
+```yaml
 version: 1.0.0
-description: Standard template and form for adding publications
-dependencies:
-  - SemanticMediaWiki >=6.0
-  - PageForms >=5.6
-contents:
-  - Template:Publication
-  - Form:Publication
-  - Category:Publication
-  - Property:Has author
-`
+last_updated: 2025-09-22
+
+packs:
+  lab-operations:
+    ref: packs/lab-operations/pack.yml
+    children:
+      equipment:
+        ref: packs/lab-operations/equipment/pack.yml
+        children:
+          calibration:
+            ref: packs/lab-operations/equipment/calibration/pack.yml
+            children:
+              microscope_pack:
+                ref: packs/lab-operations/equipment/calibration/microscope_pack/pack.yml
+              scale_pack:
+                ref: packs/lab-operations/equipment/calibration/scale_pack/pack.yml
+          maintenance_pack:
+            ref: packs/lab-operations/equipment/maintenance_pack/pack.yml
+      training_pack:
+        ref: packs/lab-operations/training_pack/pack.yml
+
+  tool-development:
+    ref: packs/tool-development/pack.yml
+    children:
+      imaging:
+        ref: packs/tool-development/imaging/pack.yml
+        children:
+          miniscope_pack:
+            ref: packs/tool-development/imaging/miniscope_pack/pack.yml
+      acquisition_pack:
+        ref: packs/tool-development/acquisition_pack/pack.yml
+```
+
+## Pack metadata (pack.yml)
+
+Every directory under `packs/` is a pack and includes a `pack.yml` describing its contents and dependencies.
+
+Example (parent pack):
+
+```yaml
+name: lab-operations
+version: 2.1.0
+description: "Guides and procedures for day-to-day lab operations."
+pages:
+  - pages/safety_overview.wiki
+  - pages/general_policies.wiki
+dependencies: []
+```
+
+Example (intermediate/leaf pack):
+
+```yaml
+name: imaging
+version: 2.0.0
+description: "Imaging-related tools and methods."
+pages: []
+dependencies: []
+```
+
+### Mapping Windows-safe filenames to namespaced titles
+
+Filenames on Windows cannot include `:`. Use Windows-safe filenames and map them to canonical wiki titles in `pack.yml`.
+
+`pages` supports either simple strings or objects:
+
+- String: the importer derives the title from the filename using heuristics.
+- Object: explicitly specify the canonical title. This is recommended for namespaced pages like `Template:...`, `Form:...`, `Category:...`, `Property:...`.
+
+Examples:
+
+```yaml
+pages:
+  # Explicit title mapping (recommended)
+  - file: pages/Template_Onboarding.wiki
+    title: "Template:Onboarding"
+  - file: pages/Form_Onboarding.wiki
+    title: "Form:Onboarding"
+  - file: pages/Category_Onboarding.wiki
+    title: "Category:Onboarding"
+  - file: pages/Property_Has author.wiki
+    title: "Property:Has author"
+
+  # Alternative explicit form using namespace + name
+  - file: pages/Template_Publication.wiki
+    namespace: Template
+    name: Publication
+
+  # Simple string (heuristic fallback)
+  - pages/meeting_layout.md
+```
+
+Resolver order used by importers:
+
+1. If a page entry is an object with `title`, use it.
+2. Else if it has `namespace` and `name`, construct `"<namespace>:<name>"`.
+3. Else if the file contains a leading comment like `<!-- Title: Namespace:Name -->`, use it.
+4. Else derive from filename (e.g., convert leading `Template_` to `Template:` and underscores to spaces after the colon).
 
 ## Using with LabkiPackManager
 
-1. Ensure your Labki wiki has the LabkiPackManager extension installed and enabled.
-2. Make this repository accessible to the wiki host (clone or reference a remote).
-3. In LabkiPackManager, add this repo as a content source and import desired packs (publication, onboarding, meeting_notes).
-4. After import, new page templates/forms will be available for use.
+LabkiPackManager integrates this repository with MediaWiki 1.44.
 
-See docs/usage.md for details.
+- Fetches `manifest.yml` from the default content URL
+- Displays the pack tree on `Special:LabkiPackManager`
+- On import, fetches `pack.yml` for selected packs and pulls each file listed in `pages:`
+- Directly saves content to wiki pages (no XML imports)
 
-## Creating a new pack
+Configuration keys (in `LocalSettings.php` via the extension):
 
-- Create packs/<pack_id>/manifest.yml
-- Add .wiki files under packs/<pack_id>/pages/
-- Use Windows-safe filenames and include the intended page Title: comment
-- Update root manifest.yml
+- `$wgLabkiContentManifestURL`: raw URL to root `manifest.yml`
+- `$wgLabkiContentBaseURL`: base URL for raw file access
+- Right: `labkipackmanager-manage` (granted to `sysop` by default)
 
-See docs/development.md for a step-by-step guide.
+See `docs/usage.md` and `docs/overview.md`.
 
-## Contributing
+## Conventions
 
-- Open a PR with a clear summary and pack-level manifest updates
-- Keep changes modular by pack
-- Follow naming and semantic conventions in docs/conventions.md
+- `.wiki` and `.md` are supported page formats
+- Store pack pages under `pages/` within the pack directory
+- For Windows compatibility, avoid `:` in filenames; if needed, mirror the intended wiki title inside the page content
+- Use semantic versioning in `pack.yml` and reflect changes in the root manifest
+
+## Development & CI
+
+Development plan, testing, permissions, and Docker integration are documented in `docs/overview.md` and `docs/development.md`.
 
 ## License
 
