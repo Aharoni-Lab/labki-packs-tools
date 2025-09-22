@@ -24,6 +24,7 @@
 - Integration tests against a local MediaWiki instance when feasible.
 
 ### Test title mapping
+
 - Include cases where `pages:` entries specify `title`.
 - Include cases with `namespace`+`name`.
 - Include files with a leading `<!-- Title: Namespace:Name -->` comment.
