@@ -1,14 +1,14 @@
 ﻿# Conventions
 
-## Layout
-- Every directory under `packs/` is a pack and includes a `pack.yml`.
-- Packs may contain a `pages/` folder with one file per page.
+## Layout (v2)
+- All page files live under the top-level `pages/` directory.
+- Optional type subfolders: `Templates/`, `Forms/`, `Categories/`, `Properties/`, `Layouts/`.
+- Packs are defined only in the root `manifest.yml` under `packs` and reference titles from the global `pages` registry.
 - Use `.wiki` for wikitext content and `.md` for Markdown content.
 
 ## Filenames and titles
-- Avoid `:` in filenames for cross-platform compatibility (Windows).
-- Prefer explicit mapping in `pack.yml` using `pages:` entries with `title` or `namespace`+`name`.
-- Optionally include a first-line comment `<!-- Title: Namespace:Name -->` inside the file as a secondary hint.
+- Avoid `:` in filenames (Windows-safe); use prefixes like `Template_`, `Form_`, etc.
+- Canonical titles are defined in `manifest.yml` under `pages` keys; importers use this as the source of truth.
 - One page per file.
 
 ## Templates, forms, properties, categories
@@ -17,8 +17,9 @@
 - Categories should include a concise description of scope and usage.
 
 ## Versioning
-- Use semantic versioning (MAJOR.MINOR.PATCH) in each `pack.yml`.
-- Keep the root `manifest.yml` up-to-date and maintain `last_updated`.
+- Track per-page version in `manifest.yml` under `pages.*.version`.
+- Use semantic versioning (MAJOR.MINOR.PATCH).
+- Update `last_updated` when significant changes are merged.
 
 ## Style
 - Keep wikitext minimal and portable.

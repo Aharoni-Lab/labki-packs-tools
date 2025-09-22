@@ -1,0 +1,13 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["name", "version", "description", "pages", "dependencies"],
+  "properties": {
+    "name": { "type": "string" },
+    "version": { "type": "string" },
+    "description": { "type": "string" },
+    "dependencies": { "type": "array", "items": { "type": "string" } },
+    "pages": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": false
+}

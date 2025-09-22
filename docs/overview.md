@@ -22,17 +22,15 @@ LabkiPackManager integrates the `labki-packs` repository with MediaWiki 1.44 to 
 
 `labki-packs/` (GitHub: `Aharoni-Lab/labki-packs`)
 
-- `manifest.yml` – global hierarchical registry of packs with refs to pack.yml
+- `manifest.yml` – v2 flat pages registry + hierarchical packs
 - `README.md` – overview of how to use/update packs
-- `schema/` – optional JSON/YAML schemas for validation
-- `packs/` – all content organized here
+- `schema/` – JSON/YAML schemas for validation
+- `pages/` – flat directory of page files (optionally grouped by type)
 
-### Packs layout
+### Pages and packs layout (v2)
 
-Inside `packs/`, use a directory hierarchy that mirrors logical grouping.
-
-- Any node in the hierarchy can contain a `pages/` folder with plain `.wiki` or `.md` files.
-- Leaves are individual packs, each with their own `pack.yml` (name, version, dependencies, pages).
+- All page files live under the top-level `pages/` directory (flat). You may group by type for convenience.
+- Packs are logical groups defined in the root `manifest.yml` under `packs`, referencing page titles from the global `pages` registry.
 
 ### Example
 
@@ -70,66 +68,38 @@ packs/
         └─ pages/...
 ```
 
-### Root-level manifest example (manifest.yml)
+### Root-level manifest example (manifest.yml, v2)
 
 ```yaml
-version: 1.0.0
+version: 2.0.0
 last_updated: 2025-09-22
+
+pages:
+  Template:Microscope:
+    file: pages/Templates/Template_Microscope.wiki
+    type: template
+    version: 1.0.0
+  Form:Microscope:
+    file: pages/Forms/Form_Microscope.wiki
+    type: form
+    version: 1.0.0
 
 packs:
   lab-operations:
-    ref: packs/lab-operations/pack.yml
+    description: Lab operations content
+    pages:
+      - Template:Microscope
+      - Form:Microscope
     children:
       equipment:
-        ref: packs/lab-operations/equipment/pack.yml
-        children:
-          calibration:
-            ref: packs/lab-operations/equipment/calibration/pack.yml
-            children:
-              microscope_pack:
-                ref: packs/lab-operations/equipment/calibration/microscope_pack/pack.yml
-              scale_pack:
-                ref: packs/lab-operations/equipment/calibration/scale_pack/pack.yml
-          maintenance_pack:
-            ref: packs/lab-operations/equipment/maintenance_pack/pack.yml
-      training_pack:
-        ref: packs/lab-operations/training_pack/pack.yml
-
-  tool-development:
-    ref: packs/tool-development/pack.yml
-    children:
-      imaging:
-        ref: packs/tool-development/imaging/pack.yml
-        children:
-          miniscope_pack:
-            ref: packs/tool-development/imaging/miniscope_pack/pack.yml
-      acquisition_pack:
-        ref: packs/tool-development/acquisition_pack/pack.yml
+        description: Equipment-related packs
+        pages: []
 ```
 
-### pack.yml (per-pack metadata) examples
+### v1 vs v2
 
-Example parent pack: `packs/lab-operations/pack.yml`
-
-```yaml
-name: lab-operations
-version: 2.1.0
-description: "Guides and procedures for day-to-day lab operations."
-pages:
-  - pages/safety_overview.wiki
-  - pages/general_policies.wiki
-dependencies: []
-```
-
-Example leaf or intermediate pack: `packs/tool-development/imaging/pack.yml`
-
-```yaml
-name: imaging
-version: 2.0.0
-description: "Imaging-related tools and methods."
-pages: []
-dependencies: []
-```
+- v1: per-directory `pack.yml` files and nested `packs/` structure.
+- v2: flat global `pages` registry in root manifest; packs reference titles and define hierarchy in the manifest.
 
 ### Notes
 

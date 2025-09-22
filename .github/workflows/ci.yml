@@ -1,0 +1,40 @@
+﻿name: CI
+
+on:
+  pull_request:
+    branches: ['**']
+  push:
+    branches: ['main', 'fixtures/**']
+
+jobs:
+  yamllint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ibiqlik/action-yamllint@v3
+        with:
+          format: parsable
+          config_file: .yamllint.yml
+
+  markdownlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DavidAnson/markdownlint-cli2-action@v18
+        with:
+          globs: |
+            **/*.md
+            !node_modules/**
+
+  validate-schema-and-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pyyaml jsonschema
+      - name: Validate root manifest
+        run: python tools/validate_repo.py validate-root manifest.yml schema/root-manifest.schema.json
+      - name: Validate all pack.yml + pages
+        run: python tools/validate_repo.py validate-packs packs schema/pack.schema.json
