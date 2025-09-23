@@ -116,3 +116,25 @@ def test_validate_root_invalid_page_version(tmp_path):
     rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
     assert rc != 0
     assert 'must have semantic version' in out
+
+
+def test_validate_root_valid_page_version_passes(tmp_path):
+    manifest_yaml = textwrap.dedent(
+        '''
+        version: 2.0.0
+        pages:
+          Template:Example:
+            file: pages/Templates/Template_Example.wiki
+            type: template
+            version: 2.3.4
+        packs:
+          example:
+            version: 1.0.0
+            pages: [Template:Example]
+            depends_on: []
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    assert rc == 0, f"expected success, got rc={rc}, out={out}, err={err}"
