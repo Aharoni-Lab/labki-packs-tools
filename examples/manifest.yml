@@ -3,35 +3,35 @@ last_updated: "2025-09-22"
 
 pages:
   Template:Publication:
-    file: examples/pages/Templates/Template_Publication.wiki
+    file: pages/Templates/Template_Publication.wiki
     type: template
     version: 1.0.0
   Form:Publication:
-    file: examples/pages/Forms/Form_Publication.wiki
+    file: pages/Forms/Form_Publication.wiki
     type: form
     version: 1.0.0
   Category:Publication:
-    file: examples/pages/Categories/Category_Publication.wiki
+    file: pages/Categories/Category_Publication.wiki
     type: category
     version: 1.0.0
   Property:Has author:
-    file: examples/pages/Properties/Property_Has author.wiki
+    file: pages/Properties/Property_Has author.wiki
     type: property
     version: 1.0.0
   Template:MeetingNotes:
-    file: examples/pages/Templates/Template_MeetingNotes.wiki
+    file: pages/Templates/Template_MeetingNotes.wiki
     type: template
     version: 1.0.0
   Form:MeetingNotes:
-    file: examples/pages/Forms/Form_MeetingNotes.wiki
+    file: pages/Forms/Form_MeetingNotes.wiki
     type: form
     version: 1.0.0
   Category:Meeting:
-    file: examples/pages/Categories/Category_Meeting.wiki
+    file: pages/Categories/Category_Meeting.wiki
     type: category
     version: 1.0.0
   Onboarding:
-    file: examples/pages/Layouts/Onboarding.md
+    file: pages/Layouts/Onboarding.md
     type: layout
     version: 1.0.0
 

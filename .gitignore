@@ -1,0 +1,42 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+
+# Environments
+.env
+.venv/
+venv/
+env/
+
+# Packaging / build
+build/
+dist/
+.eggs/
+.eggs/
+*.egg-info/
+*.egg
+wheels/
+
+# Testing / coverage
+.pytest_cache/
+.tox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Logs
+*.log
+
+# Node (if used for docs tooling)
+node_modules/
