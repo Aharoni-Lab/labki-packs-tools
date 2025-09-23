@@ -76,34 +76,82 @@ def check_root_manifest(manifest_path: Path, schema_path: Path) -> int:
                 error(f"Page file not found: {file_rel} (for {title})")
                 rc = 1
 
-    def recurse(node_map, path_stack=None):
-        if path_stack is None:
-            path_stack = []
-        nonlocal rc
-        if not isinstance(node_map, dict):
-            error("packs must be a mapping")
+    # v2 packs: flat registry with depends_on
+    packs = manifest.get('packs', {})
+    if not isinstance(packs, dict):
+        error("'packs' must be a mapping of pack_id to metadata")
+        rc = 1
+        packs = {}
+    # basic validation and edges
+    edges = []
+    for pack_id, meta in packs.items():
+        version = meta.get('version')
+        if not isinstance(version, str) or not re.match(r"^\d+\.\d+\.\d+$", version):
+            error(f"Pack '{pack_id}' must have semantic version (MAJOR.MINOR.PATCH)")
             rc = 1
-            return
-        for key, node in node_map.items():
-            current_path = path_stack + [key]
-            # Require version and basic semver-ish format (x.y.z)
-            version = node.get('version')
-            if not isinstance(version, str) or not re.match(r"^\d+\.\d+\.\d+$", version):
-                error(f"Pack '{'.'.join(current_path)}' must have semantic version (MAJOR.MINOR.PATCH)")
+        pages_list = meta.get('pages', [])
+        if pages_list and not isinstance(pages_list, list):
+            error(f"Pack '{pack_id}' pages must be an array")
+            rc = 1
+        for title in pages_list or []:
+            if title not in pages:
+                error(f"Pack '{pack_id}' references unknown page title: {title}")
                 rc = 1
-            pages_list = node.get('pages', [])
-            if pages_list and not isinstance(pages_list, list):
-                error(f"Node '{key}' pages must be an array")
+        for dep in meta.get('depends_on', []) or []:
+            if dep not in packs:
+                error(f"Pack '{pack_id}' depends_on unknown pack id: {dep}")
                 rc = 1
-            for title in pages_list or []:
-                if title not in pages:
-                    error(f"Node '{key}' references unknown page title: {title}")
-                    rc = 1
-            children = node.get('children')
-            if children is not None:
-                recurse(children, current_path)
+            else:
+                edges.append((dep, pack_id))  # dep -> pack_id
 
-    recurse(manifest.get('packs', {}))
+    # cycle detection (Kahn's algorithm)
+    if packs:
+        from collections import defaultdict, deque
+        indeg = defaultdict(int)
+        graph = defaultdict(list)
+        for a, b in edges:
+            graph[a].append(b)
+            indeg[b] += 1
+            if a not in indeg:
+                indeg[a] = indeg[a]  # ensure key exists
+        q = deque([n for n in packs.keys() if indeg[n] == 0])
+        visited = 0
+        while q:
+            n = q.popleft()
+            visited += 1
+            for m in graph[n]:
+                indeg[m] -= 1
+                if indeg[m] == 0:
+                    q.append(m)
+        if visited != len(packs):
+            error("Dependency cycle detected among packs")
+            rc = 1
+
+    # groups validation
+    groups = manifest.get('groups')
+    if groups is not None:
+        def validate_groups(node_map, path=None):
+            nonlocal rc
+            if path is None:
+                path = []
+            if not isinstance(node_map, dict):
+                error("'groups' must be a mapping")
+                rc = 1
+                return
+            for key, node in node_map.items():
+                current = path + [key]
+                pack_ids = node.get('packs', []) or []
+                if pack_ids and not isinstance(pack_ids, list):
+                    error(f"Group '{'.'.join(current)}' packs must be an array")
+                    rc = 1
+                for pid in pack_ids:
+                    if pid not in packs:
+                        error(f"Group '{'.'.join(current)}' references unknown pack id: {pid}")
+                        rc = 1
+                children = node.get('children')
+                if children is not None:
+                    validate_groups(children, current)
+        validate_groups(groups)
     return rc
 
 

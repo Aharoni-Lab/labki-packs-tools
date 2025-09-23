@@ -1,9 +1,10 @@
 ﻿# labki-packs
 
-Hierarchical, version-controlled content packs for Labki/MediaWiki. Pages are stored flat in this repository and referenced by a manifest that defines packs and nested packs. Each page has a canonical wiki title and its own version.
+Version-controlled content packs for Labki/MediaWiki. Pages are stored flat in the repository and referenced by a manifest that defines a flat packs registry with explicit dependencies. Each page has a canonical wiki title and its own version.
 
 - Flat pages registry: `manifest.yml` maps canonical titles (e.g., `Template:Microscope`) to files in `pages/` with per-page version metadata
-- Packs live only in `manifest.yml` as a tree referencing titles from the pages registry
+- Flat packs registry: `manifest.yml` lists packs with `version`, `pages` (titles), and `depends_on` (other packs)
+- Optional groups tree: `manifest.yml` may define `groups` for navigation that reference pack ids
 - Page files are stored under `pages/` (optionally grouped by type subfolders like `Templates/`, `Forms/`, `Categories/`, `Properties/`, `Layouts/`)
 
 Upstream repository: `Aharoni-Lab/labki-packs` on GitHub.
@@ -12,7 +13,7 @@ Upstream repository: `Aharoni-Lab/labki-packs` on GitHub.
 
 ```text
 labki-packs/
-├─ manifest.yml          # Root registry: pages (flat) + packs (hierarchy of includes)
+├─ manifest.yml          # Root registry: pages (flat) + packs (flat registry) + groups (optional)
 ├─ README.md
 ├─ schema/               # JSON/YAML schemas for validation
 ├─ tools/                # Validation and utilities
@@ -31,9 +32,9 @@ labki-packs/
       └─ MeetingNotes.md               # -> title: Meeting Notes
 ```
 
-## Root manifest (v2) – flat pages + hierarchical packs
+## Root manifest (v2) – flat pages + flat packs (dependencies) + optional groups
 
-Tracks a flat pages registry and a packs tree that includes titles from that registry.
+Tracks a flat pages registry, a flat packs registry with explicit `depends_on`, and an optional `groups` tree for UI navigation.
 
 ```yaml
 version: 2.0.0
@@ -58,16 +59,30 @@ pages:
     version: 1.0.0
 
 packs:
-  lab-operations:
-    description: Lab operations content
+  imaging:
+    description: Imaging templates and forms
+    version: 1.0.0
     pages:
       - Template:Microscope
       - Form:Microscope
-    children:
-      equipment:
-        description: Equipment-related packs
-        pages:
-          - Category:Equipment
+    depends_on: []
+  equipment:
+    description: Equipment taxonomy and properties
+    version: 1.0.0
+    pages:
+      - Category:Equipment
+      - Property:Has component
+    depends_on: []
+  lab-operations:
+    description: Operational content combining imaging and equipment
+    version: 1.0.0
+    pages: []
+    depends_on: [imaging, equipment]
+
+groups:
+  operations:
+    description: Operational packs
+    packs: [lab-operations]
 ```
 
 ### Page file naming and Windows compatibility
@@ -79,8 +94,8 @@ Filenames on Windows cannot include `:`. Use Windows-safe filenames (e.g., `Temp
 LabkiPackManager integrates this repository with MediaWiki 1.44.
 
 - Fetches `manifest.yml` from the default content URL
-- Displays the pack tree on `Special:LabkiPackManager`
-- On import, resolves `packs.*.pages[]` titles to files via `pages` registry and saves content as the canonical title
+- Displays groups (if present) and the packs registry on `Special:LabkiPackManager`
+- On import, computes dependencies via `depends_on`, resolves pack `pages[]` titles to files via `pages` registry, and saves content to canonical titles
 - Directly saves content to wiki pages (no XML imports)
 
 Configuration keys (in `LocalSettings.php` via the extension):
