@@ -19,10 +19,11 @@
         "additionalProperties": false
       }
     },
-    "packs": { "$ref": "#/$defs/packNodeMap" }
+    "packs": { "$ref": "#/$defs/packRegistry" },
+    "groups": { "$ref": "#/$defs/groupNodeMap" }
   },
   "$defs": {
-    "packNodeMap": {
+    "packRegistry": {
       "type": "object",
       "additionalProperties": {
         "type": "object",
@@ -30,9 +31,22 @@
           "description": { "type": "string" },
           "version": { "type": "string" },
           "pages": { "type": "array", "items": { "type": "string" } },
-          "children": { "$ref": "#/$defs/packNodeMap" }
+          "depends_on": { "type": "array", "items": { "type": "string" } },
+          "tags": { "type": "array", "items": { "type": "string" } }
         },
         "required": ["version"],
+        "additionalProperties": false
+      }
+    },
+    "groupNodeMap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "description": { "type": "string" },
+          "packs": { "type": "array", "items": { "type": "string" } },
+          "children": { "$ref": "#/$defs/groupNodeMap" }
+        },
         "additionalProperties": false
       }
     }
