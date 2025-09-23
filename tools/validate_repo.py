@@ -79,6 +79,22 @@ def check_root_manifest(manifest_path: Path, schema_path: Path) -> int:
             if not isinstance(page_version, str) or not re.match(r"^\d+\.\d+\.\d+$", page_version or ""):
                 error(f"Page '{title}' must have semantic version (MAJOR.MINOR.PATCH)")
                 rc = 1
+            # Additional type-specific checks
+            page_type = meta.get('type')
+            if page_type == 'module':
+                if not title.startswith('Module:'):
+                    warn(f"Module type should use 'Module:' namespace: {title}")
+                if not abs_path.suffix == '.lua':
+                    warn(f"Module files should use .lua extension: {file_rel}")
+                # recommend Modules directory
+                if 'Modules' not in file_rel.replace('\\', '/'):
+                    warn(f"Module files should be stored under pages/Modules/: {file_rel}")
+            if page_type == 'help':
+                if not title.startswith('Help:'):
+                    warn(f"Help type should use 'Help:' namespace: {title}")
+            if page_type == 'mediawiki':
+                if not title.startswith('MediaWiki:'):
+                    warn(f"MediaWiki type should use 'MediaWiki:' namespace: {title}")
 
         # Orphan file detection: find files under pages/ not referenced in manifest
         referenced_abs_paths = set()

@@ -12,7 +12,7 @@
         "required": ["file", "type", "version"],
         "properties": {
           "file": { "type": "string" },
-          "type": { "type": "string", "enum": ["template", "form", "category", "property", "layout", "other"] },
+          "type": { "type": "string", "enum": ["template", "form", "category", "property", "layout", "module", "help", "mediawiki", "other"] },
           "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
           "description": { "type": "string" }
         },
