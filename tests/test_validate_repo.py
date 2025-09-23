@@ -163,3 +163,20 @@ def test_validate_root_duplicate_page_across_packs_fails(tmp_path):
     rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
     assert rc != 0
     assert "included in multiple packs" in out
+
+
+def test_validate_root_warns_on_orphan_files(tmp_path):
+    # manifest has no pages, but file exists under pages/ -> expect WARNING
+    manifest_yaml = textwrap.dedent(
+        '''
+        version: 2.0.0
+        pages: {}
+        packs: {}
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Templates/Template_Orphan.wiki', '== Orphan ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    # should still be success (warning only) and include warning text
+    assert rc == 0
+    assert 'Orphan page file not referenced in manifest:' in out

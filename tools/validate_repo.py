@@ -80,6 +80,23 @@ def check_root_manifest(manifest_path: Path, schema_path: Path) -> int:
                 error(f"Page '{title}' must have semantic version (MAJOR.MINOR.PATCH)")
                 rc = 1
 
+        # Orphan file detection: find files under pages/ not referenced in manifest
+        referenced_abs_paths = set()
+        for meta in pages.values():
+            file_rel = meta.get('file')
+            if file_rel:
+                referenced_abs_paths.add((manifest_path.parent / file_rel).resolve())
+        pages_dir = (manifest_path.parent / 'pages').resolve()
+        if pages_dir.exists():
+            for root, _dirs, files in os.walk(pages_dir):
+                for fname in files:
+                    if not (fname.endswith('.wiki') or fname.endswith('.md')):
+                        continue
+                    f_abs = Path(root) / fname
+                    if f_abs not in referenced_abs_paths:
+                        rel = os.path.relpath(f_abs, manifest_path.parent)
+                        warn(f"Orphan page file not referenced in manifest: {rel}")
+
     # v2 packs: flat registry with depends_on
     packs = manifest.get('packs', {})
     if not isinstance(packs, dict):
