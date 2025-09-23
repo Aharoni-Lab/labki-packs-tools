@@ -19,17 +19,18 @@ labki-packs/
 ├─ tools/                # Validation and utilities
 └─ pages/
    ├─ Templates/
-   │  ├─ Template_Microscope.wiki      # -> title: Template:Microscope
-   │  └─ Template_Scale.wiki           # -> title: Template:Scale
+   │  ├─ Template_Publication.wiki     # -> title: Template:Publication
+   │  └─ Template_MeetingNotes.wiki    # -> title: Template:MeetingNotes
    ├─ Forms/
-   │  ├─ Form_Microscope.wiki          # -> title: Form:Microscope
-   │  └─ Form_Scale.wiki               # -> title: Form:Scale
+   │  ├─ Form_Publication.wiki         # -> title: Form:Publication
+   │  └─ Form_MeetingNotes.wiki        # -> title: Form:MeetingNotes
    ├─ Categories/
-   │  └─ Category_Equipment.wiki       # -> title: Category:Equipment
+   │  ├─ Category_Publication.wiki     # -> title: Category:Publication
+   │  └─ Category_Meeting.wiki         # -> title: Category:Meeting
    ├─ Properties/
-   │  └─ Property_Has component.wiki   # -> title: Property:Has component
+   │  └─ Property_Has author.wiki      # -> title: Property:Has author
    └─ Layouts/
-      └─ MeetingNotes.md               # -> title: Meeting Notes
+      └─ Onboarding.md                 # -> title: Onboarding
 ```
 
 ## Root manifest (v2) – flat pages + flat packs (dependencies) + optional groups
@@ -41,48 +42,72 @@ version: 2.0.0
 last_updated: 2025-09-22
 
 pages:
-  Template:Microscope:
-    file: pages/Templates/Template_Microscope.wiki
+  Template:Publication:
+    file: pages/Templates/Template_Publication.wiki
     type: template
     version: 1.0.0
-  Form:Microscope:
-    file: pages/Forms/Form_Microscope.wiki
+  Form:Publication:
+    file: pages/Forms/Form_Publication.wiki
     type: form
     version: 1.0.0
-  Category:Equipment:
-    file: pages/Categories/Category_Equipment.wiki
+  Category:Publication:
+    file: pages/Categories/Category_Publication.wiki
     type: category
     version: 1.0.0
-  Property:Has component:
-    file: pages/Properties/Property_Has component.wiki
+  Property:Has author:
+    file: pages/Properties/Property_Has author.wiki
     type: property
+    version: 1.0.0
+  Template:MeetingNotes:
+    file: pages/Templates/Template_MeetingNotes.wiki
+    type: template
+    version: 1.0.0
+  Form:MeetingNotes:
+    file: pages/Forms/Form_MeetingNotes.wiki
+    type: form
+    version: 1.0.0
+  Category:Meeting:
+    file: pages/Categories/Category_Meeting.wiki
+    type: category
+    version: 1.0.0
+  Onboarding:
+    file: pages/Layouts/Onboarding.md
+    type: layout
     version: 1.0.0
 
 packs:
-  imaging:
-    description: Imaging templates and forms
+  publication:
+    description: Templates and forms for managing publications
     version: 1.0.0
     pages:
-      - Template:Microscope
-      - Form:Microscope
+      - Template:Publication
+      - Form:Publication
+      - Category:Publication
+      - Property:Has author
     depends_on: []
-  equipment:
-    description: Equipment taxonomy and properties
+  meeting_notes:
+    description: Templates and forms for meeting notes
     version: 1.0.0
     pages:
-      - Category:Equipment
-      - Property:Has component
+      - Template:MeetingNotes
+      - Form:MeetingNotes
+      - Category:Meeting
     depends_on: []
-  lab-operations:
-    description: Operational content combining imaging and equipment
+  onboarding:
+    description: Onboarding layout and example
     version: 1.0.0
-    pages: []
-    depends_on: [imaging, equipment]
+    pages:
+      - Onboarding
+    depends_on: [publication]
 
 groups:
   operations:
     description: Operational packs
-    packs: [lab-operations]
+    packs: [onboarding, meeting_notes]
+    children:
+      content:
+        description: Content creation
+        packs: [publication]
 ```
 
 ### Page file naming and Windows compatibility
@@ -105,6 +130,16 @@ Configuration keys (in `LocalSettings.php` via the extension):
 - Right: `labkipackmanager-manage` (granted to `sysop` by default)
 
 See `docs/usage.md` and `docs/overview.md`.
+
+## How to add a new pack
+
+1. Add page files under `pages/` (use type subfolders like `Templates/`, `Forms/`, etc.). Use Windows-safe filenames (no `:`), e.g., `Template_MyPage.wiki`.
+2. In `manifest.yml` under `pages:`, add entries for each new page with canonical titles, `file`, `type`, and `version`.
+3. Under `packs:`, create a new pack id with `version`, list its page titles in `pages:`, and add `depends_on` if it reuses other packs.
+4. Optionally add the pack id to a `groups:` node to appear under a category in the UI.
+5. Run validation:
+   - `python tools/validate_repo.py validate-root manifest.yml schema/root-manifest.schema.json`
+6. Commit and open a PR.
 
 ## Conventions
 

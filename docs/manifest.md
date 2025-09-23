@@ -26,29 +26,33 @@ Fields:
     - `packs` (array of strings): pack ids included in this group
     - `children` (mapping, optional): nested group nodes
 
-Example:
+Example (aligned to repository samples):
 
 ```yaml
 version: 2.0.0
 last_updated: 2025-09-22
 
 pages:
-  Template:Microscope:
-    file: pages/Templates/Template_Microscope.wiki
+  Template:Publication:
+    file: pages/Templates/Template_Publication.wiki
     type: template
+    version: 1.0.0
+  Form:Publication:
+    file: pages/Forms/Form_Publication.wiki
+    type: form
     version: 1.0.0
 
 packs:
-  imaging:
-    description: Imaging templates and forms
+  publication:
+    description: Templates and forms for managing publications
     version: 1.0.0
-    pages: [Template:Microscope]
+    pages: [Template:Publication, Form:Publication]
     depends_on: []
 
 groups:
-  operations:
-    description: Operational packs
-    packs: [imaging]
+  content:
+    description: Content creation
+    packs: [publication]
 ```
 
 ## Title resolution and filenames
