@@ -19,12 +19,13 @@ Fields:
     - `version` (string, required): semantic version for the pack
     - `pages` (array of strings): page titles from the global `pages` registry
     - `depends_on` (array of strings, optional): other pack ids this pack depends on
-    - `tags` (array of strings, optional)
+    - `tags` (array of strings, optional): free-form labels to aid discovery/filtering (e.g., `core`, `imaging`)
 - `groups` (mapping, optional): hierarchical grouping for UI navigation
   - Each key is a group id; value has:
     - `description` (string, optional)
     - `packs` (array of strings): pack ids included in this group
     - `children` (mapping, optional): nested group nodes
+  - Best practice: list each pack in a single logical group; if a pack spans categories, use `tags` for cross-cutting labels.
 
 Example (aligned to repository samples; using `examples/manifest.yml`):
 
