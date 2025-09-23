@@ -10,14 +10,14 @@
 
 1. Visit `Special:LabkiPackManager`.
 2. Click Refresh to fetch the latest manifest and cache it.
-3. Browse the tree and select packs to import.
+3. Browse groups (if any) or the packs registry and select packs to import.
 4. Submit to start the import.
 5. Review success and error messages for each pack.
 
 ## How import works (v2)
 
-- The extension fetches `manifest.yml` and reads the global `pages` registry and `packs` tree.
-- When you select a pack, the importer resolves each title in `packs.*.pages[]` to its file via the `pages` registry.
+- The extension fetches `manifest.yml` and reads the global `pages` registry and the flat `packs` registry.
+- When you select a pack, the importer computes the transitive closure of `depends_on` and resolves each pack's `pages[]` titles via the `pages` registry.
 - Content is fetched from `pages.*.file` and saved directly to the canonical title (no XML).
 
 ## Updating and removal

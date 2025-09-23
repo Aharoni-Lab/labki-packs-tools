@@ -13,11 +13,18 @@ Fields:
     - `type` (string): one of `template|form|category|property|layout|other`
     - `version` (string): semantic version for this page
     - `description` (string, optional)
-- `packs` (mapping): hierarchical tree of packs
-  - Each key is a node id; value has:
+- `packs` (mapping): flat registry of packs
+  - Each key is a pack id; value has:
     - `description` (string, optional)
-    - `pages` (array of strings): list of page titles from the global `pages` registry
-    - `children` (mapping, optional): nested packs with same structure
+    - `version` (string, required): semantic version for the pack
+    - `pages` (array of strings): page titles from the global `pages` registry
+    - `depends_on` (array of strings, optional): other pack ids this pack depends on
+    - `tags` (array of strings, optional)
+- `groups` (mapping, optional): hierarchical grouping for UI navigation
+  - Each key is a group id; value has:
+    - `description` (string, optional)
+    - `packs` (array of strings): pack ids included in this group
+    - `children` (mapping, optional): nested group nodes
 
 Example:
 
@@ -32,14 +39,16 @@ pages:
     version: 1.0.0
 
 packs:
-  lab-operations:
-    description: Lab operations content
-    pages:
-      - Template:Microscope
-    children:
-      equipment:
-        description: Equipment-related packs
-        pages: []
+  imaging:
+    description: Imaging templates and forms
+    version: 1.0.0
+    pages: [Template:Microscope]
+    depends_on: []
+
+groups:
+  operations:
+    description: Operational packs
+    packs: [imaging]
 ```
 
 ## Title resolution and filenames

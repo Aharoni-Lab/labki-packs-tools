@@ -4,7 +4,8 @@
 
 - All page files live under the top-level `pages/` directory.
 - Optional type subfolders: `Templates/`, `Forms/`, `Categories/`, `Properties/`, `Layouts/`.
-- Packs are defined only in the root `manifest.yml` under `packs` and reference titles from the global `pages` registry.
+- Packs are defined in the root `manifest.yml` under a flat `packs` registry with `version`, `pages` (titles), and `depends_on` (other packs).
+- Optional `groups` provide hierarchical navigation for the UI and reference pack ids.
 - Use `.wiki` for wikitext content and `.md` for Markdown content.
 
 ## Filenames and titles
