@@ -138,3 +138,28 @@ def test_validate_root_valid_page_version_passes(tmp_path):
     manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
     rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
     assert rc == 0, f"expected success, got rc={rc}, out={out}, err={err}"
+
+
+def test_validate_root_duplicate_page_across_packs_fails(tmp_path):
+    manifest_yaml = textwrap.dedent(
+        '''
+        version: 2.0.0
+        pages:
+          Template:Shared:
+            file: pages/Templates/Template_Shared.wiki
+            type: template
+            version: 1.0.0
+        packs:
+          a:
+            version: 1.0.0
+            pages: [Template:Shared]
+          b:
+            version: 1.0.0
+            pages: [Template:Shared]
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Templates/Template_Shared.wiki', '== Shared ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    assert rc != 0
+    assert "included in multiple packs" in out

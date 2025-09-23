@@ -88,6 +88,7 @@ def check_root_manifest(manifest_path: Path, schema_path: Path) -> int:
         packs = {}
     # basic validation and edges
     edges = []
+    seen_page_to_pack = {}
     for pack_id, meta in packs.items():
         version = meta.get('version')
         if not isinstance(version, str) or not re.match(r"^\d+\.\d+\.\d+$", version):
@@ -101,6 +102,13 @@ def check_root_manifest(manifest_path: Path, schema_path: Path) -> int:
             if title not in pages:
                 error(f"Pack '{pack_id}' references unknown page title: {title}")
                 rc = 1
+            # detect duplicate page in multiple packs
+            if title in seen_page_to_pack and seen_page_to_pack[title] != pack_id:
+                other = seen_page_to_pack[title]
+                error(f"Page title '{title}' included in multiple packs ('{other}' and '{pack_id}'). Move to a shared dependency pack.")
+                rc = 1
+            else:
+                seen_page_to_pack[title] = pack_id
         for dep in meta.get('depends_on', []) or []:
             if dep not in packs:
                 error(f"Pack '{pack_id}' depends_on unknown pack id: {dep}")

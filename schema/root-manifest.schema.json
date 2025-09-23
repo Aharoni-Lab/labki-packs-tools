@@ -30,7 +30,7 @@
         "properties": {
           "description": { "type": "string" },
           "version": { "type": "string" },
-          "pages": { "type": "array", "items": { "type": "string" } },
+          "pages": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
           "depends_on": { "type": "array", "items": { "type": "string" } },
           "tags": { "type": "array", "items": { "type": "string" } }
         },

@@ -26,6 +26,11 @@
 - Use semantic versioning (MAJOR.MINOR.PATCH).
 - Update `last_updated` when significant changes are merged.
 
+## Packs and shared pages
+
+- Do not duplicate the same page title in multiple packs. If two packs need the same page, move it into a common pack and reference it via `depends_on`.
+- Each pack's `pages` list must not contain duplicates (enforced by schema) and duplicates across packs are flagged by the validator.
+
 ## Style
 
 - Keep wikitext minimal and portable.
