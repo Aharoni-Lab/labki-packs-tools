@@ -33,8 +33,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install pyyaml jsonschema
+      - run: pip install pyyaml jsonschema pytest
       - name: Validate root manifest
         run: python tools/validate_repo.py validate-root manifest.yml schema/root-manifest.schema.json
+      - name: Validate examples manifest
+        run: python tools/validate_repo.py validate-root examples/manifest.yml schema/root-manifest.schema.json
       - name: Validate all pack.yml + pages
         run: python tools/validate_repo.py validate-packs packs schema/pack.schema.json
+      - name: Run tests
+        run: pytest -q
