@@ -24,10 +24,11 @@ LabkiPackManager integrates the `labki-packs` repository with MediaWiki 1.44 to 
 
 `labki-packs/` (GitHub: `Aharoni-Lab/labki-packs`)
 
-- `manifest.yml` – v2 flat pages registry + flat packs (with depends_on) + optional groups
+- `manifest.yml` – v2 registries for real content (minimal by default)
 - `README.md` – overview of how to use/update packs
 - `schema/` – JSON/YAML schemas for validation
 - `pages/` – flat directory of page files (optionally grouped by type)
+- `examples/` – self-contained example `manifest.yml` and `pages/` used for demos/tests
 
 ### Pages, packs, and groups (v2)
 
@@ -42,40 +43,33 @@ version: 2.0.0
 last_updated: 2025-09-22
 
 pages:
-  Template:Microscope:
-    file: pages/Templates/Template_Microscope.wiki
+  Template:Publication:
+    file: pages/Templates/Template_Publication.wiki
     type: template
     version: 1.0.0
-  Form:Microscope:
-    file: pages/Forms/Form_Microscope.wiki
+  Form:Publication:
+    file: pages/Forms/Form_Publication.wiki
     type: form
+    version: 1.0.0
+  Category:Publication:
+    file: pages/Categories/Category_Publication.wiki
+    type: category
     version: 1.0.0
 
 packs:
-  imaging:
-    description: Imaging templates and forms
+  publication:
+    description: Templates and forms for managing publications
     version: 1.0.0
     pages:
-      - Template:Microscope
-      - Form:Microscope
+      - Template:Publication
+      - Form:Publication
+      - Category:Publication
     depends_on: []
-  equipment:
-    description: Equipment taxonomy and properties
-    version: 1.0.0
-    pages:
-      - Category:Equipment
-      - Property:Has component
-    depends_on: []
-  lab-operations:
-    description: Operational content combining imaging and equipment
-    version: 1.0.0
-    pages: []
-    depends_on: [imaging, equipment]
 
 groups:
-  operations:
-    description: Operational packs
-    packs: [lab-operations]
+  content:
+    description: Content creation
+    packs: [publication]
 ```
 
 ### v1 vs v2

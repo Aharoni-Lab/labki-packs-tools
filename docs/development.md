@@ -4,7 +4,7 @@
 
 1. Add or edit files under the top-level `pages/` directory (group by type if desired).
 2. In `manifest.yml`, add entries under `pages:` with canonical titles, file paths, `type`, and `version`.
-3. Under `packs:`, reference the titles you want included in each pack and arrange nested packs under `children`.
+3. Under `packs:`, reference the titles you want included in each pack. Use `groups:` to organize packs in the UI (with optional `children` under groups), not nested packs.
 4. Commit and open a PR.
 
 ## Extension development quickstart
