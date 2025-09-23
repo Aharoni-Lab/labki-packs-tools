@@ -13,7 +13,7 @@
         "properties": {
           "file": { "type": "string" },
           "type": { "type": "string", "enum": ["template", "form", "category", "property", "layout", "other"] },
-          "version": { "type": "string" },
+          "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
           "description": { "type": "string" }
         },
         "additionalProperties": false

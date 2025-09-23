@@ -93,3 +93,26 @@ def test_validate_root_bad_group_reference(tmp_path):
     rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
     assert rc != 0
     assert 'references unknown pack id' in out
+
+
+def test_validate_root_invalid_page_version(tmp_path):
+    manifest_yaml = textwrap.dedent(
+        '''
+        version: 2.0.0
+        pages:
+          Template:Example:
+            file: pages/Templates/Template_Example.wiki
+            type: template
+            version: v1
+        packs:
+          example:
+            version: 1.0.0
+            pages: [Template:Example]
+        '''
+    ).strip() + "\n"
+    # create the file so only version format triggers error
+    tmp_page = write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    assert rc != 0
+    assert 'must have semantic version' in out

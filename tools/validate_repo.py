@@ -75,6 +75,10 @@ def check_root_manifest(manifest_path: Path, schema_path: Path) -> int:
             if not abs_path.exists():
                 error(f"Page file not found: {file_rel} (for {title})")
                 rc = 1
+            page_version = meta.get('version')
+            if not isinstance(page_version, str) or not re.match(r"^\d+\.\d+\.\d+$", page_version or ""):
+                error(f"Page '{title}' must have semantic version (MAJOR.MINOR.PATCH)")
+                rc = 1
 
     # v2 packs: flat registry with depends_on
     packs = manifest.get('packs', {})
