@@ -24,10 +24,11 @@ LabkiPackManager integrates the `labki-packs` repository with MediaWiki 1.44 to 
 
 `labki-packs/` (GitHub: `Aharoni-Lab/labki-packs`)
 
-- `manifest.yml` – v2 flat pages registry + flat packs (with depends_on) + optional groups
+- `manifest.yml` – v2 registries for real content (minimal by default)
 - `README.md` – overview of how to use/update packs
 - `schema/` – JSON/YAML schemas for validation
 - `pages/` – flat directory of page files (optionally grouped by type)
+- `examples/` – self-contained example `manifest.yml` and `pages/` used for demos/tests
 
 ### Pages, packs, and groups (v2)
 

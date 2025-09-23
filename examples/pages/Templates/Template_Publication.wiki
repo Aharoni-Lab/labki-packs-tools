@@ -1,4 +1,4 @@
-﻿== Publication ==
+== Publication ==
 ; Title: {{{Title|}}}
 ; Authors: {{{Authors|}}}
 ; Year: {{{Year|}}}

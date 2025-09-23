@@ -1,4 +1,4 @@
-﻿{{{for template|MeetingNotes}}}
+{{{for template|MeetingNotes}}}
 {{{field|Date|input type=date}}}
 {{{field|Attendees|input type=textarea}}}
 {{{field|Notes|input type=textarea}}}

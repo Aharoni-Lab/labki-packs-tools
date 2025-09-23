@@ -13,24 +13,27 @@ Upstream repository: `Aharoni-Lab/labki-packs` on GitHub.
 
 ```text
 labki-packs/
-├─ manifest.yml          # Root registry: pages (flat) + packs (flat registry) + groups (optional)
+├─ manifest.yml          # Root registry (real content; minimal by default)
 ├─ README.md
 ├─ schema/               # JSON/YAML schemas for validation
 ├─ tools/                # Validation and utilities
-└─ pages/
-   ├─ Templates/
-   │  ├─ Template_Publication.wiki     # -> title: Template:Publication
-   │  └─ Template_MeetingNotes.wiki    # -> title: Template:MeetingNotes
-   ├─ Forms/
-   │  ├─ Form_Publication.wiki         # -> title: Form:Publication
-   │  └─ Form_MeetingNotes.wiki        # -> title: Form:MeetingNotes
-   ├─ Categories/
-   │  ├─ Category_Publication.wiki     # -> title: Category:Publication
-   │  └─ Category_Meeting.wiki         # -> title: Category:Meeting
-   ├─ Properties/
-   │  └─ Property_Has author.wiki      # -> title: Property:Has author
-   └─ Layouts/
-      └─ Onboarding.md                 # -> title: Onboarding
+├─ examples/
+│  ├─ manifest.yml       # Example registry used for demos and tests
+│  └─ pages/
+│     ├─ Templates/
+│     │  ├─ Template_Publication.wiki
+│     │  └─ Template_MeetingNotes.wiki
+│     ├─ Forms/
+│     │  ├─ Form_Publication.wiki
+│     │  └─ Form_MeetingNotes.wiki
+│     ├─ Categories/
+│     │  ├─ Category_Publication.wiki
+│     │  └─ Category_Meeting.wiki
+│     ├─ Properties/
+│     │  └─ Property_Has author.wiki
+│     └─ Layouts/
+│        └─ Onboarding.md
+└─ pages/                 # Real content lives here
 ```
 
 ## Root manifest (v2) – flat pages + flat packs (dependencies) + optional groups
@@ -125,8 +128,8 @@ LabkiPackManager integrates this repository with MediaWiki 1.44.
 
 Configuration keys (in `LocalSettings.php` via the extension):
 
-- `$wgLabkiContentManifestURL`: raw URL to root `manifest.yml`
-- `$wgLabkiContentBaseURL`: base URL for raw file access
+- `$wgLabkiContentManifestURL`: raw URL to the target `manifest.yml` (use `examples/manifest.yml` for demo/testing)
+- `$wgLabkiContentBaseURL`: base URL for raw file access (point to repo root; example files live under `examples/`)
 - Right: `labkipackmanager-manage` (granted to `sysop` by default)
 
 See `docs/usage.md` and `docs/overview.md`.

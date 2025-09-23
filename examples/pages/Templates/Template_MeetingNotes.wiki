@@ -1,4 +1,4 @@
-﻿== Meeting Notes ==
+== Meeting Notes ==
 ; Date: {{{Date|}}}
 ; Attendees: {{{Attendees|}}}
 ; Notes: {{{Notes|}}}

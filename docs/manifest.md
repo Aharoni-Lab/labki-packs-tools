@@ -26,7 +26,7 @@ Fields:
     - `packs` (array of strings): pack ids included in this group
     - `children` (mapping, optional): nested group nodes
 
-Example (aligned to repository samples):
+Example (aligned to repository samples; using `examples/manifest.yml`):
 
 ```yaml
 version: 2.0.0

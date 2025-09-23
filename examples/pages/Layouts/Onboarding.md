@@ -1,4 +1,4 @@
-﻿# Onboarding
+# Onboarding
 
 - Get credentials
 - Safety training

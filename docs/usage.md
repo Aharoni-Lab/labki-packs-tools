@@ -2,8 +2,8 @@
 
 ## Configure
 
-- Set `$wgLabkiContentManifestURL` to the raw URL for this repository's `manifest.yml`.
-- Set `$wgLabkiContentBaseURL` to the base raw URL for repository files.
+- Set `$wgLabkiContentManifestURL` to the raw URL for the desired manifest. For demos/tests, use `examples/manifest.yml`; for production, use the root `manifest.yml`.
+- Set `$wgLabkiContentBaseURL` to the base raw URL for repository files (example files live under `examples/`).
 - Ensure your admin account has `labkipackmanager-manage` rights (granted to `sysop` by default).
 
 ## Import packs

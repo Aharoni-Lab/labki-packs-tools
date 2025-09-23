@@ -1,2 +1,2 @@
-﻿[[Has type::Text]]
+[[Has type::Text]]
 [[Allows multiple values::true]]
