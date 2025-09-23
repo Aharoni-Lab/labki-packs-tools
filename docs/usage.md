@@ -11,6 +11,8 @@
 1. Visit `Special:LabkiPackManager`.
 2. Click Refresh to fetch the latest manifest and cache it.
 3. Browse groups (if any) or the packs registry and select packs to import.
+   - Packs may appear under a single logical group for navigation.
+   - If a pack is not in any group, it still appears in the master list.
 4. Submit to start the import.
 5. Review success and error messages for each pack.
 
@@ -30,3 +32,4 @@
 - Ensure YAML is valid; validate with `schema/` if provided.
 - Verify the base URLs and network access.
 - Check permissions and CSRF token validity.
+- If a pack needs to fit multiple conceptual categories, prefer using `tags` in the manifest and future UI filtering rather than listing it in multiple groups.

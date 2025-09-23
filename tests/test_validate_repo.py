@@ -93,3 +93,162 @@ def test_validate_root_bad_group_reference(tmp_path):
     rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
     assert rc != 0
     assert 'references unknown pack id' in out
+
+
+def test_validate_root_invalid_page_version(tmp_path):
+    manifest_yaml = textwrap.dedent(
+        '''
+        version: 2.0.0
+        pages:
+          Template:Example:
+            file: pages/Templates/Template_Example.wiki
+            type: template
+            version: v1
+        packs:
+          example:
+            version: 1.0.0
+            pages: [Template:Example]
+        '''
+    ).strip() + "\n"
+    # create the file so only version format triggers error
+    tmp_page = write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    assert rc != 0
+    assert 'must have semantic version' in out
+
+
+def test_validate_root_valid_page_version_passes(tmp_path):
+    manifest_yaml = textwrap.dedent(
+        '''
+        version: 2.0.0
+        pages:
+          Template:Example:
+            file: pages/Templates/Template_Example.wiki
+            type: template
+            version: 2.3.4
+        packs:
+          example:
+            version: 1.0.0
+            pages: [Template:Example]
+            depends_on: []
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    assert rc == 0, f"expected success, got rc={rc}, out={out}, err={err}"
+
+
+def test_validate_root_duplicate_page_across_packs_fails(tmp_path):
+    manifest_yaml = textwrap.dedent(
+        '''
+        version: 2.0.0
+        pages:
+          Template:Shared:
+            file: pages/Templates/Template_Shared.wiki
+            type: template
+            version: 1.0.0
+        packs:
+          a:
+            version: 1.0.0
+            pages: [Template:Shared]
+          b:
+            version: 1.0.0
+            pages: [Template:Shared]
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Templates/Template_Shared.wiki', '== Shared ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    assert rc != 0
+    assert "included in multiple packs" in out
+
+
+def test_validate_root_warns_on_orphan_files(tmp_path):
+    # manifest has no pages, but file exists under pages/ -> expect WARNING
+    manifest_yaml = textwrap.dedent(
+        '''
+        version: 2.0.0
+        pages: {}
+        packs: {}
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Templates/Template_Orphan.wiki', '== Orphan ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    # should still be success (warning only) and include warning text
+    assert rc == 0
+    assert 'Orphan page file not referenced in manifest:' in out
+
+
+def test_validate_module_page_rules(tmp_path):
+    # Proper module: Module:Name, .lua under pages/Modules/
+    good_manifest = textwrap.dedent(
+        '''
+        version: 2.0.0
+        pages:
+          Module:Util:
+            file: pages/Modules/Module_Util.lua
+            type: module
+            version: 1.0.0
+        packs:
+          base:
+            version: 1.0.0
+            pages: [Module:Util]
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Modules/Module_Util.lua', '-- lua module\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', good_manifest)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    assert rc == 0
+
+    # Module with mismatched namespace/extension/dir should warn, not fail
+    bad_manifest = textwrap.dedent(
+        '''
+        version: 2.0.0
+        pages:
+          NotModule:Wrong:
+            file: pages/Templates/Module_Wrong.txt
+            type: module
+            version: 1.0.0
+        packs:
+          base:
+            version: 1.0.0
+            pages: [NotModule:Wrong]
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Templates/Module_Wrong.txt', 'placeholder\n')
+    manifest2 = write_tmp(tmp_path, 'manifest.yml', bad_manifest)
+    rc2, out2, err2 = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest2), str(SCHEMA)])
+    assert rc2 == 0
+    assert "Module type should use 'Module:' namespace" in out2
+    assert 'Module files should use .lua extension' in out2
+    assert 'Module files should be stored under pages/Modules/' in out2
+
+
+def test_validate_group_duplicate_pack_warns(tmp_path):
+    manifest_yaml = textwrap.dedent(
+        '''
+        version: 2.0.0
+        pages:
+          Template:Only:
+            file: pages/Templates/Template_Only.wiki
+            type: template
+            version: 1.0.0
+        packs:
+          one:
+            version: 1.0.0
+            pages: [Template:Only]
+        groups:
+          alpha:
+            packs: [one]
+          beta:
+            packs: [one]
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Templates/Template_Only.wiki', '== Only ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    assert rc == 0
+    assert "appears in multiple groups" in out

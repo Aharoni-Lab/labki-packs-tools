@@ -75,6 +75,43 @@ def check_root_manifest(manifest_path: Path, schema_path: Path) -> int:
             if not abs_path.exists():
                 error(f"Page file not found: {file_rel} (for {title})")
                 rc = 1
+            page_version = meta.get('version')
+            if not isinstance(page_version, str) or not re.match(r"^\d+\.\d+\.\d+$", page_version or ""):
+                error(f"Page '{title}' must have semantic version (MAJOR.MINOR.PATCH)")
+                rc = 1
+            # Additional type-specific checks
+            page_type = meta.get('type')
+            if page_type == 'module':
+                if not title.startswith('Module:'):
+                    warn(f"Module type should use 'Module:' namespace: {title}")
+                if not abs_path.suffix == '.lua':
+                    warn(f"Module files should use .lua extension: {file_rel}")
+                # recommend Modules directory
+                if 'Modules' not in file_rel.replace('\\', '/'):
+                    warn(f"Module files should be stored under pages/Modules/: {file_rel}")
+            if page_type == 'help':
+                if not title.startswith('Help:'):
+                    warn(f"Help type should use 'Help:' namespace: {title}")
+            if page_type == 'mediawiki':
+                if not title.startswith('MediaWiki:'):
+                    warn(f"MediaWiki type should use 'MediaWiki:' namespace: {title}")
+
+        # Orphan file detection: find files under pages/ not referenced in manifest
+        referenced_abs_paths = set()
+        for meta in pages.values():
+            file_rel = meta.get('file')
+            if file_rel:
+                referenced_abs_paths.add((manifest_path.parent / file_rel).resolve())
+        pages_dir = (manifest_path.parent / 'pages').resolve()
+        if pages_dir.exists():
+            for root, _dirs, files in os.walk(pages_dir):
+                for fname in files:
+                    if not (fname.endswith('.wiki') or fname.endswith('.md')):
+                        continue
+                    f_abs = Path(root) / fname
+                    if f_abs not in referenced_abs_paths:
+                        rel = os.path.relpath(f_abs, manifest_path.parent)
+                        warn(f"Orphan page file not referenced in manifest: {rel}")
 
     # v2 packs: flat registry with depends_on
     packs = manifest.get('packs', {})
@@ -84,6 +121,7 @@ def check_root_manifest(manifest_path: Path, schema_path: Path) -> int:
         packs = {}
     # basic validation and edges
     edges = []
+    seen_page_to_pack = {}
     for pack_id, meta in packs.items():
         version = meta.get('version')
         if not isinstance(version, str) or not re.match(r"^\d+\.\d+\.\d+$", version):
@@ -97,6 +135,13 @@ def check_root_manifest(manifest_path: Path, schema_path: Path) -> int:
             if title not in pages:
                 error(f"Pack '{pack_id}' references unknown page title: {title}")
                 rc = 1
+            # detect duplicate page in multiple packs
+            if title in seen_page_to_pack and seen_page_to_pack[title] != pack_id:
+                other = seen_page_to_pack[title]
+                error(f"Page title '{title}' included in multiple packs ('{other}' and '{pack_id}'). Move to a shared dependency pack.")
+                rc = 1
+            else:
+                seen_page_to_pack[title] = pack_id
         for dep in meta.get('depends_on', []) or []:
             if dep not in packs:
                 error(f"Pack '{pack_id}' depends_on unknown pack id: {dep}")
@@ -134,6 +179,8 @@ def check_root_manifest(manifest_path: Path, schema_path: Path) -> int:
             nonlocal rc
             if path is None:
                 path = []
+            # track pack appearances across entire group tree
+            nonlocal_pack_to_paths = validate_groups.pack_to_paths
             if not isinstance(node_map, dict):
                 error("'groups' must be a mapping")
                 rc = 1
@@ -148,10 +195,17 @@ def check_root_manifest(manifest_path: Path, schema_path: Path) -> int:
                     if pid not in packs:
                         error(f"Group '{'.'.join(current)}' references unknown pack id: {pid}")
                         rc = 1
+                    else:
+                        nonlocal_pack_to_paths.setdefault(pid, []).append('.'.join(current))
                 children = node.get('children')
                 if children is not None:
                     validate_groups(children, current)
+        validate_groups.pack_to_paths = {}
         validate_groups(groups)
+        # warn if a pack appears in multiple groups
+        for pid, paths in validate_groups.pack_to_paths.items():
+            if len(paths) > 1:
+                warn(f"Pack '{pid}' appears in multiple groups: {', '.join(paths)}. Prefer a single group; use tags for cross-cutting labels.")
     return rc
 
 
