@@ -32,4 +32,4 @@
 - Ensure YAML is valid; validate with `schema/` if provided.
 - Verify the base URLs and network access.
 - Check permissions and CSRF token validity.
- - If a pack needs to fit multiple conceptual categories, prefer using `tags` in the manifest and future UI filtering rather than listing it in multiple groups.
+- If a pack needs to fit multiple conceptual categories, prefer using `tags` in the manifest and future UI filtering rather than listing it in multiple groups.

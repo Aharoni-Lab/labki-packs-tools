@@ -3,12 +3,11 @@
 ## Layout (v2)
 
 - All page files live under the top-level `pages/` directory.
-- Optional type subfolders: `Templates/`, `Forms/`, `Categories/`, `Properties/`, `Layouts/`.
- - Optional type subfolders: `Templates/`, `Forms/`, `Categories/`, `Properties/`, `Layouts/`, `Modules/`.
+- Optional type subfolders: `Templates/`, `Forms/`, `Categories/`, `Properties/`, `Layouts/`, `Modules/`.
 - Packs are defined in the root `manifest.yml` under a flat `packs` registry with `version`, `pages` (titles), and `depends_on` (other packs).
 - Optional `groups` provide hierarchical navigation for the UI and reference pack ids.
 - Use `.wiki` for wikitext content and `.md` for Markdown content.
- - Lua modules use `.lua` files under `pages/Modules/` and titles in the `Module:` namespace.
+- Lua modules use `.lua` files under `pages/Modules/` and titles in the `Module:` namespace.
 
 ## Filenames and titles
 
