@@ -179,6 +179,8 @@ def check_root_manifest(manifest_path: Path, schema_path: Path) -> int:
             nonlocal rc
             if path is None:
                 path = []
+            # track pack appearances across entire group tree
+            nonlocal_pack_to_paths = validate_groups.pack_to_paths
             if not isinstance(node_map, dict):
                 error("'groups' must be a mapping")
                 rc = 1
@@ -193,10 +195,17 @@ def check_root_manifest(manifest_path: Path, schema_path: Path) -> int:
                     if pid not in packs:
                         error(f"Group '{'.'.join(current)}' references unknown pack id: {pid}")
                         rc = 1
+                    else:
+                        nonlocal_pack_to_paths.setdefault(pid, []).append('.'.join(current))
                 children = node.get('children')
                 if children is not None:
                     validate_groups(children, current)
+        validate_groups.pack_to_paths = {}
         validate_groups(groups)
+        # warn if a pack appears in multiple groups
+        for pid, paths in validate_groups.pack_to_paths.items():
+            if len(paths) > 1:
+                warn(f"Pack '{pid}' appears in multiple groups: {', '.join(paths)}. Prefer a single group; use tags for cross-cutting labels.")
     return rc
 
 

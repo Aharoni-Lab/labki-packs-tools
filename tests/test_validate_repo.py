@@ -225,3 +225,30 @@ def test_validate_module_page_rules(tmp_path):
     assert "Module type should use 'Module:' namespace" in out2
     assert 'Module files should use .lua extension' in out2
     assert 'Module files should be stored under pages/Modules/' in out2
+
+
+def test_validate_group_duplicate_pack_warns(tmp_path):
+    manifest_yaml = textwrap.dedent(
+        '''
+        version: 2.0.0
+        pages:
+          Template:Only:
+            file: pages/Templates/Template_Only.wiki
+            type: template
+            version: 1.0.0
+        packs:
+          one:
+            version: 1.0.0
+            pages: [Template:Only]
+        groups:
+          alpha:
+            packs: [one]
+          beta:
+            packs: [one]
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Templates/Template_Only.wiki', '== Only ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    assert rc == 0
+    assert "appears in multiple groups" in out
