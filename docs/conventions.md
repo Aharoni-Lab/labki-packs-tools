@@ -4,9 +4,11 @@
 
 - All page files live under the top-level `pages/` directory.
 - Optional type subfolders: `Templates/`, `Forms/`, `Categories/`, `Properties/`, `Layouts/`.
+ - Optional type subfolders: `Templates/`, `Forms/`, `Categories/`, `Properties/`, `Layouts/`, `Modules/`.
 - Packs are defined in the root `manifest.yml` under a flat `packs` registry with `version`, `pages` (titles), and `depends_on` (other packs).
 - Optional `groups` provide hierarchical navigation for the UI and reference pack ids.
 - Use `.wiki` for wikitext content and `.md` for Markdown content.
+ - Lua modules use `.lua` files under `pages/Modules/` and titles in the `Module:` namespace.
 
 ## Filenames and titles
 
@@ -19,6 +21,12 @@
 - Templates (`Template:Name`) and forms (`Form:Name`) should be paired where applicable.
 - Semantic properties should declare types (e.g., `[[Has type::Text]]`).
 - Categories should include a concise description of scope and usage.
+
+## Modules, Help, MediaWiki
+
+- `module`: Use `Module:` namespace titles and store files under `pages/Modules/` with `.lua` extension.
+- `help`: Use `Help:` namespace titles for user-facing documentation.
+- `mediawiki`: Use `MediaWiki:` namespace titles for system messages; handle carefully due to site-wide impact.
 
 ## Versioning
 
