@@ -24,51 +24,16 @@ LabkiPackManager integrates the `labki-packs` repository with MediaWiki 1.44 to 
 
 `labki-packs/` (GitHub: `Aharoni-Lab/labki-packs`)
 
-- `manifest.yml` – v2 flat pages registry + hierarchical packs
+- `manifest.yml` – v2 flat pages registry + flat packs (with depends_on) + optional groups
 - `README.md` – overview of how to use/update packs
 - `schema/` – JSON/YAML schemas for validation
 - `pages/` – flat directory of page files (optionally grouped by type)
 
-### Pages and packs layout (v2)
+### Pages, packs, and groups (v2)
 
 - All page files live under the top-level `pages/` directory (flat). You may group by type for convenience.
-- Packs are logical groups defined in the root `manifest.yml` under `packs`, referencing page titles from the global `pages` registry.
-
-### Example
-
-```text
-packs/
-
-├─ lab-operations/
-│   ├─ manifest.yml             # optional local manifest (tracks sub-packs, version)
-│   ├─ pages/
-│   │   └─ safety_overview.wiki
-│   ├─ equipment/
-│   │   ├─ calibration/
-│   │   │   ├─ microscope_pack/
-│   │   │   │   ├─ pack.yml     # pack definition (name, version, dependencies)
-│   │   │   │   └─ pages/
-│   │   │   │       ├─ intro.wiki
-│   │   │   │       └─ procedure.wiki
-│   │   │   └─ scale_pack/
-│   │   │       ├─ pack.yml
-│   │   │       └─ pages/...
-│   │   └─ maintenance_pack/
-│   │       ├─ pack.yml
-│   │       └─ pages/...
-│   └─ training_pack/
-│       ├─ pack.yml
-│       └─ pages/...
-│
-└─ tool-development/
-    ├─ imaging/
-    │   └─ miniscope_pack/
-    │       ├─ pack.yml
-    │       └─ pages/...
-    └─ acquisition_pack/
-        ├─ pack.yml
-        └─ pages/...
-```
+- Packs are defined in the root `manifest.yml` under `packs` as a flat registry with `version`, `pages` (titles), and `depends_on` (other packs).
+- Optional `groups` provide hierarchical navigation, each node listing `packs` by id and nested `children`.
 
 ### Root-level manifest example (manifest.yml, v2)
 
@@ -87,27 +52,36 @@ pages:
     version: 1.0.0
 
 packs:
-  lab-operations:
-    description: Lab operations content
+  imaging:
+    description: Imaging templates and forms
+    version: 1.0.0
     pages:
       - Template:Microscope
-    children:
-      equipment:
-        description: Equipment-related packs
-        pages: []
+      - Form:Microscope
+    depends_on: []
+  equipment:
+    description: Equipment taxonomy and properties
+    version: 1.0.0
+    pages:
+      - Category:Equipment
+      - Property:Has component
+    depends_on: []
+  lab-operations:
+    description: Operational content combining imaging and equipment
+    version: 1.0.0
+    pages: []
+    depends_on: [imaging, equipment]
+
+groups:
+  operations:
+    description: Operational packs
+    packs: [lab-operations]
 ```
 
 ### v1 vs v2
 
 - v1: per-directory `pack.yml` files and nested `packs/` structure.
-- v2: flat global `pages` registry in root manifest; packs reference titles and define hierarchy in the manifest.
-
-### Notes
-
-- Every directory under `packs/` is a pack with its own `pack.yml`.
-- Leaf packs typically only have pages. Parent packs may have both pages and children.
-- The root `manifest.yml` encodes hierarchy via `ref` pointers to each directory's `pack.yml` and optional nested `children`.
-- `pages/` may contain `.wiki` or `.md` content files at any level.
+- v2: flat global `pages` registry; flat `packs` with explicit `depends_on`; optional `groups` for navigation.
 
 ## Steps
 
@@ -139,7 +113,7 @@ packs:
 ### Step 5: Import `.wiki` Packs
 
 - Config: `LabkiContentBaseURL` to construct raw file URLs.
-- For each selected pack, fetch `pack.yml`, then fetch each file under `<pack>/pages/`.
+- For each selected pack, resolve dependencies via `depends_on`, then fetch each referenced file from the `pages` registry.
 - Save text via `WikiPageFactory` / `PageUpdater`.
 - Provide success/error feedback per pack.
 
