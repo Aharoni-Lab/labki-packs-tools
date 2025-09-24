@@ -1,41 +1,29 @@
-﻿# Development
+﻿# Development (validator)
 
-## Adding pages and packs (v2)
+## Setup
 
-1. Add or edit files under the top-level `pages/` directory (group by type if desired).
-2. In `manifest.yml`, add entries under `pages:` with canonical titles, file paths, `type`, and `version`.
-3. Under `packs:`, reference the titles you want included in each pack. Use `groups:` to organize packs in the UI (with optional `children` under groups), not nested packs.
-4. Commit and open a PR.
+1. Python 3.10+
+2. Install deps: `pip install -r requirements-dev.txt` (or `pip install pyyaml jsonschema pytest`)
 
-## Extension development quickstart
+## Run tests
 
-1. Scaffold `extensions/LabkiPackManager/` with `extension.json`, `includes/`, `i18n/`.
-2. Register and verify on `Special:Version`.
-3. Implement `Special:LabkiPackManager` page to render list and refresh.
-4. Implement manifest fetch/caching (HTTP + YAML parse).
-5. Implement import (v2): resolve pack titles via root `manifest.yml` `pages` registry; fetch `file` and save via `PageUpdater`.
-6. Add `labkipackmanager-manage` right and restrict access.
-7. Add PHPUnit tests and GitHub Actions CI.
-8. Document configuration and Docker integration.
+```
+pytest -q
+```
 
-## Testing
+## Making schema changes
 
-- Unit tests for YAML parsing, manifest traversal, and import logic.
-- Integration tests against a local MediaWiki instance when feasible.
+1. Edit `schema/root-manifest.schema.json` (and `schema/pack.schema.json` if used).
+2. Update `docs/manifest.md` if you add/remove fields.
+3. Add tests in `tests/` to cover new rules (errors vs. warnings).
 
-### Test title mapping
+## CLI changes
 
-- Include cases where `pages:` entries specify `title`.
-- Include cases with `namespace`+`name`.
-- Include files with a leading `<!-- Title: Namespace:Name -->` comment.
-- Include heuristic-only cases derived from filenames.
+- The CLI lives at `tools/validate_repo.py`. Keep commands stable: `validate-root`, `validate-packs`.
+- Ensure non-zero exit codes for errors; warnings should not fail CI.
+- Keep output messages actionable and grep-friendly.
 
-## CI
+## Releasing (future)
 
-- Run PHPCS and PHPUnit on PRs.
-- Optional: validate manifests with `schema/`.
-
-## Docker integration
-
-- Clone or mount the extension under `extensions/LabkiPackManager`.
-- Add `wfLoadExtension( 'LabkiPackManager' );` to `LocalSettings.php`.
+- Package a CLI `labki-validate` that bundles schemas.
+- Tag a release and publish to PyPI and/or attach schema artifacts.

@@ -9,6 +9,7 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR = REPO_ROOT / 'tools' / 'validate_repo.py'
 SCHEMA = REPO_ROOT / 'schema' / 'root-manifest.schema.json'
+FIXTURES = REPO_ROOT / 'tests' / 'fixtures' / 'basic_repo'
 
 
 def run(cmd):
@@ -23,8 +24,8 @@ def write_tmp(tmp_path: Path, rel: str, content: str):
     return out
 
 
-def test_validate_root_ok_uses_examples_manifest():
-    manifest = (REPO_ROOT / 'examples' / 'manifest.yml').resolve()
+def test_validate_root_ok_uses_fixtures_manifest():
+    manifest = (FIXTURES / 'manifest.yml').resolve()
     rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
     assert rc == 0, f"expected success, got rc={rc}, out={out}, err={err}"
 

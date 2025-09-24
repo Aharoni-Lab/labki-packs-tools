@@ -27,7 +27,7 @@ Fields:
     - `children` (mapping, optional): nested group nodes
   - Best practice: list each pack in a single logical group; if a pack spans categories, use `tags` for cross-cutting labels.
 
-Example (aligned to repository samples; using `examples/manifest.yml`):
+Example (aligned to repository samples; using `tests/fixtures/basic_repo/manifest.yml`):
 
 ```yaml
 version: 2.0.0
