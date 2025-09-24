@@ -1,164 +1,96 @@
-﻿# labki-packs
+# labki-packs-tools
 
-Version-controlled content packs for Labki/MediaWiki. Pages are stored flat in the repository and referenced by a manifest that defines a flat packs registry with explicit dependencies. Each page has a canonical wiki title and its own version.
+CLI validator and JSON Schemas for Labki/MediaWiki content packs. Use this in CI or locally to validate a content repository like `labki-packs`.
 
-- Flat pages registry: `manifest.yml` maps canonical titles (e.g., `Template:Microscope`) to files in `pages/` with per-page version metadata
-- Flat packs registry: `manifest.yml` lists packs with `version`, `pages` (titles), and `depends_on` (other packs)
-- Optional groups tree: `manifest.yml` may define `groups` for navigation that reference pack ids
-- Page files are stored under `pages/` (optionally grouped by type subfolders like `Templates/`, `Forms/`, `Categories/`, `Properties/`, `Layouts/`)
+## What it validates (v2)
 
-Upstream repository: `Aharoni-Lab/labki-packs` on GitHub.
+- Root manifest structure (`version`, `pages`, `packs`, optional `groups`) against `schema/root-manifest.schema.json`.
+- Page entries: required `file`, `type`, `version` (semantic version), Windows-safe filenames, file existence.
+- Packs: required semantic version, page titles exist, dependency sanity and cycle detection.
+- Groups: pack references are valid; warns when a pack appears in multiple groups.
+- Additional conventions (warnings), e.g., `Module:` pages should be `.lua` under `pages/Modules/`.
 
-## Repository structure
+## Quickstart (local)
 
-```text
-labki-packs/
-├─ manifest.yml          # Root registry (real content; minimal by default)
-├─ README.md
-├─ schema/               # JSON/YAML schemas for validation
-├─ tools/                # Validation and utilities
-├─ examples/
-│  ├─ manifest.yml       # Example registry used for demos and tests
-│  └─ pages/
-│     ├─ Templates/
-│     │  ├─ Template_Publication.wiki
-│     │  └─ Template_MeetingNotes.wiki
-│     ├─ Forms/
-│     │  ├─ Form_Publication.wiki
-│     │  └─ Form_MeetingNotes.wiki
-│     ├─ Categories/
-│     │  ├─ Category_Publication.wiki
-│     │  └─ Category_Meeting.wiki
-│     ├─ Properties/
-│     │  └─ Property_Has author.wiki
-│     └─ Layouts/
-│        └─ Onboarding.md
-└─ pages/                 # Real content lives here
+Requires Python 3.10+.
+
+```bash
+pip install pyyaml jsonschema
+
+# Validate a repo's root manifest against the schema
+python tools/validate_repo.py validate-root path/to/manifest.yml schema/root-manifest.schema.json
+
+# Validate legacy per-pack structures (if migrating v1 → v2)
+python tools/validate_repo.py validate-packs path/to/repo schema/pack.schema.json
 ```
 
-## Root manifest (v2) – flat pages + flat packs (dependencies) + optional groups
+Exit code is non-zero on validation errors (suitable for CI). Warnings do not change the exit code.
 
-Tracks a flat pages registry, a flat packs registry with explicit `depends_on`, and an optional `groups` tree for UI navigation.
+### Example
+
+This repo ships a small sample under `tests/fixtures/basic_repo/`:
+
+```bash
+python tools/validate_repo.py validate-root tests/fixtures/basic_repo/manifest.yml schema/root-manifest.schema.json
+```
+
+## Use in CI (content repo)
+
+Add a job in the content repo (e.g., `labki-packs`) that installs Python deps and runs the validator:
 
 ```yaml
-version: 2.0.0
-last_updated: 2025-09-22
+name: Validate content packs
+on:
+  pull_request:
+  push:
+    branches: [ main ]
 
-pages:
-  Template:Publication:
-    file: pages/Templates/Template_Publication.wiki
-    type: template
-    version: 1.0.0
-  Form:Publication:
-    file: pages/Forms/Form_Publication.wiki
-    type: form
-    version: 1.0.0
-  Category:Publication:
-    file: pages/Categories/Category_Publication.wiki
-    type: category
-    version: 1.0.0
-  Property:Has author:
-    file: pages/Properties/Property_Has author.wiki
-    type: property
-    version: 1.0.0
-  Template:MeetingNotes:
-    file: pages/Templates/Template_MeetingNotes.wiki
-    type: template
-    version: 1.0.0
-  Form:MeetingNotes:
-    file: pages/Forms/Form_MeetingNotes.wiki
-    type: form
-    version: 1.0.0
-  Category:Meeting:
-    file: pages/Categories/Category_Meeting.wiki
-    type: category
-    version: 1.0.0
-  Onboarding:
-    file: pages/Layouts/Onboarding.md
-    type: layout
-    version: 1.0.0
-
-packs:
-  publication:
-    description: Templates and forms for managing publications
-    version: 1.0.0
-    pages:
-      - Template:Publication
-      - Form:Publication
-      - Category:Publication
-      - Property:Has author
-    depends_on: []
-  meeting_notes:
-    description: Templates and forms for meeting notes
-    version: 1.0.0
-    pages:
-      - Template:MeetingNotes
-      - Form:MeetingNotes
-      - Category:Meeting
-    depends_on: []
-  onboarding:
-    description: Onboarding layout and example
-    version: 1.0.0
-    pages:
-      - Onboarding
-    depends_on: [publication]
-
-groups:
-  operations:
-    description: Operational packs
-    packs: [onboarding, meeting_notes]
-    children:
-      content:
-        description: Content creation
-        packs: [publication]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Aharoni-Lab/labki-packs-tools
+          path: tools-cache
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: pip install pyyaml jsonschema
+      - name: Validate manifest
+        run: |
+          python tools-cache/tools/validate_repo.py validate-root manifest.yml tools-cache/schema/root-manifest.schema.json
 ```
 
-### Page file naming and Windows compatibility
+Alternatively, vendor or pin a release artifact of this repo. A reusable GitHub Action is on the roadmap.
 
-Filenames on Windows cannot include `:`. Use Windows-safe filenames (e.g., `Template_Microscope.wiki`) and map them to canonical titles in the `pages` registry of `manifest.yml`. The canonical page title is the key (e.g., `Template:Microscope`).
+## Repository layout
 
-## Using with LabkiPackManager
+```text
+labki-packs-tools/
+├─ schema/                     # JSON Schemas used by the validator
+├─ tools/
+│  └─ validate_repo.py         # CLI validator
+├─ tests/
+│  ├─ fixtures/basic_repo/     # Sample manifest + pages for tests/examples
+│  └─ test_validate_repo.py
+└─ docs/                       # Validator spec and usage docs
+```
 
-LabkiPackManager integrates this repository with MediaWiki 1.44.
+## Docs
 
-- Fetches `manifest.yml` from the default content URL
-- Displays groups (if present) and the packs registry on `Special:LabkiPackManager`
-- On import, computes dependencies via `depends_on`, resolves pack `pages[]` titles to files via `pages` registry, and saves content to canonical titles
-- Directly saves content to wiki pages (no XML imports)
+- Validator CLI: `docs/validator.md`
+- CI integration: `docs/ci.md`
+- Manifest spec (v2): `docs/manifest.md`
+- Content conventions (warnings): `docs/content-conventions.md`
 
-Configuration keys (in `LocalSettings.php` via the extension):
+## Roadmap
 
-- `$wgLabkiContentManifestURL`: raw URL to the target `manifest.yml` (use `examples/manifest.yml` for demo/testing)
-- `$wgLabkiContentBaseURL`: base URL for raw file access (point to repo root; example files live under `examples/`)
-- Right: `labkipackmanager-manage` (granted to `sysop` by default)
-
-See `docs/usage.md` and `docs/overview.md`.
-
-## How to add a new pack
-
-1. Add page files under `pages/` (use type subfolders like `Templates/`, `Forms/`, etc.). Use Windows-safe filenames (no `:`), e.g., `Template_MyPage.wiki`.
-2. In `manifest.yml` under `pages:`, add entries for each new page with canonical titles, `file`, `type`, and `version`.
-3. Under `packs:`, create a new pack id with `version`, list its page titles in `pages:`, and add `depends_on` if it reuses other packs.
-4. Optionally add the pack id to a `groups:` node to appear under a category in the UI.
-5. Run validation:
-   - `python tools/validate_repo.py validate-root manifest.yml schema/root-manifest.schema.json`
-6. Commit and open a PR.
-
-## Conventions
-
-- `.wiki` and `.md` are supported page formats
-- Store all page files under `pages/` (optionally grouped by type subfolders)
-- Titles are defined in the manifest `pages` registry (keys)
-- Track per-page `version` in the registry; use semantic versioning
-
-## Development & CI
-
-- Schemas for `manifest.yml` live under `schema/`
-- CI validates YAML, Markdown, schema conformance, and repo rules via `tools/validate_repo.py`
-
-## Legacy (v1) model
-
-Older manifests referenced per-directory `pack.yml` files via `packs.*.ref` and stored pages beside each pack. The v2 model supersedes this with a flat pages registry and per-page versioning. The validator can detect and warn on v1 content during migration.
+- Packaged CLI `labki-validate` (bundled schemas)
+- Reusable GitHub Action
+- Optional Docker wrapper for hermetic CI
 
 ## License
 

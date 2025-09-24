@@ -26,7 +26,7 @@ jobs:
             **/*.md
             !node_modules/**
 
-  validate-schema-and-rules:
+  tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,11 +34,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install pyyaml jsonschema pytest
-      - name: Validate root manifest
-        run: python tools/validate_repo.py validate-root manifest.yml schema/root-manifest.schema.json
-      - name: Validate examples manifest
-        run: python tools/validate_repo.py validate-root examples/manifest.yml schema/root-manifest.schema.json
-      - name: Validate all pack.yml + pages
-        run: python tools/validate_repo.py validate-packs packs schema/pack.schema.json
+      - name: "sanity check: validate sample fixture"
+        run: python tools/validate_repo.py validate-root tests/fixtures/basic_repo/manifest.yml schema/root-manifest.schema.json
       - name: Run tests
         run: pytest -q
