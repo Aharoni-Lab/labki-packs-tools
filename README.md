@@ -3,6 +3,7 @@
 CLI validator and JSON Schemas for Labki/MediaWiki content packs. Use this in CI or locally to validate a content repository like `labki-packs`.
 
 ## What it validates (v2)
+
 - Root manifest structure (`version`, `pages`, `packs`, optional `groups`) against `schema/root-manifest.schema.json`.
 - Page entries: required `file`, `type`, `version` (semantic version), Windows-safe filenames, file existence.
 - Packs: required semantic version, page titles exist, dependency sanity and cycle detection.
@@ -10,6 +11,7 @@ CLI validator and JSON Schemas for Labki/MediaWiki content packs. Use this in CI
 - Additional conventions (warnings), e.g., `Module:` pages should be `.lua` under `pages/Modules/`.
 
 ## Quickstart (local)
+
 Requires Python 3.10+.
 
 ```bash
@@ -25,6 +27,7 @@ python tools/validate_repo.py validate-packs path/to/repo schema/pack.schema.jso
 Exit code is non-zero on validation errors (suitable for CI). Warnings do not change the exit code.
 
 ### Example
+
 This repo ships a small sample under `tests/fixtures/basic_repo/`:
 
 ```bash
@@ -32,6 +35,7 @@ python tools/validate_repo.py validate-root tests/fixtures/basic_repo/manifest.y
 ```
 
 ## Use in CI (content repo)
+
 Add a job in the content repo (e.g., `labki-packs`) that installs Python deps and runs the validator:
 
 ```yaml
@@ -63,6 +67,7 @@ jobs:
 Alternatively, vendor or pin a release artifact of this repo. A reusable GitHub Action is on the roadmap.
 
 ## Repository layout
+
 ```text
 labki-packs-tools/
 ├─ schema/                     # JSON Schemas used by the validator
@@ -75,17 +80,18 @@ labki-packs-tools/
 ```
 
 ## Docs
+
 - Validator CLI: `docs/validator.md`
 - CI integration: `docs/ci.md`
 - Manifest spec (v2): `docs/manifest.md`
 - Content conventions (warnings): `docs/content-conventions.md`
 
 ## Roadmap
+
 - Packaged CLI `labki-validate` (bundled schemas)
 - Reusable GitHub Action
 - Optional Docker wrapper for hermetic CI
 
 ## License
+
 TBD
-
-

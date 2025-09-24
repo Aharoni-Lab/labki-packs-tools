@@ -29,6 +29,7 @@ jobs:
 ```
 
 Notes:
+
 - Fail the build on non-zero exit code.
 - Consider caching the tools checkout with a pinned ref.
 - A reusable GitHub Action is planned; update this doc when available.
