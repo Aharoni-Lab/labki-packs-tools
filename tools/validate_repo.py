@@ -195,10 +195,19 @@ def main():
             except Exception as e:
                 error(f"Failed to read manifest for auto schema selection: {e}")
                 sys.exit(1)
-            version_str = str(manifest_data.get('version', '')).strip()
+            # Allow explicit schema override via $schema in the manifest
+            explicit_schema = manifest_data.get('$schema')
+            if isinstance(explicit_schema, str) and explicit_schema.strip():
+                schema_path = Path(explicit_schema)
+                if not schema_path.is_absolute():
+                    schema_path = (manifest_path.parent / schema_path).resolve()
+                return_code = check_manifest(manifest_path, schema_path)
+                sys.exit(return_code)
+
+            version_str = str(manifest_data.get('schema_version', '')).strip()
             m = re.match(r"^(\d+)\.(\d+)\.(\d+)$", version_str or '')
             if not m:
-                warn("Manifest 'version' missing or not semantic; using latest schema")
+                warn("Manifest 'schema_version' missing or not semantic; using latest schema")
                 schema_path = Path(__file__).resolve().parents[1] / 'schema' / 'manifest.schema.json'
             else:
                 major = m.group(1)

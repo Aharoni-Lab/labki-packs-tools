@@ -34,7 +34,7 @@ def test_validate_missing_page_file(tmp_path):
     # Build a tiny manifest that references a non-existent file
     manifest_yaml = textwrap.dedent(
         '''
-        version: 2.0.0
+        schema_version: 2.0.0
         last_updated: "2025-09-22T00:00:00Z"
         pages:
           Template:Example:
@@ -57,7 +57,7 @@ def test_validate_missing_page_file(tmp_path):
 def test_validate_dep_cycle(tmp_path):
     manifest_yaml = textwrap.dedent(
         '''
-        version: 2.0.0
+        schema_version: 2.0.0
         pages: {}
         packs:
           a:
@@ -79,7 +79,7 @@ def test_validate_dep_cycle(tmp_path):
 def test_validate_manifest_without_extra_sections_is_ok(tmp_path):
     manifest_yaml = textwrap.dedent(
         '''
-        version: 2.0.0
+        schema_version: 2.0.0
         pages: {}
         packs:
           a:
@@ -95,7 +95,7 @@ def test_validate_manifest_without_extra_sections_is_ok(tmp_path):
 def test_validate_invalid_page_version(tmp_path):
     manifest_yaml = textwrap.dedent(
         '''
-        version: 2.0.0
+        schema_version: 2.0.0
         pages:
           Template:Example:
             file: pages/Templates/Template_Example.wiki
@@ -118,7 +118,7 @@ def test_validate_invalid_page_version(tmp_path):
 def test_validate_valid_page_version_passes(tmp_path):
     manifest_yaml = textwrap.dedent(
         '''
-        version: 2.0.0
+        schema_version: 2.0.0
         last_updated: "2025-09-22T00:00:00Z"
         pages:
           Template:Example:
@@ -141,7 +141,7 @@ def test_validate_valid_page_version_passes(tmp_path):
 def test_validate_duplicate_page_across_packs_fails(tmp_path):
     manifest_yaml = textwrap.dedent(
         '''
-        version: 2.0.0
+        schema_version: 2.0.0
         last_updated: "2025-09-22T00:00:00Z"
         pages:
           Template:Shared:
@@ -168,7 +168,7 @@ def test_validate_warns_on_orphan_files(tmp_path):
     # manifest has no pages, but file exists under pages/ -> expect WARNING
     manifest_yaml = textwrap.dedent(
         '''
-        version: 2.0.0
+        schema_version: 2.0.0
         last_updated: "2025-09-22T00:00:00Z"
         pages: {}
         packs: {}
@@ -186,7 +186,7 @@ def test_validate_module_page_rules(tmp_path):
     # Proper module: Module:Name, .lua under pages/Modules/
     good_manifest = textwrap.dedent(
         '''
-        version: 2.0.0
+        schema_version: 2.0.0
         last_updated: "2025-09-22T00:00:00Z"
         pages:
           Module:Util:
@@ -207,7 +207,7 @@ def test_validate_module_page_rules(tmp_path):
     # Module with mismatched namespace/extension/dir should warn, not fail
     bad_manifest = textwrap.dedent(
         '''
-        version: 2.0.0
+        schema_version: 2.0.0
         last_updated: "2025-09-22T00:00:00Z"
         pages:
           NotModule:Wrong:
@@ -232,7 +232,7 @@ def test_validate_module_page_rules(tmp_path):
 def test_validate_manifest_with_single_pack_valid(tmp_path):
     manifest_yaml = textwrap.dedent(
         '''
-        version: 2.0.0
+        schema_version: 2.0.0
         last_updated: "2025-09-22T00:00:00Z"
         pages:
           Template:Only:
@@ -255,7 +255,7 @@ def test_schema_auto_uses_major_mapping(tmp_path):
     # version 1.2.3 should resolve via index majors → v1 schema
     manifest_yaml = textwrap.dedent(
         '''
-        version: 1.2.3
+        schema_version: 1.2.3
         pages:
           Template:Example:
             file: pages/Templates/Template_Example.wiki
@@ -277,7 +277,7 @@ def test_schema_auto_falls_back_when_major_unmapped(tmp_path):
     # If major isn't mapped in index and version is valid semver, fall back to latest
     manifest_yaml = textwrap.dedent(
         '''
-        version: 9.9.9
+        schema_version: 9.9.9
         last_updated: "2025-09-22T00:00:00Z"
         pages:
           Template:Example:
@@ -300,7 +300,7 @@ def test_explicit_schema_override_path(tmp_path):
     # Explicit schema path should work regardless of manifest version
     manifest_yaml = textwrap.dedent(
         '''
-        version: 9.9.9
+        schema_version: 9.9.9
         last_updated: "2025-09-22T00:00:00Z"
         pages:
           Template:Example:
