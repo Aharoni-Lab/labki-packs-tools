@@ -441,3 +441,68 @@ def test_explicit_schema_override_path(tmp_path):
     schema_v1 = REPO_ROOT / 'schema' / 'v1' / 'manifest.schema.json'
     rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(schema_v1)])
     assert rc == 0
+
+
+def test_tags_accept_slugified_unique(tmp_path):
+    manifest_yaml = textwrap.dedent(
+        '''
+        schema_version: 2.0.0
+        pages:
+          Template:Example:
+            file: pages/Templates/Template_Example.wiki
+            version: 1.0.0
+        packs:
+          ok:
+            version: 1.0.0
+            pages: [Template:Example]
+            tags: [core, data-tools]
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
+    assert rc == 0
+
+
+def test_tags_reject_uppercase(tmp_path):
+    manifest_yaml = textwrap.dedent(
+        '''
+        schema_version: 2.0.0
+        pages:
+          Template:Example:
+            file: pages/Templates/Template_Example.wiki
+            version: 1.0.0
+        packs:
+          bad:
+            version: 1.0.0
+            pages: [Template:Example]
+            tags: [Core]
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
+    assert rc != 0
+    assert 'does not match' in out or 'pattern' in out
+
+
+def test_tags_reject_duplicates(tmp_path):
+    manifest_yaml = textwrap.dedent(
+        '''
+        schema_version: 2.0.0
+        pages:
+          Template:Example:
+            file: pages/Templates/Template_Example.wiki
+            version: 1.0.0
+        packs:
+          bad:
+            version: 1.0.0
+            pages: [Template:Example]
+            tags: [core, core]
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
+    assert rc != 0
+    assert 'non-unique elements' in out

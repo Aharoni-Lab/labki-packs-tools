@@ -34,7 +34,12 @@
           "version": { "type": "string", "description": "Semantic version for the pack (no pattern enforced here beyond being a string)" },
           "pages": { "type": "array", "items": { "type": "string" }, "uniqueItems": true, "description": "List of page titles included in this pack; must exist in the global pages registry" },
           "depends_on": { "type": "array", "items": { "type": "string" }, "description": "Pack ids this pack depends on; strings must be keys in the packs registry" },
-          "tags": { "type": "array", "items": { "type": "string" }, "description": "Optional labels to aid discovery (e.g., 'core', 'imaging')" }
+          "tags": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+            "uniqueItems": true,
+            "description": "Optional slugified labels (lowercase letters, digits, hyphens). Example: 'core', 'imaging', 'data-tools'"
+          }
         },
         "required": ["version"],
         "additionalProperties": false,
