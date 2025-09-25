@@ -273,11 +273,11 @@ def test_schema_auto_uses_major_mapping(tmp_path):
     assert rc == 0
 
 
-def test_schema_auto_handles_non_semver_version(tmp_path):
-    # Non-semver should fall back to latest schema
+def test_schema_auto_falls_back_when_major_unmapped(tmp_path):
+    # If major isn't mapped in index and version is valid semver, fall back to latest
     manifest_yaml = textwrap.dedent(
         '''
-        version: dev
+        version: 9.9.9
         last_updated: "2025-09-22T00:00:00Z"
         pages:
           Template:Example:

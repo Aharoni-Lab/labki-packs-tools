@@ -4,7 +4,7 @@
 
 Fields:
 
-- `version` (string): manifest schema/version of the registry (v2 and up)
+- `version` (string): semantic version `MAJOR.MINOR.PATCH`
 - `last_updated` (string): ISO-like timestamp `YYYY-MM-DDThh:mm:ssZ`
 - `pages` (mapping): global flat registry of pages
   - key: canonical wiki title (e.g., `Template:Microscope`)
