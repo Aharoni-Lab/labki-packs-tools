@@ -6,7 +6,7 @@ Fields:
 
 - `schema_version` (string): semantic version `MAJOR.MINOR.PATCH` used to select the schema
 - `$schema` (string, optional): schema URL or path; if provided, it is used directly
-- `last_updated` (string): ISO-like timestamp `YYYY-MM-DDThh:mm:ssZ`
+- `last_updated` (string): ISO-like UTC timestamp `YYYY-MM-DDThh:mm:ssZ`
 - `pages` (mapping): global flat registry of pages
   - key: canonical wiki title (e.g., `Template:Microscope`)
   - value: object with fields:
