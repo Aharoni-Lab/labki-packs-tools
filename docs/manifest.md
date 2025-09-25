@@ -12,8 +12,12 @@ Fields:
   - value: object with fields:
     - `file` (string): repository path to the file under `pages/`
 Title keys and namespaces:
-- Keys must be canonical titles with spaces (not underscores). Example: `"Template:Person"`, `"Category:Person"`, `"Person"`.
-- Do not use percent-encoding (e.g., `%20`) in keys; use spaces.
+- Keys must be [canonical page names](https://www.mediawiki.org/wiki/Manual:Page_naming#Canonical_form_of_page_names)
+  - Use spaces, not underscores. Example: `"A Person"`, `"Template:A Person"`
+  - Strip leading and trailing whitespace
+  - Reduce multiple consecutive spaces to a single space
+  - Use unicode, not percent-encoded characters: Example `"À"` not `"%C3%80"`; `" "` not `"%20"`
+  - Capitalize the first letter of a namespace (if present) and the first letter of the page
 - The namespace is inferred from the key prefix before `:` (e.g., `Module:`, `Help:`, `MediaWiki:`). Do not include a separate namespace field.
   - `version` (string): semantic version for this page
   - `description` (string, optional)
