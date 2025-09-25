@@ -15,8 +15,8 @@ Title keys and namespaces:
 - Keys must be canonical titles with spaces (not underscores). Example: `"Template:Person"`, `"Category:Person"`, `"Person"`.
 - Do not use percent-encoding (e.g., `%20`) in keys; use spaces.
 - The namespace is inferred from the key prefix before `:` (e.g., `Module:`, `Help:`, `MediaWiki:`). Do not include a separate namespace field.
-    - `version` (string): semantic version for this page
-    - `description` (string, optional)
+  - `version` (string): semantic version for this page
+  - `description` (string, optional)
 - `packs` (mapping): flat registry of packs
   - Each key is a pack id; value has:
     - `description` (string, optional)
@@ -24,7 +24,6 @@ Title keys and namespaces:
     - `pages` (array of strings): page titles from the global `pages` registry
     - `depends_on` (array of strings, optional): pack ids this pack depends on. Each string must be a key that exists under `packs`.
     - `tags` (array of strings, optional): free-form labels to aid discovery/filtering (e.g., `core`, `imaging`)
- 
 
 Example (aligned to repository samples; using `tests/fixtures/basic_repo/manifest.yml`):
 
