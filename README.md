@@ -20,10 +20,6 @@ pip install pyyaml jsonschema
 # Validate a repo's root manifest against the schema
 python tools/validate_repo.py validate-root path/to/manifest.yml schema/root-manifest.schema.json
 
-# Validate legacy per-pack structures (if migrating v1 → v2)
-python tools/validate_repo.py validate-packs path/to/repo schema/pack.schema.json
-```
-
 Exit code is non-zero on validation errors (suitable for CI). Warnings do not change the exit code.
 
 ### Example

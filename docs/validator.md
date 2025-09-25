@@ -3,7 +3,6 @@
 ## Commands
 
 - `validate-root <manifest> <schema>`: Validate a v2 root manifest and its referenced files.
-- `validate-packs <packs_root> <schema>`: Validate legacy per-pack structures (for v1→v2 migration).
 
 ## Exit codes
 
