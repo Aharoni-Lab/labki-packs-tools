@@ -19,7 +19,7 @@ pytest -q
 
 ## CLI changes
 
-- The CLI lives at `tools/validate_repo.py`. Keep commands stable: `validate-root` (auto schema by default).
+- The CLI lives at `tools/validate_repo.py`. Keep commands stable: `validate` (auto schema by default).
 - Ensure non-zero exit codes for errors; warnings should not fail CI.
 - Keep output messages actionable and grep-friendly.
 

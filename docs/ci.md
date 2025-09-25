@@ -25,7 +25,7 @@ jobs:
         run: pip install pyyaml jsonschema
       - name: Validate manifest (auto schema)
         run: |
-          python tools-cache/tools/validate_repo.py validate-root manifest.yml
+          python tools-cache/tools/validate_repo.py validate manifest.yml
 ```
 
 Notes:

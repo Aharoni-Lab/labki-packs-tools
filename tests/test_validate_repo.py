@@ -24,13 +24,13 @@ def write_tmp(tmp_path: Path, rel: str, content: str):
     return out
 
 
-def test_validate_root_ok_uses_fixtures_manifest():
+def test_validate_ok_uses_fixtures_manifest():
     manifest = (FIXTURES / 'manifest.yml').resolve()
-    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
     assert rc == 0, f"expected success, got rc={rc}, out={out}, err={err}"
 
 
-def test_validate_root_missing_page_file(tmp_path):
+def test_validate_missing_page_file(tmp_path):
     # Build a tiny manifest that references a non-existent file
     manifest_yaml = textwrap.dedent(
         '''
@@ -49,12 +49,12 @@ def test_validate_root_missing_page_file(tmp_path):
         '''
     ).strip() + "\n"
     manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
-    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
     assert rc != 0
     assert 'Page file not found' in out
 
 
-def test_validate_root_dep_cycle(tmp_path):
+def test_validate_dep_cycle(tmp_path):
     manifest_yaml = textwrap.dedent(
         '''
         version: 2.0.0
@@ -71,12 +71,12 @@ def test_validate_root_dep_cycle(tmp_path):
         '''
     ).strip() + "\n"
     manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
-    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
     assert rc != 0
     assert 'Dependency cycle detected' in out
 
 
-def test_validate_root_bad_group_reference(tmp_path):
+def test_validate_bad_group_reference(tmp_path):
     manifest_yaml = textwrap.dedent(
         '''
         version: 2.0.0
@@ -91,12 +91,12 @@ def test_validate_root_bad_group_reference(tmp_path):
         '''
     ).strip() + "\n"
     manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
-    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
     assert rc != 0
     assert 'references unknown pack id' in out
 
 
-def test_validate_root_invalid_page_version(tmp_path):
+def test_validate_invalid_page_version(tmp_path):
     manifest_yaml = textwrap.dedent(
         '''
         version: 2.0.0
@@ -114,12 +114,12 @@ def test_validate_root_invalid_page_version(tmp_path):
     # create the file so only version format triggers error
     tmp_page = write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
     manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
-    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
     assert rc != 0
     assert 'must have semantic version' in out
 
 
-def test_validate_root_valid_page_version_passes(tmp_path):
+def test_validate_valid_page_version_passes(tmp_path):
     manifest_yaml = textwrap.dedent(
         '''
         version: 2.0.0
@@ -137,11 +137,11 @@ def test_validate_root_valid_page_version_passes(tmp_path):
     ).strip() + "\n"
     write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
     manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
-    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
     assert rc == 0, f"expected success, got rc={rc}, out={out}, err={err}"
 
 
-def test_validate_root_duplicate_page_across_packs_fails(tmp_path):
+def test_validate_duplicate_page_across_packs_fails(tmp_path):
     manifest_yaml = textwrap.dedent(
         '''
         version: 2.0.0
@@ -161,12 +161,12 @@ def test_validate_root_duplicate_page_across_packs_fails(tmp_path):
     ).strip() + "\n"
     write_tmp(tmp_path, 'pages/Templates/Template_Shared.wiki', '== Shared ==\n')
     manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
-    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
     assert rc != 0
     assert "included in multiple packs" in out
 
 
-def test_validate_root_warns_on_orphan_files(tmp_path):
+def test_validate_warns_on_orphan_files(tmp_path):
     # manifest has no pages, but file exists under pages/ -> expect WARNING
     manifest_yaml = textwrap.dedent(
         '''
@@ -177,7 +177,7 @@ def test_validate_root_warns_on_orphan_files(tmp_path):
     ).strip() + "\n"
     write_tmp(tmp_path, 'pages/Templates/Template_Orphan.wiki', '== Orphan ==\n')
     manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
-    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
     # should still be success (warning only) and include warning text
     assert rc == 0
     assert 'Orphan page file not referenced in manifest:' in out
@@ -201,7 +201,7 @@ def test_validate_module_page_rules(tmp_path):
     ).strip() + "\n"
     write_tmp(tmp_path, 'pages/Modules/Module_Util.lua', '-- lua module\n')
     manifest = write_tmp(tmp_path, 'manifest.yml', good_manifest)
-    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
     assert rc == 0
 
     # Module with mismatched namespace/extension/dir should warn, not fail
@@ -221,7 +221,7 @@ def test_validate_module_page_rules(tmp_path):
     ).strip() + "\n"
     write_tmp(tmp_path, 'pages/Templates/Module_Wrong.txt', 'placeholder\n')
     manifest2 = write_tmp(tmp_path, 'manifest.yml', bad_manifest)
-    rc2, out2, err2 = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest2), str(SCHEMA)])
+    rc2, out2, err2 = run([sys.executable, str(VALIDATOR), 'validate', str(manifest2), str(SCHEMA)])
     assert rc2 == 0
     assert "Module type should use 'Module:' namespace" in out2
     assert 'Module files should use .lua extension' in out2
@@ -250,6 +250,6 @@ def test_validate_group_duplicate_pack_warns(tmp_path):
     ).strip() + "\n"
     write_tmp(tmp_path, 'pages/Templates/Template_Only.wiki', '== Only ==\n')
     manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
-    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate-root', str(manifest), str(SCHEMA)])
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
     assert rc == 0
     assert "appears in multiple groups" in out

@@ -17,8 +17,8 @@ Requires Python 3.10+.
 ```bash
 pip install pyyaml jsonschema
 
-# Validate a repo's root manifest (auto-selects schema based on manifest.version)
-python tools/validate_repo.py validate-root path/to/manifest.yml
+# Validate a manifest (auto-selects schema based on manifest.version)
+python tools/validate_repo.py validate path/to/manifest.yml
 
 Exit code is non-zero on validation errors (suitable for CI). Warnings do not change the exit code.
 
@@ -27,7 +27,7 @@ Exit code is non-zero on validation errors (suitable for CI). Warnings do not ch
 This repo ships a small sample under `tests/fixtures/basic_repo/`:
 
 ```bash
-python tools/validate_repo.py validate-root tests/fixtures/basic_repo/manifest.yml
+python tools/validate_repo.py validate tests/fixtures/basic_repo/manifest.yml
 ```
 
 ## Use in CI (content repo)
@@ -58,7 +58,7 @@ jobs:
       - name: Validate manifest
         run: |
           # auto schema selection
-          python tools-cache/tools/validate_repo.py validate-root manifest.yml
+          python tools-cache/tools/validate_repo.py validate manifest.yml
 ```
 
 Alternatively, vendor or pin a release artifact of this repo. A reusable GitHub Action is on the roadmap.

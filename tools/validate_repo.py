@@ -34,12 +34,12 @@ def warn(msg):
     print(f"WARNING: {msg}")
 
 
-def check_root_manifest(manifest_path: Path, schema_path: Path) -> int:
+def check_manifest(manifest_path: Path, schema_path: Path) -> int:
     rc = 0
     try:
         manifest = load_yaml(manifest_path)
     except Exception as e:
-        error(f"Failed to read root manifest {manifest_path}: {e}")
+        error(f"Failed to read manifest {manifest_path}: {e}")
         return 1
 
     try:
@@ -213,13 +213,13 @@ def main():
     parser = argparse.ArgumentParser(description='Validate labki-packs repository')
     sub = parser.add_subparsers(dest='cmd', required=True)
 
-    p_root = sub.add_parser('validate-root', help='Validate root manifest')
+    p_root = sub.add_parser('validate', help='Validate manifest')
     p_root.add_argument('manifest', type=str)
     p_root.add_argument('schema', type=str, nargs='?', default='auto', help="Path to schema or 'auto' (default)")
 
     args = parser.parse_args()
 
-    if args.cmd == 'validate-root':
+    if args.cmd == 'validate':
         schema_arg = args.schema
         if schema_arg == 'auto':
             manifest_path = Path(args.manifest)
@@ -255,10 +255,10 @@ def main():
                 if schema_path is None:
                     candidate = schema_dir / f"v{major}" / 'manifest.schema.json'
                     schema_path = candidate if candidate.exists() else (schema_dir / 'manifest.schema.json')
-            return_code = check_root_manifest(manifest_path, schema_path)
+            return_code = check_manifest(manifest_path, schema_path)
             sys.exit(return_code)
         else:
-            sys.exit(check_root_manifest(Path(args.manifest), Path(schema_arg)))
+            sys.exit(check_manifest(Path(args.manifest), Path(schema_arg)))
 
 
 if __name__ == '__main__':

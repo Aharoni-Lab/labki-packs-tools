@@ -2,7 +2,7 @@
 
 ## Commands
 
-- `validate-root <manifest> <schema>`: Validate a v2 root manifest and its referenced files.
+- `validate <manifest> [schema]`: Validate a manifest and its referenced files. Schema defaults to auto.
 
 ## Exit codes
 
@@ -12,10 +12,10 @@
 ## Examples
 
 ```bash
-python tools/validate_repo.py validate-root tests/fixtures/basic_repo/manifest.yml
+python tools/validate_repo.py validate tests/fixtures/basic_repo/manifest.yml
 
 # Pin a specific schema if needed
-python tools/validate_repo.py validate-root tests/fixtures/basic_repo/manifest.yml schema/v1/manifest.schema.json
+python tools/validate_repo.py validate tests/fixtures/basic_repo/manifest.yml schema/v1/manifest.schema.json
 ```
 
 ## Common messages
