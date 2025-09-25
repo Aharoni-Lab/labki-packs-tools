@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/jsonref.json",
+  "manifest": {
+    "majors": {
+      "1": "v1/manifest.schema.json"
+    },
+    "versions": {
+      "1.0.0": "v1/manifest.schema.json"
+    },
+    "latest": "manifest.schema.json"
+  }
+}
+

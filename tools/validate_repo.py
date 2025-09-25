@@ -215,12 +215,50 @@ def main():
 
     p_root = sub.add_parser('validate-root', help='Validate root manifest')
     p_root.add_argument('manifest', type=str)
-    p_root.add_argument('schema', type=str)
+    p_root.add_argument('schema', type=str, nargs='?', default='auto', help="Path to schema or 'auto' (default)")
 
     args = parser.parse_args()
 
     if args.cmd == 'validate-root':
-        sys.exit(check_root_manifest(Path(args.manifest), Path(args.schema)))
+        schema_arg = args.schema
+        if schema_arg == 'auto':
+            manifest_path = Path(args.manifest)
+            try:
+                manifest_data = load_yaml(manifest_path)
+            except Exception as e:
+                error(f"Failed to read manifest for auto schema selection: {e}")
+                sys.exit(1)
+            version_str = str(manifest_data.get('version', '')).strip()
+            m = re.match(r"^(\d+)\.(\d+)\.(\d+)$", version_str or '')
+            if not m:
+                warn("Manifest 'version' missing or not semantic; using latest schema")
+                schema_path = Path(__file__).resolve().parents[1] / 'schema' / 'manifest.schema.json'
+            else:
+                major = m.group(1)
+                schema_dir = Path(__file__).resolve().parents[1] / 'schema'
+                index_path = schema_dir / 'index.json'
+                schema_path = None
+                # Try index mapping first
+                try:
+                    index = load_json(index_path)
+                    manifest_index = (index.get('manifest') or {})
+                    versions_map = (manifest_index.get('versions') or {})
+                    majors_map = (manifest_index.get('majors') or {})
+                    if version_str in versions_map:
+                        schema_path = schema_dir / versions_map[version_str]
+                    elif major in majors_map:
+                        schema_path = schema_dir / majors_map[major]
+                except Exception:
+                    # Ignore index issues; fall back to directory probing
+                    pass
+                # Fallback to schema/v{major}/manifest.schema.json then latest
+                if schema_path is None:
+                    candidate = schema_dir / f"v{major}" / 'manifest.schema.json'
+                    schema_path = candidate if candidate.exists() else (schema_dir / 'manifest.schema.json')
+            return_code = check_root_manifest(manifest_path, schema_path)
+            sys.exit(return_code)
+        else:
+            sys.exit(check_root_manifest(Path(args.manifest), Path(schema_arg)))
 
 
 if __name__ == '__main__':
