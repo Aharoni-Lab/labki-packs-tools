@@ -18,7 +18,7 @@ Title keys and namespaces:
   - Reduce multiple consecutive spaces to a single space
   - Use unicode, not percent-encoded characters: Example `"À"` not `"%C3%80"`; `" "` not `"%20"`
   - Capitalize the first letter of a namespace (if present) and the first letter of the page
-- The namespace is inferred from the key prefix before `:` (e.g., `Module:`, `Help:`, `MediaWiki:`). Do not include a separate namespace field.
+- The namespace is inferred from the key prefix before `:` (e.g., `Module:`, `Help:`, `MediaWiki:`).
   - `version` (string): semantic version for this page
   - `description` (string, optional)
 - `packs` (mapping): flat registry of packs

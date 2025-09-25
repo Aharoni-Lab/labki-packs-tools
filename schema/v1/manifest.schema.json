@@ -31,7 +31,7 @@
         "type": "object",
         "properties": {
           "description": { "type": "string", "description": "Optional human-readable description of the pack" },
-          "version": { "type": "string", "description": "Semantic version for the pack (no pattern enforced here beyond being a string)" },
+          "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$", "description": "Semantic version for the pack (MAJOR.MINOR.PATCH)" },
           "pages": { "type": "array", "items": { "type": "string" }, "uniqueItems": true, "description": "List of page titles included in this pack; must exist in the global pages registry" },
           "depends_on": { "type": "array", "items": { "type": "string" }, "description": "Pack ids this pack depends on; strings must be keys in the packs registry" },
           "tags": {

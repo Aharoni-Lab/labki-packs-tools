@@ -7,7 +7,7 @@
     "versions": {
       "1.0.0": "v1/manifest.schema.json"
     },
-    "latest": "manifest.schema.json"
+    "latest": "v1/manifest.schema.json"
   }
 }
 
