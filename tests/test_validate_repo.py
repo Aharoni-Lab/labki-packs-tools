@@ -243,3 +243,70 @@ def test_validate_manifest_with_single_pack_valid(tmp_path):
     manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
     rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
     assert rc == 0
+
+
+def test_schema_auto_uses_major_mapping(tmp_path):
+    # version 1.2.3 should resolve via index majors → v1 schema
+    manifest_yaml = textwrap.dedent(
+        '''
+        version: 1.2.3
+        pages:
+          Template:Example:
+            file: pages/Templates/Template_Example.wiki
+            type: template
+            version: 1.0.0
+        packs:
+          example:
+            version: 1.0.0
+            pages: [Template:Example]
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest)])
+    assert rc == 0
+
+
+def test_schema_auto_handles_non_semver_version(tmp_path):
+    # Non-semver should fall back to latest schema
+    manifest_yaml = textwrap.dedent(
+        '''
+        version: dev
+        pages:
+          Template:Example:
+            file: pages/Templates/Template_Example.wiki
+            type: template
+            version: 1.0.0
+        packs:
+          example:
+            version: 1.0.0
+            pages: [Template:Example]
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest)])
+    assert rc == 0
+
+
+def test_explicit_schema_override_path(tmp_path):
+    # Explicit schema path should work regardless of manifest version
+    manifest_yaml = textwrap.dedent(
+        '''
+        version: 9.9.9
+        pages:
+          Template:Example:
+            file: pages/Templates/Template_Example.wiki
+            type: template
+            version: 1.0.0
+        packs:
+          example:
+            version: 1.0.0
+            pages: [Template:Example]
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    schema_v1 = REPO_ROOT / 'schema' / 'v1' / 'manifest.schema.json'
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(schema_v1)])
+    assert rc == 0
