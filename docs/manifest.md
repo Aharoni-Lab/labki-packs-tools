@@ -5,7 +5,7 @@
 Fields:
 
 - `version` (string): manifest schema/version of the registry (v2 and up)
-- `last_updated` (date/string): informational timestamp
+- `last_updated` (string): ISO-like timestamp `YYYY-MM-DDThh:mm:ssZ`
 - `pages` (mapping): global flat registry of pages
   - key: canonical wiki title (e.g., `Template:Microscope`)
   - value: object with fields:
@@ -26,7 +26,7 @@ Example (aligned to repository samples; using `tests/fixtures/basic_repo/manifes
 
 ```yaml
 version: 2.0.0
-last_updated: 2025-09-22
+last_updated: 2025-09-22T00:00:00Z
 
 pages:
   Template:Publication:

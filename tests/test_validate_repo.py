@@ -35,7 +35,7 @@ def test_validate_missing_page_file(tmp_path):
     manifest_yaml = textwrap.dedent(
         '''
         version: 2.0.0
-        last_updated: "2025-09-22"
+        last_updated: "2025-09-22T00:00:00Z"
         pages:
           Template:Example:
             file: pages/Templates/Template_Example.wiki
@@ -119,6 +119,7 @@ def test_validate_valid_page_version_passes(tmp_path):
     manifest_yaml = textwrap.dedent(
         '''
         version: 2.0.0
+        last_updated: "2025-09-22T00:00:00Z"
         pages:
           Template:Example:
             file: pages/Templates/Template_Example.wiki
@@ -141,6 +142,7 @@ def test_validate_duplicate_page_across_packs_fails(tmp_path):
     manifest_yaml = textwrap.dedent(
         '''
         version: 2.0.0
+        last_updated: "2025-09-22T00:00:00Z"
         pages:
           Template:Shared:
             file: pages/Templates/Template_Shared.wiki
@@ -167,6 +169,7 @@ def test_validate_warns_on_orphan_files(tmp_path):
     manifest_yaml = textwrap.dedent(
         '''
         version: 2.0.0
+        last_updated: "2025-09-22T00:00:00Z"
         pages: {}
         packs: {}
         '''
@@ -184,6 +187,7 @@ def test_validate_module_page_rules(tmp_path):
     good_manifest = textwrap.dedent(
         '''
         version: 2.0.0
+        last_updated: "2025-09-22T00:00:00Z"
         pages:
           Module:Util:
             file: pages/Modules/Module_Util.lua
@@ -204,6 +208,7 @@ def test_validate_module_page_rules(tmp_path):
     bad_manifest = textwrap.dedent(
         '''
         version: 2.0.0
+        last_updated: "2025-09-22T00:00:00Z"
         pages:
           NotModule:Wrong:
             file: pages/Templates/Module_Wrong.txt
@@ -228,6 +233,7 @@ def test_validate_manifest_with_single_pack_valid(tmp_path):
     manifest_yaml = textwrap.dedent(
         '''
         version: 2.0.0
+        last_updated: "2025-09-22T00:00:00Z"
         pages:
           Template:Only:
             file: pages/Templates/Template_Only.wiki
@@ -272,6 +278,7 @@ def test_schema_auto_handles_non_semver_version(tmp_path):
     manifest_yaml = textwrap.dedent(
         '''
         version: dev
+        last_updated: "2025-09-22T00:00:00Z"
         pages:
           Template:Example:
             file: pages/Templates/Template_Example.wiki
@@ -294,6 +301,7 @@ def test_explicit_schema_override_path(tmp_path):
     manifest_yaml = textwrap.dedent(
         '''
         version: 9.9.9
+        last_updated: "2025-09-22T00:00:00Z"
         pages:
           Template:Example:
             file: pages/Templates/Template_Example.wiki
