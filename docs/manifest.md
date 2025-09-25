@@ -26,7 +26,7 @@ Title keys and namespaces:
     - `description` (string, optional)
     - `version` (string, required): semantic version for the pack
     - `pages` (array of strings): page titles from the global `pages` registry
-    - `depends_on` (array of strings, optional): pack ids this pack depends on. Each string must be a key that exists under `packs`.
+    - `depends_on` (array of strings, optional): pack ids this pack depends on. Each string must be a pack id, a key that exists under `packs`.
     - `tags` (array of strings, optional): free-form labels to aid discovery/filtering (e.g., `core`, `imaging`)
 
 Example (aligned to repository samples; using `tests/fixtures/basic_repo/manifest.yml`):
