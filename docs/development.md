@@ -13,7 +13,7 @@ pytest -q
 
 ## Making schema changes
 
-1. Edit `schema/root-manifest.schema.json`.
+1. Edit `schema/manifest.schema.json`.
 2. Update `docs/manifest.md` if you add/remove fields.
 3. Add tests in `tests/` to cover new rules (errors vs. warnings).
 

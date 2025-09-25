@@ -4,7 +4,7 @@ CLI validator and JSON Schemas for Labki/MediaWiki content packs. Use this in CI
 
 ## What it validates (v2)
 
-- Root manifest structure (`version`, `pages`, `packs`, optional `groups`) against `schema/root-manifest.schema.json`.
+- Root manifest structure (`version`, `pages`, `packs`, optional `groups`) against `schema/manifest.schema.json`.
 - Page entries: required `file`, `type`, `version` (semantic version), Windows-safe filenames, file existence.
 - Packs: required semantic version, page titles exist, dependency sanity and cycle detection.
 - Groups: pack references are valid; warns when a pack appears in multiple groups.
@@ -18,7 +18,7 @@ Requires Python 3.10+.
 pip install pyyaml jsonschema
 
 # Validate a repo's root manifest against the schema
-python tools/validate_repo.py validate-root path/to/manifest.yml schema/root-manifest.schema.json
+python tools/validate_repo.py validate-root path/to/manifest.yml schema/manifest.schema.json
 
 Exit code is non-zero on validation errors (suitable for CI). Warnings do not change the exit code.
 
@@ -27,7 +27,7 @@ Exit code is non-zero on validation errors (suitable for CI). Warnings do not ch
 This repo ships a small sample under `tests/fixtures/basic_repo/`:
 
 ```bash
-python tools/validate_repo.py validate-root tests/fixtures/basic_repo/manifest.yml schema/root-manifest.schema.json
+python tools/validate_repo.py validate-root tests/fixtures/basic_repo/manifest.yml schema/manifest.schema.json
 ```
 
 ## Use in CI (content repo)
@@ -57,7 +57,7 @@ jobs:
         run: pip install pyyaml jsonschema
       - name: Validate manifest
         run: |
-          python tools-cache/tools/validate_repo.py validate-root manifest.yml tools-cache/schema/root-manifest.schema.json
+          python tools-cache/tools/validate_repo.py validate-root manifest.yml tools-cache/schema/manifest.schema.json
 ```
 
 Alternatively, vendor or pin a release artifact of this repo. A reusable GitHub Action is on the roadmap.

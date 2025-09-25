@@ -12,7 +12,7 @@
 ## Examples
 
 ```bash
-python tools/validate_repo.py validate-root tests/fixtures/basic_repo/manifest.yml schema/root-manifest.schema.json
+python tools/validate_repo.py validate-root tests/fixtures/basic_repo/manifest.yml schema/manifest.schema.json
 ```
 
 ## Common messages

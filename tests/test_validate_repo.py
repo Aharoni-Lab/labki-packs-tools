@@ -8,7 +8,7 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR = REPO_ROOT / 'tools' / 'validate_repo.py'
-SCHEMA = REPO_ROOT / 'schema' / 'root-manifest.schema.json'
+SCHEMA = REPO_ROOT / 'schema' / 'manifest.schema.json'
 FIXTURES = REPO_ROOT / 'tests' / 'fixtures' / 'basic_repo'
 
 
