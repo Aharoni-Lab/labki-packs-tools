@@ -172,40 +172,7 @@ def check_manifest(manifest_path: Path, schema_path: Path) -> int:
             error("Dependency cycle detected among packs")
             rc = 1
 
-    # groups validation
-    groups = manifest.get('groups')
-    if groups is not None:
-        def validate_groups(node_map, path=None):
-            nonlocal rc
-            if path is None:
-                path = []
-            # track pack appearances across entire group tree
-            nonlocal_pack_to_paths = validate_groups.pack_to_paths
-            if not isinstance(node_map, dict):
-                error("'groups' must be a mapping")
-                rc = 1
-                return
-            for key, node in node_map.items():
-                current = path + [key]
-                pack_ids = node.get('packs', []) or []
-                if pack_ids and not isinstance(pack_ids, list):
-                    error(f"Group '{'.'.join(current)}' packs must be an array")
-                    rc = 1
-                for pid in pack_ids:
-                    if pid not in packs:
-                        error(f"Group '{'.'.join(current)}' references unknown pack id: {pid}")
-                        rc = 1
-                    else:
-                        nonlocal_pack_to_paths.setdefault(pid, []).append('.'.join(current))
-                children = node.get('children')
-                if children is not None:
-                    validate_groups(children, current)
-        validate_groups.pack_to_paths = {}
-        validate_groups(groups)
-        # warn if a pack appears in multiple groups
-        for pid, paths in validate_groups.pack_to_paths.items():
-            if len(paths) > 1:
-                warn(f"Pack '{pid}' appears in multiple groups: {', '.join(paths)}. Prefer a single group; use tags for cross-cutting labels.")
+    # no groups validation (feature removed)
     return rc
 
 

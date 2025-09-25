@@ -59,12 +59,3 @@ packs:
     pages:
       - Onboarding
     depends_on: [publication]
-
-groups:
-  operations:
-    description: Operational packs
-    packs: [onboarding, meeting_notes]
-    children:
-      content:
-        description: Content creation
-        packs: [publication]

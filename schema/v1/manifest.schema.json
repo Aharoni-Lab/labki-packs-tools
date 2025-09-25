@@ -19,8 +19,7 @@
         "additionalProperties": false
       }
     },
-    "packs": { "$ref": "#/$defs/packRegistry" },
-    "groups": { "$ref": "#/$defs/groupNodeMap" }
+    "packs": { "$ref": "#/$defs/packRegistry" }
   },
   "$defs": {
     "packRegistry": {
@@ -35,18 +34,6 @@
           "tags": { "type": "array", "items": { "type": "string" } }
         },
         "required": ["version"],
-        "additionalProperties": false
-      }
-    },
-    "groupNodeMap": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "object",
-        "properties": {
-          "description": { "type": "string" },
-          "packs": { "type": "array", "items": { "type": "string" } },
-          "children": { "$ref": "#/$defs/groupNodeMap" }
-        },
         "additionalProperties": false
       }
     }

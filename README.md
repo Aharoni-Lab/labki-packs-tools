@@ -4,10 +4,10 @@ CLI validator and JSON Schemas for Labki/MediaWiki content packs. Use this in CI
 
 ## What it validates (v2)
 
-- Root manifest structure (`version`, `pages`, `packs`, optional `groups`) against `schema/manifest.schema.json`.
+- Manifest structure (`version`, `pages`, `packs`) against `schema/manifest.schema.json`.
 - Page entries: required `file`, `type`, `version` (semantic version), Windows-safe filenames, file existence.
 - Packs: required semantic version, page titles exist, dependency sanity and cycle detection.
-- Groups: pack references are valid; warns when a pack appears in multiple groups.
+ 
 - Additional conventions (warnings), e.g., `Module:` pages should be `.lua` under `pages/Modules/`.
 
 ## Quickstart (local)
