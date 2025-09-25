@@ -11,7 +11,6 @@ Fields:
   - key: canonical wiki title (e.g., `Template:Microscope`)
   - value: object with fields:
     - `file` (string): repository path to the file under `pages/`
-    
 Title keys and namespaces:
 - Keys must be canonical titles with spaces (not underscores). Example: `"Template:Person"`, `"Category:Person"`, `"Person"`.
 - Do not use percent-encoding (e.g., `%20`) in keys; use spaces.
