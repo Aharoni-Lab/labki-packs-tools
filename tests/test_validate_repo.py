@@ -30,6 +30,68 @@ def test_validate_ok_uses_fixtures_manifest():
     assert rc == 0, f"expected success, got rc={rc}, out={out}, err={err}"
 
 
+def test_rejects_underscore_in_page_key(tmp_path):
+    manifest_yaml = textwrap.dedent(
+        '''
+        schema_version: 2.0.0
+        pages:
+          Template:Has_Underscore:
+            file: pages/Templates/Template_Example.wiki
+            version: 1.0.0
+        packs:
+          example:
+            version: 1.0.0
+            pages: [Template:Has_Underscore]
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
+    assert rc != 0
+    assert 'must use spaces, not underscores' in out
+
+
+def test_rejects_percent_encoding_in_page_key(tmp_path):
+    manifest_yaml = textwrap.dedent(
+        '''
+        schema_version: 2.0.0
+        pages:
+          Template:Has%20Encoding:
+            file: pages/Templates/Template_Example.wiki
+            version: 1.0.0
+        packs:
+          example:
+            version: 1.0.0
+            pages: [Template:Has%20Encoding]
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
+    assert rc != 0
+    assert 'must not contain percent-encoding' in out
+
+
+def test_allows_main_namespace_title_without_colon(tmp_path):
+    manifest_yaml = textwrap.dedent(
+        '''
+        schema_version: 2.0.0
+        pages:
+          Person:
+            file: pages/Templates/Template_Example.wiki
+            version: 1.0.0
+        packs:
+          example:
+            version: 1.0.0
+            pages: [Person]
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
+    assert rc == 0
+
+
 def test_validate_missing_page_file(tmp_path):
     # Build a tiny manifest that references a non-existent file
     manifest_yaml = textwrap.dedent(

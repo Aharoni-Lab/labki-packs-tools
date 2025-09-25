@@ -61,6 +61,13 @@ def check_manifest(manifest_path: Path, schema_path: Path) -> int:
         rc = 1
     else:
         for title, meta in pages.items():
+            # Enforce canonical title key format: spaces not underscores, no percent-encoding
+            if '%' in title:
+                error(f"Page title must not contain percent-encoding: {title}")
+                rc = 1
+            if '_' in title:
+                error(f"Page title must use spaces, not underscores: {title}")
+                rc = 1
             if ':' not in title:
                 warn(f"Title missing namespace: {title}")
             file_rel = meta.get('file')

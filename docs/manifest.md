@@ -14,6 +14,7 @@ Fields:
     
 Title keys and namespaces:
 - Keys must be canonical titles with spaces (not underscores). Example: `"Template:Person"`, `"Category:Person"`, `"Person"`.
+- Do not use percent-encoding (e.g., `%20`) in keys; use spaces.
 - The namespace is inferred from the key prefix before `:` (e.g., `Module:`, `Help:`, `MediaWiki:`). Do not include a separate namespace field.
     - `version` (string): semantic version for this page
     - `description` (string, optional)
