@@ -3,35 +3,37 @@
   "type": "object",
   "required": ["version", "pages", "packs"],
   "properties": {
-    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
-    "last_updated": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$", "description": "Manifest version (semantic version: MAJOR.MINOR.PATCH)" },
+    "last_updated": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$", "description": "Timestamp the manifest was last updated, in UTC (YYYY-MM-DDThh:mm:ssZ)" },
     "pages": {
+      "description": "Global registry of pages. Keys are canonical wiki titles (e.g., 'Template:Microscope').",
       "type": "object",
       "additionalProperties": {
         "type": "object",
         "required": ["file", "type", "version"],
         "properties": {
-          "file": { "type": "string" },
-          "type": { "type": "string", "enum": ["template", "form", "category", "property", "layout", "module", "help", "mediawiki", "other"] },
-          "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
-          "description": { "type": "string" }
+          "file": { "type": "string", "description": "Repository-relative path under 'pages/' to the file that defines this page" },
+          "type": { "type": "string", "enum": ["template", "form", "category", "property", "layout", "module", "help", "mediawiki", "other"], "description": "Type of page" },
+          "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$", "description": "Semantic version for this page" },
+          "description": { "type": "string", "description": "Optional human-readable description of the page" }
         },
         "additionalProperties": false
       }
     },
-    "packs": { "$ref": "#/$defs/packRegistry" }
+    "packs": { "$ref": "#/$defs/packRegistry", "description": "Registry of packs keyed by pack id" }
   },
   "$defs": {
     "packRegistry": {
       "type": "object",
+      "description": "Mapping of pack id to pack metadata",
       "additionalProperties": {
         "type": "object",
         "properties": {
-          "description": { "type": "string" },
-          "version": { "type": "string" },
-          "pages": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-          "depends_on": { "type": "array", "items": { "type": "string" } },
-          "tags": { "type": "array", "items": { "type": "string" } }
+          "description": { "type": "string", "description": "Optional human-readable description of the pack" },
+          "version": { "type": "string", "description": "Semantic version for the pack (no pattern enforced here beyond being a string)" },
+          "pages": { "type": "array", "items": { "type": "string" }, "uniqueItems": true, "description": "List of page titles included in this pack; must exist in the global pages registry" },
+          "depends_on": { "type": "array", "items": { "type": "string" }, "description": "Pack ids this pack depends on; strings must be keys in the packs registry" },
+          "tags": { "type": "array", "items": { "type": "string" }, "description": "Optional labels to aid discovery (e.g., 'core', 'imaging')" }
         },
         "required": ["version"],
         "additionalProperties": false

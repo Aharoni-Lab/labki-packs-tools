@@ -18,7 +18,7 @@ Fields:
     - `description` (string, optional)
     - `version` (string, required): semantic version for the pack
     - `pages` (array of strings): page titles from the global `pages` registry
-    - `depends_on` (array of strings, optional): other pack ids this pack depends on
+    - `depends_on` (array of strings, optional): pack ids this pack depends on. Each string must be a key that exists under `packs`.
     - `tags` (array of strings, optional): free-form labels to aid discovery/filtering (e.g., `core`, `imaging`)
  
 
