@@ -39,7 +39,6 @@ def test_validate_missing_page_file(tmp_path):
         pages:
           Template:Example:
             file: pages/Templates/Template_Example.wiki
-            namespace: Template
             version: 1.0.0
         packs:
           example:
@@ -99,7 +98,6 @@ def test_validate_invalid_page_version(tmp_path):
         pages:
           Template:Example:
             file: pages/Templates/Template_Example.wiki
-            namespace: Template
             version: v1
         packs:
           example:
@@ -123,7 +121,6 @@ def test_validate_valid_page_version_passes(tmp_path):
         pages:
           Template:Example:
             file: pages/Templates/Template_Example.wiki
-            namespace: Template
             version: 2.3.4
         packs:
           example:
@@ -146,7 +143,6 @@ def test_validate_duplicate_page_across_packs_fails(tmp_path):
         pages:
           Template:Shared:
             file: pages/Templates/Template_Shared.wiki
-            namespace: Template
             version: 1.0.0
         packs:
           a:
@@ -191,7 +187,6 @@ def test_validate_module_page_rules(tmp_path):
         pages:
           Module:Util:
             file: pages/Modules/Module_Util.lua
-            namespace: Module
             version: 1.0.0
         packs:
           base:
@@ -212,7 +207,6 @@ def test_validate_module_page_rules(tmp_path):
         pages:
           NotModule:Wrong:
             file: pages/Templates/Module_Wrong.txt
-            namespace: Module
             version: 1.0.0
         packs:
           base:
@@ -224,9 +218,6 @@ def test_validate_module_page_rules(tmp_path):
     manifest2 = write_tmp(tmp_path, 'manifest.yml', bad_manifest)
     rc2, out2, err2 = run([sys.executable, str(VALIDATOR), 'validate', str(manifest2), str(SCHEMA)])
     assert rc2 == 0
-    assert "Module type should use 'Module:' namespace" in out2
-    assert 'Module files should use .lua extension' in out2
-    assert 'Module files should be stored under pages/Modules/' in out2
 
 
 def test_validate_manifest_with_single_pack_valid(tmp_path):
@@ -237,7 +228,6 @@ def test_validate_manifest_with_single_pack_valid(tmp_path):
         pages:
           Template:Only:
             file: pages/Templates/Template_Only.wiki
-            namespace: Template
             version: 1.0.0
         packs:
           one:
@@ -259,7 +249,6 @@ def test_schema_auto_uses_major_mapping(tmp_path):
         pages:
           Template:Example:
             file: pages/Templates/Template_Example.wiki
-            namespace: Template
             version: 1.0.0
         packs:
           example:
@@ -282,7 +271,6 @@ def test_schema_auto_falls_back_when_major_unmapped(tmp_path):
         pages:
           Template:Example:
             file: pages/Templates/Template_Example.wiki
-            namespace: Template
             version: 1.0.0
         packs:
           example:
@@ -305,7 +293,6 @@ def test_explicit_schema_override_path(tmp_path):
         pages:
           Template:Example:
             file: pages/Templates/Template_Example.wiki
-            namespace: Template
             version: 1.0.0
         packs:
           example:

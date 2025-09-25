@@ -80,8 +80,11 @@ def check_manifest(manifest_path: Path, schema_path: Path) -> int:
                 error(f"Page '{title}' must have semantic version (MAJOR.MINOR.PATCH)")
                 rc = 1
             # Additional type-specific checks
-            page_namespace = meta.get('namespace')
-            if page_namespace == 'Module':
+            # Infer namespace from title key, e.g., 'Module:Name'
+            inferred_ns = None
+            if ':' in title:
+                inferred_ns = title.split(':', 1)[0]
+            if inferred_ns == 'Module':
                 if not title.startswith('Module:'):
                     warn(f"Module type should use 'Module:' namespace: {title}")
                 if not abs_path.suffix == '.lua':
@@ -89,10 +92,10 @@ def check_manifest(manifest_path: Path, schema_path: Path) -> int:
                 # recommend Modules directory
                 if 'Modules' not in file_rel.replace('\\', '/'):
                     warn(f"Module files should be stored under pages/Modules/: {file_rel}")
-            if page_namespace == 'Help':
+            if inferred_ns == 'Help':
                 if not title.startswith('Help:'):
                     warn(f"Help type should use 'Help:' namespace: {title}")
-            if page_namespace == 'MediaWiki':
+            if inferred_ns == 'MediaWiki':
                 if not title.startswith('MediaWiki:'):
                     warn(f"MediaWiki type should use 'MediaWiki:' namespace: {title}")
 

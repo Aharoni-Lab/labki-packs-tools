@@ -4,35 +4,27 @@ last_updated: "2025-09-22T00:00:00Z"
 pages:
   Template:Publication:
     file: pages/Templates/Template_Publication.wiki
-    namespace: Template
     version: 1.0.0
   Form:Publication:
     file: pages/Forms/Form_Publication.wiki
-    namespace: Form
     version: 1.0.0
   Category:Publication:
     file: pages/Categories/Category_Publication.wiki
-    namespace: Category
     version: 1.0.0
   Property:Has author:
     file: pages/Properties/Property_Has author.wiki
-    namespace: Property
     version: 1.0.0
   Template:MeetingNotes:
     file: pages/Templates/Template_MeetingNotes.wiki
-    namespace: Template
     version: 1.0.0
   Form:MeetingNotes:
     file: pages/Forms/Form_MeetingNotes.wiki
-    namespace: Form
     version: 1.0.0
   Category:Meeting:
     file: pages/Categories/Category_Meeting.wiki
-    namespace: Category
     version: 1.0.0
   Onboarding:
     file: pages/Layouts/Onboarding.md
-    namespace: ""
     version: 1.0.0
 
 packs:

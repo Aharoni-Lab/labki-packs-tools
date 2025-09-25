@@ -11,7 +11,10 @@ Fields:
   - key: canonical wiki title (e.g., `Template:Microscope`)
   - value: object with fields:
     - `file` (string): repository path to the file under `pages/`
-    - `namespace` (string, optional): one of `Template|Form|Category|Property|Module|Help|MediaWiki`; omit or use empty string for main namespace
+    
+Title keys and namespaces:
+- Keys must be canonical titles with spaces (not underscores). Example: `"Template:Person"`, `"Category:Person"`, `"Person"`.
+- The namespace is inferred from the key prefix before `:` (e.g., `Module:`, `Help:`, `MediaWiki:`). Do not include a separate namespace field.
     - `version` (string): semantic version for this page
     - `description` (string, optional)
 - `packs` (mapping): flat registry of packs
