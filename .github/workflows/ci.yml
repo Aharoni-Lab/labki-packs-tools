@@ -35,6 +35,6 @@ jobs:
           python-version: '3.11'
       - run: pip install pyyaml jsonschema pytest
       - name: "sanity check: validate sample fixture"
-        run: python tools/validate_repo.py validate-root tests/fixtures/basic_repo/manifest.yml schema/root-manifest.schema.json
+        run: python tools/validate_repo.py validate tests/fixtures/basic_repo/manifest.yml schema/manifest.schema.json
       - name: Run tests
         run: pytest -q

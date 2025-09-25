@@ -203,6 +203,8 @@ def main():
     p_root.add_argument('manifest', type=str)
     p_root.add_argument('schema', type=str, nargs='?', default='auto', help="Path to schema or 'auto' (default)")
 
+    # No legacy aliases; use `validate` only
+
     args = parser.parse_args()
 
     if args.cmd == 'validate':
@@ -223,7 +225,8 @@ def main():
                 return_code = check_manifest(manifest_path, schema_path)
                 sys.exit(return_code)
 
-            version_str = str(manifest_data.get('schema_version', '')).strip()
+            # Prefer schema_version key
+            version_str = str(manifest_data.get('schema_version') or '').strip()
             m = re.match(r"^(\d+)\.(\d+)\.(\d+)$", version_str or '')
             if not m:
                 warn("Manifest 'schema_version' missing or not semantic; using latest schema")
@@ -253,7 +256,8 @@ def main():
             return_code = check_manifest(manifest_path, schema_path)
             sys.exit(return_code)
         else:
-            sys.exit(check_manifest(Path(args.manifest), Path(schema_arg)))
+            schema_path = Path(schema_arg)
+            sys.exit(check_manifest(Path(args.manifest), schema_path))
 
 
 if __name__ == '__main__':
