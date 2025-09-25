@@ -11,7 +11,7 @@ Fields:
   - key: canonical wiki title (e.g., `Template:Microscope`)
   - value: object with fields:
     - `file` (string): repository path to the file under `pages/`
-    - `type` (string): one of `template|form|category|property|layout|module|help|mediawiki|other`
+    - `namespace` (string, optional): one of `Template|Form|Category|Property|Module|Help|MediaWiki`; omit or use empty string for main namespace
     - `version` (string): semantic version for this page
     - `description` (string, optional)
 - `packs` (mapping): flat registry of packs

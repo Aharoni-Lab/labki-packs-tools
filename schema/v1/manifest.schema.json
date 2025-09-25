@@ -11,10 +11,10 @@
       "type": "object",
       "additionalProperties": {
         "type": "object",
-        "required": ["file", "type", "version"],
+        "required": ["file", "version"],
         "properties": {
           "file": { "type": "string", "description": "Repository-relative path under 'pages/' to the file that defines this page" },
-          "type": { "type": "string", "enum": ["template", "form", "category", "property", "layout", "module", "help", "mediawiki", "other"], "description": "Type of page" },
+          "namespace": { "type": "string", "enum": ["", "Template", "Form", "Category", "Property", "Module", "Help", "MediaWiki"], "description": "MediaWiki namespace of the page. Omit or use empty string for main namespace." },
           "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$", "description": "Semantic version for this page" },
           "description": { "type": "string", "description": "Optional human-readable description of the page" }
         },
