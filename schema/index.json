@@ -1,5 +1,4 @@
 {
-  "$schema": "https://json.schemastore.org/jsonref.json",
   "manifest": {
     "majors": {
       "1": "v1/manifest.schema.json"
