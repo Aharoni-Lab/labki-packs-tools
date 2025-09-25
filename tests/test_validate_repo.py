@@ -303,6 +303,80 @@ def test_validate_manifest_with_single_pack_valid(tmp_path):
     assert rc == 0
 
 
+def test_pack_with_two_dependencies_but_no_pages_is_valid(tmp_path):
+    manifest_yaml = textwrap.dedent(
+        '''
+        schema_version: 2.0.0
+        pages:
+          Template:A:
+            file: pages/Templates/A.wiki
+            version: 1.0.0
+          Template:B:
+            file: pages/Templates/B.wiki
+            version: 1.0.0
+        packs:
+          depA:
+            version: 1.0.0
+            pages: [Template:A]
+          depB:
+            version: 1.0.0
+            pages: [Template:B]
+          meta:
+            version: 1.0.0
+            pages: []
+            depends_on: [depA, depB]
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Templates/A.wiki', '== A ==\n')
+    write_tmp(tmp_path, 'pages/Templates/B.wiki', '== B ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
+    assert rc == 0
+
+
+def test_pack_with_single_dependency_and_no_pages_is_invalid(tmp_path):
+    manifest_yaml = textwrap.dedent(
+        '''
+        schema_version: 2.0.0
+        pages:
+          Template:A:
+            file: pages/Templates/A.wiki
+            version: 1.0.0
+        packs:
+          depA:
+            version: 1.0.0
+            pages: [Template:A]
+          meta:
+            version: 1.0.0
+            pages: []
+            depends_on: [depA]
+        '''
+    ).strip() + "\n"
+    write_tmp(tmp_path, 'pages/Templates/A.wiki', '== A ==\n')
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
+    assert rc != 0
+    assert 'must include at least one page or depend on at least two packs' in out
+
+
+def test_pack_with_no_pages_and_no_dependencies_is_invalid(tmp_path):
+    manifest_yaml = textwrap.dedent(
+        '''
+        schema_version: 2.0.0
+        pages: {}
+        packs:
+          meta:
+            version: 1.0.0
+            pages: []
+            depends_on: []
+        '''
+    ).strip() + "\n"
+    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
+    assert rc != 0
+    assert 'must include at least one page or depend on at least two packs' in out
+
+
 def test_schema_auto_uses_major_mapping(tmp_path):
     # version 1.2.3 should resolve via index majors → v1 schema
     manifest_yaml = textwrap.dedent(

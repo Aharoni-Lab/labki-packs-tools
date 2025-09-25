@@ -51,6 +51,15 @@ def check_manifest(manifest_path: Path, schema_path: Path) -> int:
     schema_errors = validate_with_schema(manifest, schema)
     if schema_errors:
         for e in schema_errors:
+            # Provide clearer message for anyOf failures on packs content rule
+            if e.validator == 'anyOf':
+                path_list = list(e.path)
+                if len(path_list) >= 2 and path_list[0] == 'packs':
+                    pack_id = path_list[1]
+                    error(
+                        f"Schema validation: Pack '{pack_id}' must include at least one page or depend on at least two packs"
+                    )
+                    continue
             error(f"Schema validation: {e.message} at path {list(e.path)}")
         rc = 1
 

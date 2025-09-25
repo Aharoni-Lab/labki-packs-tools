@@ -37,7 +37,11 @@
           "tags": { "type": "array", "items": { "type": "string" }, "description": "Optional labels to aid discovery (e.g., 'core', 'imaging')" }
         },
         "required": ["version"],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "anyOf": [
+          { "properties": { "pages": { "type": "array", "minItems": 1 } } },
+          { "properties": { "depends_on": { "type": "array", "minItems": 2 } } }
+        ]
       }
     }
   },
