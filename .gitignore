@@ -30,6 +30,8 @@ Thumbs.db
 # Generated graphs
 graph.dot
 graph.svg
+graph.json
+graph.md
 # OS / editors
 .DS_Store
 Thumbs.db

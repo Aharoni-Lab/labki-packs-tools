@@ -30,7 +30,7 @@ Notes:
 - Consider caching the tools checkout with a pinned ref.
 - To avoid PATH issues with console scripts, you can also run via modules: `python -m tools.validate_repo validate manifest.yml` (requires the package to be installed in the environment).
 
-Optional: generate a graph artifact from the same manifest.
+Optional: generate a graph artifact (DOT/SVG) and/or Mermaid/JSON from the same manifest.
 
 ```yaml
 jobs:
@@ -54,4 +54,23 @@ jobs:
           path: |
             graph.dot
             graph.svg
+
+  graph-json-mermaid:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install git+https://github.com/Aharoni-Lab/labki-packs-tools.git
+      - name: Generate Mermaid
+        run: labki-graph manifest.yml --format mermaid --output graph.md
+      - name: Generate JSON
+        run: labki-graph manifest.yml --format json --output graph.json
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pack-graph-text
+          path: |
+            graph.md
+            graph.json
 ```

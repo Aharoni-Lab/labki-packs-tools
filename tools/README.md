@@ -32,6 +32,27 @@ labki-validate validate tests/fixtures/basic_repo/manifest.yml
 labki-graph tests/fixtures/basic_repo/manifest.yml --format dot --output graph.dot
 ```
 
+Other formats:
+
+- Mermaid (for docs/readmes/GitHub rendering):
+
+```powershell
+labki-graph tests/fixtures/basic_repo/manifest.yml --format mermaid --output graph.md
+```
+
+In Markdown, wrap the output with a mermaid code fence for preview:
+
+```mermaid
+graph LR
+...
+```
+
+- JSON (for MediaWiki extension or other tooling):
+
+```powershell
+labki-graph tests/fixtures/basic_repo/manifest.yml --format json --output graph.json
+```
+
 If the commands are not found, either re-activate the venv or use one of these options:
 - Full path to console scripts:
 
