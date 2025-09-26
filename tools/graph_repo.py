@@ -6,7 +6,7 @@ from pathlib import Path
 import json
 from datetime import datetime, timezone
 
-from tools.utils import load_yaml, UniqueKeyLoader, sanitize_id, extract_graph
+from tools.utils import load_yaml, UniqueKeyLoader, sanitize_id, extract_graph, categorize_packs
 import yaml
 
 
@@ -28,10 +28,19 @@ def emit_dot(manifest: dict) -> str:
     # Clusters
     lines.append("  subgraph cluster_packs {")
     lines.append("    label=\"Packs\"; style=rounded; color=\"#5C6BC0\";")
+    pack_styles = {
+        'content': ("#E8F0FE", "#5C6BC0"),
+        'aggregator': ("#FFF3E0", "#FB8C00"),
+        'meta': ("#F3E5F5", "#AB47BC"),
+        'other': ("#ECEFF1", "#90A4AE"),
+    }
+    pack_kinds = categorize_packs(manifest)
     for pid in pack_ids:
         nid = sanitize_id(f"pack_{pid}")
         label = pid.replace('"', '\\"')
-        lines.append(f"    {nid} [label=\"{label}\", shape=box, fillcolor=\"#E8F0FE\", color=\"#5C6BC0\"];")
+        kind = pack_kinds.get(pid, 'other')
+        fill, border = pack_styles.get(kind, pack_styles['other'])
+        lines.append(f"    {nid} [label=\"{label}\", shape=box, fillcolor=\"{fill}\", color=\"{border}\"];")
     lines.append("  }")
     lines.append("  subgraph cluster_pages {")
     lines.append("    label=\"Pages\"; style=rounded; color=\"#43A047\";")
@@ -77,27 +86,60 @@ def emit_mermaid(manifest: dict) -> str:
     lines: list[str] = []
     lines.append("graph LR")
     # Node style classes
-    lines.append("  classDef pack fill:#E8F0FE,stroke:#5C6BC0,stroke-width:1px;")
-    lines.append("  classDef page fill:#F5F5F5,stroke:#9E9E9E,stroke-width:1px;")
+    # Packs
+    lines.append("  classDef pack_content fill:#E8F0FE,stroke:#5C6BC0,stroke-width:1px;")
+    lines.append("  classDef pack_aggregator fill:#FFF3E0,stroke:#FB8C00,stroke-width:1px;")
+    lines.append("  classDef pack_meta fill:#F3E5F5,stroke:#AB47BC,stroke-width:1px;")
+    lines.append("  classDef pack_other fill:#ECEFF1,stroke:#90A4AE,stroke-width:1px;")
+    # Pages by namespace
+    lines.append("  classDef ns_Template fill:#E3F2FD,stroke:#42A5F5,stroke-width:1px;")
+    lines.append("  classDef ns_Form fill:#E8F5E9,stroke:#43A047,stroke-width:1px;")
+    lines.append("  classDef ns_Category fill:#F3E5F5,stroke:#AB47BC,stroke-width:1px;")
+    lines.append("  classDef ns_Property fill:#F1F8E9,stroke:#7CB342,stroke-width:1px;")
+    lines.append("  classDef ns_Module fill:#EDE7F6,stroke:#7E57C2,stroke-width:1px;")
+    lines.append("  classDef ns_Help fill:#FFFDE7,stroke:#FBC02D,stroke-width:1px;")
+    lines.append("  classDef ns_MediaWiki fill:#ECEFF1,stroke:#607D8B,stroke-width:1px;")
+    lines.append("  classDef ns_Main fill:#F5F5F5,stroke:#9E9E9E,stroke-width:1px;")
     # Nodes
+    pack_kinds = categorize_packs(manifest)
     for pid in pack_ids:
         nid = sanitize_id(f"pack_{pid}")
         label = pid.replace('"', '\\"')
-        lines.append(f"  {nid}[{label}]:::pack")
+        kind = pack_kinds.get(pid, 'other')
+        lines.append(f"  {nid}[{label}]")
+        lines.append(f"  class {nid} pack_{kind}")
     for title in page_titles:
         nid = sanitize_id(f"page_{title}")
         label = title.replace('"', '\\"')
-        lines.append(f"  {nid}(({label})):::page")
+        if ':' in title:
+            ns = title.split(':', 1)[0]
+        else:
+            ns = 'Main'
+        ns_class = f"ns_{ns}"
+        lines.append(f"  {nid}(({label}))")
+        lines.append(f"  class {nid} {ns_class}")
     # Edges (depends_on: dep --> pack)
+    edge_styles: list[tuple[int, str]] = []
+    edge_index = 0
     for pack_id, dep in dep_edges:
         n_pack = sanitize_id(f"pack_{pack_id}")
         n_dep = sanitize_id(f"pack_{dep}")
         lines.append(f"  {n_dep} --> {n_pack}")
+        edge_styles.append((edge_index, 'depends_on'))
+        edge_index += 1
     # Edges (includes: page --> pack)
     for pack_id, title in include_edges:
         n_pack = sanitize_id(f"pack_{pack_id}")
         n_page = sanitize_id(f"page_{title}")
         lines.append(f"  {n_page} --> {n_pack}")
+        edge_styles.append((edge_index, 'includes'))
+        edge_index += 1
+    # Apply link styles by index
+    for idx, etype in edge_styles:
+        if etype == 'depends_on':
+            lines.append(f"  linkStyle {idx} stroke:#90A4AE,stroke-width:1.2px,stroke-dasharray:3 3;")
+        elif etype == 'includes':
+            lines.append(f"  linkStyle {idx} stroke:#64B5F6,stroke-width:1.4px;")
     return "\n".join(lines) + "\n"
 
 
@@ -106,19 +148,40 @@ def emit_json(manifest: dict) -> str:
     pack_ids, page_titles, dep_edges, include_edges = extract_graph(manifest)
     now = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
     nodes = []
+    pack_styles = {
+        'content': ("#E8F0FE", "#5C6BC0"),
+        'aggregator': ("#FFF3E0", "#FB8C00"),
+        'meta': ("#F3E5F5", "#AB47BC"),
+        'other': ("#ECEFF1", "#90A4AE"),
+    }
+    ns_styles = {
+        'Template': ("#E3F2FD", "#42A5F5"),
+        'Form': ("#E8F5E9", "#43A047"),
+        'Category': ("#F3E5F5", "#AB47BC"),
+        'Property': ("#F1F8E9", "#7CB342"),
+        'Module': ("#EDE7F6", "#7E57C2"),
+        'Help': ("#FFFDE7", "#FBC02D"),
+        'MediaWiki': ("#ECEFF1", "#607D8B"),
+        'Main': ("#F5F5F5", "#9E9E9E"),
+    }
+    pack_kinds = categorize_packs(manifest)
     for pid in pack_ids:
+        fill, border = pack_styles.get(pack_kinds.get(pid, 'other'), pack_styles['other'])
         nodes.append({
             "id": f"pack:{pid}",
             "type": "pack",
             "label": pid,
+            "style": {"fill": fill, "stroke": border},
         })
     for title in page_titles:
         ns = title.split(':', 1)[0] if ':' in title else 'Main'
+        fill, border = ns_styles.get(ns, ns_styles['Main'])
         nodes.append({
             "id": f"page:{title}",
             "type": "page",
             "label": title,
             "namespace": ns,
+            "style": {"fill": fill, "stroke": border},
         })
     edges = []
     for pack_id, dep in dep_edges:
@@ -126,12 +189,14 @@ def emit_json(manifest: dict) -> str:
             "from": f"pack:{dep}",
             "to": f"pack:{pack_id}",
             "type": "depends_on",
+            "style": {"color": "#90A4AE", "dashed": True, "width": 1.2},
         })
     for pack_id, title in include_edges:
         edges.append({
             "from": f"page:{title}",
             "to": f"pack:{pack_id}",
             "type": "includes",
+            "style": {"color": "#64B5F6", "dashed": False, "width": 1.4},
         })
     payload = {"nodes": nodes, "edges": edges, "meta": {"generated_at": now}}
     return json.dumps(payload, ensure_ascii=False, indent=2) + "\n"

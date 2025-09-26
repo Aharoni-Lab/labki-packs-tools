@@ -72,3 +72,27 @@ def extract_graph(manifest: dict):
     return pack_ids, page_titles, dep_edges, include_edges
 
 
+def categorize_packs(manifest: dict) -> dict[str, str]:
+    """Categorize packs by simple heuristics for styling.
+
+    - meta:        no pages, depends_on >= 2
+    - aggregator:  pages > 0 and depends_on >= 1
+    - content:     pages > 0 and depends_on == 0
+    - other:       everything else
+    """
+    packs = manifest.get('packs') or {}
+    categories: dict[str, str] = {}
+    for pid, meta in packs.items():
+        pages_count = len(meta.get('pages') or [])
+        deps_count = len(meta.get('depends_on') or [])
+        if pages_count == 0 and deps_count >= 2:
+            categories[pid] = 'meta'
+        elif pages_count > 0 and deps_count >= 1:
+            categories[pid] = 'aggregator'
+        elif pages_count > 0 and deps_count == 0:
+            categories[pid] = 'content'
+        else:
+            categories[pid] = 'other'
+    return categories
+
+

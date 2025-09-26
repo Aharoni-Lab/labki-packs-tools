@@ -60,6 +60,7 @@ If the commands are not found, either re-activate the venv or use one of these o
  .\.venv\Scripts\labki-validate.exe validate tests/fixtures/basic_repo/manifest.yml
  .\.venv\Scripts\labki-graph.exe tests/fixtures/basic_repo/manifest.yml --format dot --output graph.dot
 ```
+
 - Module form (no console scripts needed):
 
 ```powershell
@@ -77,8 +78,7 @@ choco install graphviz -y
 
 dot -Tsvg graph.dot -o graph.svg
 ```
- 
+
 Notes:
 - Shared YAML/JSON helpers live in `tools/utils/common.py`.
 - For CI examples and future outputs (Mermaid, JSON for MediaWiki), see `docs/graph_tools_plan.md`.
-

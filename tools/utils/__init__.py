@@ -6,6 +6,7 @@ from .common import (
   is_semver,
   sanitize_id,
   extract_graph,
+  categorize_packs,
 )
 
 
