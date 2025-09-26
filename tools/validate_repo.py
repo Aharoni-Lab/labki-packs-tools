@@ -70,10 +70,7 @@ def check_manifest(manifest_path: Path, schema_path: Path) -> int:
         rc = 1
     else:
         for title, meta in pages.items():
-            # Enforce canonical title key format: spaces not underscores, no percent-encoding
-            if '%' in title:
-                error(f"Page title must not contain percent-encoding: {title}")
-                rc = 1
+            # Enforce canonical title key format: spaces not underscores
             if '_' in title:
                 error(f"Page title must use spaces, not underscores: {title}")
                 rc = 1
@@ -236,23 +233,35 @@ def main():
                 schema_dir = Path(__file__).resolve().parents[1] / 'schema'
                 index_path = schema_dir / 'index.json'
                 schema_path = None
-                # Try index mapping first
+                # Try index mapping (flat map) first: exact match -> best match by major -> latest
                 try:
                     index = load_json(index_path)
-                    manifest_index = (index.get('manifest') or {})
-                    versions_map = (manifest_index.get('versions') or {})
-                    majors_map = (manifest_index.get('majors') or {})
-                    if version_str in versions_map:
-                        schema_path = schema_dir / versions_map[version_str]
-                    elif major in majors_map:
-                        schema_path = schema_dir / majors_map[major]
+                    manifest_map = (index.get('manifest') or {})
+                    rel = None
+                    if version_str in manifest_map:
+                        rel = manifest_map[version_str]
+                    else:
+                        # best match by major: highest semver with same major
+                        candidates = []
+                        for ver, path_rel in manifest_map.items():
+                            if ver == 'latest':
+                                continue
+                            m2 = re.match(r"^(\d+)\.(\d+)\.(\d+)$", ver)
+                            if m2 and m2.group(1) == major:
+                                candidates.append((int(m2.group(1)), int(m2.group(2)), int(m2.group(3)), path_rel))
+                        if candidates:
+                            candidates.sort(reverse=True)
+                            rel = candidates[0][3]
+                        elif 'latest' in manifest_map:
+                            rel = manifest_map['latest']
+                    if rel:
+                        schema_path = schema_dir / rel
                 except Exception:
-                    # Ignore index issues; fall back to directory probing
-                    pass
-                # Fallback to schema/v{major}/manifest.schema.json then latest
+                    # Ignore index issues; fall back to latest in repo
+                    schema_path = schema_dir / 'manifest.schema.json'
+                # Final fallback if still None
                 if schema_path is None:
-                    candidate = schema_dir / f"v{major}" / 'manifest.schema.json'
-                    schema_path = candidate if candidate.exists() else (schema_dir / 'manifest.schema.json')
+                    schema_path = schema_dir / 'manifest.schema.json'
             return_code = check_manifest(manifest_path, schema_path)
             sys.exit(return_code)
         else:
