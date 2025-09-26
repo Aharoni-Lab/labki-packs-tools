@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 import subprocess
 import sys
-import textwrap
 
 import yaml
 import uuid
@@ -379,3 +378,151 @@ def test_cli_and_function_parity(request, tmp_path, runner_fixture):
     mpath = write_tmp(tmp_path, 'manifest.yml', yaml.safe_dump(m, sort_keys=False))
     rc, out, err = run_fn(mpath)
     assert rc == 0, f"expected success, got rc={rc}, out={out}, err={err}"
+
+
+def test_schema_override_via_dollar_schema_field(tmp_path, run_validate, manifest, tmp_page_factory):
+    page = tmp_page_factory(name='X')
+    # Use relative path to schema v1; schema_version here should be ignored by auto selection
+    rel_schema = REPO_ROOT / 'schema' / 'v1_0_0' / 'manifest.schema.json'
+    mpath = manifest({
+        '$schema': str(rel_schema),
+        'schema_version': '9.9.9',
+        'pages': {'Template:X': page},
+        'packs': {'p': {'version': '1.0.0', 'pages': ['Template:X']}},
+    })
+    rc, out, err = run_validate(mpath, 'auto')
+    assert rc == 0
+
+
+def test_schema_version_requires_strict_semver_in_auto(tmp_path, run_validate, manifest, tmp_page_factory):
+    page = tmp_page_factory(name='X')
+    mpath = manifest({
+        'schema_version': '1.0',  # invalid for auto mode strict semver
+        'pages': {'Template:X': page},
+        'packs': {'p': {'version': '1.0.0', 'pages': ['Template:X']}},
+    })
+    rc, out, err = run_validate(mpath, 'auto')
+    assert rc != 0
+    assert 'must be a semantic version (MAJOR.MINOR.PATCH)' in out
+
+
+def test_rejects_colon_in_filename(manifest, run_validate, tmp_path):
+    # Create a file with a colon in its filename to trigger error
+    write_tmp(tmp_path, 'pages/Templates/Template:Bad.wiki', '== Bad ==\n')
+    mpath = manifest({
+        'pages': {'Template:Bad': {'file': 'pages/Templates/Template:Bad.wiki', 'version': '1.0.0'}},
+        'packs': {'p': {'version': '1.0.0', 'pages': ['Template:Bad']}},
+    })
+    rc, out, err = run_validate(mpath)
+    assert rc != 0
+    assert 'Filename must not contain colon' in out
+
+
+def test_pack_pages_must_be_array(manifest, run_validate, tmp_page_factory):
+    page = tmp_page_factory(name='T')
+    mpath = manifest({
+        'pages': {'Template:T': page},
+        'packs': {'p': {'version': '1.0.0', 'pages': 'Template:T'}},
+    })
+    rc, out, err = run_validate(mpath)
+    assert rc != 0
+    assert "pages must be an array" in out
+
+
+def test_pack_references_unknown_page(manifest, run_validate):
+    mpath = manifest({
+        'pages': {},
+        'packs': {'p': {'version': '1.0.0', 'pages': ['Template:Missing']}},
+    })
+    rc, out, err = run_validate(mpath)
+    assert rc != 0
+    assert 'references unknown page title' in out
+
+
+def test_depends_on_unknown_pack_id(manifest, run_validate):
+    mpath = manifest({
+        'pages': {},
+        'packs': {'p': {'version': '1.0.0', 'pages': [], 'depends_on': ['q']}},
+    })
+    rc, out, err = run_validate(mpath)
+    assert rc != 0
+    assert 'depends_on unknown pack id' in out
+
+
+def test_pack_version_must_be_semver(manifest, run_validate):
+    mpath = manifest({
+        'pages': {},
+        'packs': {'p': {'version': 'v1', 'pages': []}},
+    })
+    rc, out, err = run_validate(mpath)
+    assert rc != 0
+    assert 'must have semantic version' in out
+
+
+def test_pack_pages_unique_items(manifest, run_validate, tmp_page_factory):
+    page = tmp_page_factory(name='T')
+    mpath = manifest({
+        'pages': {'Template:T': page},
+        'packs': {'p': {'version': '1.0.0', 'pages': ['Template:T', 'Template:T']}},
+    })
+    rc, out, err = run_validate(mpath)
+    assert rc != 0
+    assert 'non-unique elements' in out or 'uniqueItems' in out
+
+
+def test_pages_reject_unknown_field(run_validate, manifest, tmp_page_factory):
+    page = tmp_page_factory(name='T')
+    # Inject unknown field into page meta
+    page['extra'] = 'x'
+    mpath = manifest({'pages': {'Template:T': page}, 'packs': {}})
+    rc, out, err = run_validate(mpath)
+    assert rc != 0
+    assert 'Additional properties are not allowed' in out
+
+
+def test_packs_reject_unknown_field(run_validate, manifest):
+    mpath = manifest({'pages': {}, 'packs': {'p': {'version': '1.0.0', 'unknown': 1}}})
+    rc, out, err = run_validate(mpath)
+    assert rc != 0
+    assert 'Additional properties are not allowed' in out
+
+
+def test_last_updated_format(run_validate, manifest):
+    mpath = manifest({'last_updated': '2025-09-22', 'pages': {}, 'packs': {}})
+    rc, out, err = run_validate(mpath)
+    assert rc != 0
+    assert 'does not match' in out or 'pattern' in out
+
+
+def test_warns_on_title_missing_namespace(manifest, run_validate, tmp_page_factory):
+    page = tmp_page_factory(namespace='')
+    mpath = manifest({'pages': {'Person': page}, 'packs': {'ex': {'version': '1.0.0', 'pages': ['Person']}}})
+    rc, out, err = run_validate(mpath)
+    assert rc == 0
+    assert 'Title missing namespace: Person' in out
+
+
+def test_module_warnings_wrong_extension_and_dir(manifest, run_validate, tmp_path):
+    write_tmp(tmp_path, 'pages/Templates/Module_Wrong.txt', 'x\n')
+    mpath = manifest({
+        'pages': {'Module:Wrong': {'file': 'pages/Templates/Module_Wrong.txt', 'version': '1.0.0'}},
+        'packs': {'base': {'version': '1.0.0', 'pages': ['Module:Wrong']}},
+    })
+    rc, out, err = run_validate(mpath)
+    assert rc == 0
+    assert 'Module files should use .lua extension' in out
+    assert 'Module files should be stored under pages/Modules/' in out
+
+
+def test_pages_must_be_mapping(run_validate, manifest):
+    mpath = manifest({'pages': [], 'packs': {}})
+    rc, out, err = run_validate(mpath)
+    assert rc != 0
+    assert "'pages' must be a mapping" in out
+
+
+def test_packs_must_be_mapping(run_validate, manifest):
+    mpath = manifest({'pages': {}, 'packs': []})
+    rc, out, err = run_validate(mpath)
+    assert rc != 0
+    assert "'packs' must be a mapping" in out
