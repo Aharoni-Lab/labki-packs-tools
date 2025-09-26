@@ -63,7 +63,7 @@ def check_manifest(manifest_path: Path, schema_path: Path) -> int:
             error(f"Schema validation: {e.message} at path {list(e.path)}")
         rc = 1
 
-    # v2: validate flat pages registry
+    # v1: validate flat pages registry
     pages = manifest.get('pages', {})
     if not isinstance(pages, dict):
         error("'pages' must be a mapping of titles to objects")
@@ -129,7 +129,7 @@ def check_manifest(manifest_path: Path, schema_path: Path) -> int:
                         rel = os.path.relpath(f_abs, manifest_path.parent)
                         warn(f"Orphan page file not referenced in manifest: {rel}")
 
-    # v2 packs: flat registry with depends_on
+    # v1 packs: flat registry with depends_on
     packs = manifest.get('packs', {})
     if not isinstance(packs, dict):
         error("'packs' must be a mapping of pack_id to metadata")
