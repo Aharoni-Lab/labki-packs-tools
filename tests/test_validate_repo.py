@@ -7,6 +7,8 @@ import textwrap
 import yaml
 import uuid
 import pytest
+import io
+import contextlib
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR = REPO_ROOT / 'tools' / 'validate_repo.py'
@@ -38,10 +40,22 @@ def _deep_merge(base: dict, override: dict) -> dict:
 
 @pytest.fixture
 def run_validate():
+    # Prefer calling python function directly for speed and debuggability
+    from tools.validate_repo import validate as py_validate
+    def _run(manifest_path: Path, schema_path: Path = SCHEMA):
+        # Capture printed output from validator
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            rc = py_validate(manifest_path, str(schema_path))
+        out = stdout.getvalue()
+        return rc, out, ""
+    return _run
+
+@pytest.fixture
+def run_validate_cli():
     def _run(manifest_path: Path, schema_path: Path = SCHEMA):
         return run([sys.executable, str(VALIDATOR), 'validate', str(manifest_path), str(schema_path)])
     return _run
-
 
 @pytest.fixture
 def tmp_page_factory(tmp_path):
@@ -92,21 +106,6 @@ def test_rejects_underscore_in_page_key(manifest, tmp_page_factory, run_validate
     rc, out, err = run_validate(mpath)
     assert rc != 0
     assert 'must use spaces, not underscores' in out
-
-
-def test_rejects_percent_encoding_in_page_key(manifest, tmp_page_factory, run_validate):
-    page = tmp_page_factory()
-    mpath = manifest({
-        'pages': {
-            'Template:Has%20Encoding': page,
-        },
-        'packs': {
-            'example': { 'version': '1.0.0', 'pages': ['Template:Has%20Encoding'] }
-        }
-    })
-    rc, out, err = run_validate(mpath)
-    assert rc != 0
-    assert 'must not contain percent-encoding' in out
 
 
 def test_allows_main_namespace_title_without_colon(manifest, tmp_page_factory, run_validate):

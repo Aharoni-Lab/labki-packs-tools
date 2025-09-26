@@ -191,6 +191,64 @@ def check_manifest(manifest_path: Path, schema_path: Path) -> int:
     return rc
 
 
+def validate(manifest: Path | str, schema_arg: Path | str = 'auto') -> int:
+    manifest_path = Path(manifest)
+    if schema_arg == 'auto':
+        try:
+            manifest_data = load_yaml(manifest_path)
+        except Exception as e:
+            error(f"Failed to read manifest for auto schema selection: {e}")
+            return 1
+        # Allow explicit schema override via $schema in the manifest
+        explicit_schema = manifest_data.get('$schema')
+        if isinstance(explicit_schema, str) and explicit_schema.strip():
+            schema_path = Path(explicit_schema)
+            if not schema_path.is_absolute():
+                schema_path = (manifest_path.parent / schema_path).resolve()
+            return check_manifest(manifest_path, schema_path)
+
+        version_str = str(manifest_data.get('schema_version') or '').strip()
+        m = re.match(r"^(\d+)\.(\d+)\.(\d+)$", version_str or '')
+        schema_dir = Path(__file__).resolve().parents[1] / 'schema'
+        if not m:
+            warn("Manifest 'schema_version' missing or not semantic; using latest schema")
+            schema_path = schema_dir / 'manifest.schema.json'
+            return check_manifest(manifest_path, schema_path)
+        major = m.group(1)
+        index_path = schema_dir / 'index.json'
+        schema_path = None
+        # Try flat index mapping: exact → best same-major → latest
+        try:
+            index = load_json(index_path)
+            manifest_map = (index.get('manifest') or {})
+            rel = None
+            if version_str in manifest_map:
+                rel = manifest_map[version_str]
+            else:
+                candidates = []
+                for ver, path_rel in manifest_map.items():
+                    if ver == 'latest':
+                        continue
+                    m2 = re.match(r"^(\d+)\.(\d+)\.(\d+)$", ver)
+                    if m2 and m2.group(1) == major:
+                        candidates.append((int(m2.group(1)), int(m2.group(2)), int(m2.group(3)), path_rel))
+                if candidates:
+                    candidates.sort(reverse=True)
+                    rel = candidates[0][3]
+                elif 'latest' in manifest_map:
+                    rel = manifest_map['latest']
+            if rel:
+                schema_path = schema_dir / rel
+        except Exception:
+            schema_path = schema_dir / 'manifest.schema.json'
+        if schema_path is None:
+            schema_path = schema_dir / 'manifest.schema.json'
+        return check_manifest(manifest_path, schema_path)
+    else:
+        schema_path = Path(schema_arg)
+        return check_manifest(manifest_path, schema_path)
+
+
 def main():
     parser = argparse.ArgumentParser(description='Validate labki-packs repository')
     sub = parser.add_subparsers(dest='cmd', required=True)
@@ -203,68 +261,8 @@ def main():
     args = parser.parse_args()
 
     if args.cmd == 'validate':
-        schema_arg = args.schema
-        if schema_arg == 'auto':
-            manifest_path = Path(args.manifest)
-            try:
-                manifest_data = load_yaml(manifest_path)
-            except Exception as e:
-                error(f"Failed to read manifest for auto schema selection: {e}")
-                sys.exit(1)
-            # Allow explicit schema override via $schema in the manifest
-            explicit_schema = manifest_data.get('$schema')
-            if isinstance(explicit_schema, str) and explicit_schema.strip():
-                schema_path = Path(explicit_schema)
-                if not schema_path.is_absolute():
-                    schema_path = (manifest_path.parent / schema_path).resolve()
-                return_code = check_manifest(manifest_path, schema_path)
-                sys.exit(return_code)
-
-            # Prefer schema_version key
-            version_str = str(manifest_data.get('schema_version') or '').strip()
-            m = re.match(r"^(\d+)\.(\d+)\.(\d+)$", version_str or '')
-            if not m:
-                warn("Manifest 'schema_version' missing or not semantic; using latest schema")
-                schema_path = Path(__file__).resolve().parents[1] / 'schema' / 'manifest.schema.json'
-            else:
-                major = m.group(1)
-                schema_dir = Path(__file__).resolve().parents[1] / 'schema'
-                index_path = schema_dir / 'index.json'
-                schema_path = None
-                # Try index mapping (flat map) first: exact match -> best match by major -> latest
-                try:
-                    index = load_json(index_path)
-                    manifest_map = (index.get('manifest') or {})
-                    rel = None
-                    if version_str in manifest_map:
-                        rel = manifest_map[version_str]
-                    else:
-                        # best match by major: highest semver with same major
-                        candidates = []
-                        for ver, path_rel in manifest_map.items():
-                            if ver == 'latest':
-                                continue
-                            m2 = re.match(r"^(\d+)\.(\d+)\.(\d+)$", ver)
-                            if m2 and m2.group(1) == major:
-                                candidates.append((int(m2.group(1)), int(m2.group(2)), int(m2.group(3)), path_rel))
-                        if candidates:
-                            candidates.sort(reverse=True)
-                            rel = candidates[0][3]
-                        elif 'latest' in manifest_map:
-                            rel = manifest_map['latest']
-                    if rel:
-                        schema_path = schema_dir / rel
-                except Exception:
-                    # Ignore index issues; fall back to latest in repo
-                    schema_path = schema_dir / 'manifest.schema.json'
-                # Final fallback if still None
-                if schema_path is None:
-                    schema_path = schema_dir / 'manifest.schema.json'
-            return_code = check_manifest(manifest_path, schema_path)
-            sys.exit(return_code)
-        else:
-            schema_path = Path(schema_arg)
-            sys.exit(check_manifest(Path(args.manifest), schema_path))
+        rc = validate(args.manifest, args.schema)
+        sys.exit(rc)
 
 
 if __name__ == '__main__':
