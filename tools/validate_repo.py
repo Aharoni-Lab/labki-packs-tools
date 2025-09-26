@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from jsonschema import Draft202012Validator
-from tools.utils import load_yaml, load_json, UniqueKeyLoader
+from tools.utils import load_yaml, load_json, UniqueKeyLoader, is_semver
 
 
 import yaml  # only used by jsonschema loader internals; keep import available
@@ -110,9 +110,6 @@ def _format_schema_error(e) -> list[str]:
     return msgs
 
 
-SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+$")
-
-
 def validate_pages(manifest_path: Path, pages):
     """Validate pages mapping; return (errors, warnings, referenced_abs_paths)."""
     errors = []
@@ -133,7 +130,7 @@ def validate_pages(manifest_path: Path, pages):
         if not abs_path.exists():
             errors.append(f"Page file not found: {file_rel} (for {title})")
         page_version = meta.get('version')
-        if not isinstance(page_version, str) or not SEMVER_RE.match(page_version or ""):
+        if not is_semver(page_version):
             errors.append(f"Page '{title}' must have semantic version (MAJOR.MINOR.PATCH)")
         # Additional type-specific checks
         inferred_ns = None
@@ -171,7 +168,7 @@ def validate_packs(pages, packs):
     seen_page_to_pack = {}
     for pack_id, meta in packs.items():
         version = meta.get('version')
-        if not isinstance(version, str) or not SEMVER_RE.match(version):
+        if not is_semver(version):
             errors.append(f"Pack '{pack_id}' must have semantic version (MAJOR.MINOR.PATCH)")
         pages_list = meta.get('pages', [])
         if pages_list and not isinstance(pages_list, list):

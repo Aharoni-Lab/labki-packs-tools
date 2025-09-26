@@ -4,46 +4,19 @@ import os
 import re
 from pathlib import Path
 
-from tools.utils import load_yaml, UniqueKeyLoader
+from tools.utils import load_yaml, UniqueKeyLoader, sanitize_id, extract_graph
 import yaml
 
 
 # YAML loader is provided by tools.common (UniqueKeyLoader)
 
 
-def _sanitize_id(raw: str) -> str:
-    """Sanitize a string into a DOT-safe identifier (letters, digits, underscore)."""
-    return re.sub(r"[^A-Za-z0-9_]", "_", raw)
-
-
-def _extract_graph(manifest: dict):
-    """Extract nodes and edges from manifest for graphing.
-
-    Returns:
-      packs: list[str] pack ids
-      pages: list[str] page titles
-      dep_edges: list[tuple[str,str]] (from_pack -> to_pack)
-      include_edges: list[tuple[str,str]] (from_pack -> to_page)
-    """
-    packs_dict = manifest.get('packs') or {}
-    pages_dict = manifest.get('pages') or {}
-    pack_ids = list(packs_dict.keys())
-    page_titles = list(pages_dict.keys())
-    dep_edges: list[tuple[str, str]] = []
-    include_edges: list[tuple[str, str]] = []
-    for pid, meta in packs_dict.items():
-        for dep in meta.get('depends_on', []) or []:
-            if dep in packs_dict:
-                dep_edges.append((pid, dep))
-        for title in meta.get('pages', []) or []:
-            if title in pages_dict:
-                include_edges.append((pid, title))
-    return pack_ids, page_titles, dep_edges, include_edges
+ 
 
 
 def emit_dot(manifest: dict) -> str:
     """Emit a Graphviz DOT graph of packs and pages."""
-    pack_ids, page_titles, dep_edges, include_edges = _extract_graph(manifest)
+    pack_ids, page_titles, dep_edges, include_edges = extract_graph(manifest)
     lines: list[str] = []
     lines.append("digraph Manifest {")
     lines.append("  rankdir=LR;")
@@ -54,27 +27,27 @@ def emit_dot(manifest: dict) -> str:
     lines.append("  subgraph cluster_packs {")
     lines.append("    label=\"Packs\"; style=rounded; color=\"#5C6BC0\";")
     for pid in pack_ids:
-        nid = _sanitize_id(f"pack_{pid}")
+        nid = sanitize_id(f"pack_{pid}")
         label = pid.replace('"', '\\"')
         lines.append(f"    {nid} [label=\"{label}\", shape=box, fillcolor=\"#E8F0FE\", color=\"#5C6BC0\"];")
     lines.append("  }")
     lines.append("  subgraph cluster_pages {")
     lines.append("    label=\"Pages\"; style=rounded; color=\"#43A047\";")
     for title in page_titles:
-        nid = _sanitize_id(f"page_{title}")
+        nid = sanitize_id(f"page_{title}")
         label = title.replace('"', '\\"')
         lines.append(f"    {nid} [label=\"{label}\", shape=ellipse, fillcolor=\"#E8F5E9\", color=\"#43A047\"];")
     lines.append("  }\n")
     # Edges: depends_on (dep -> pack)
     for pack_id, dep in dep_edges:
-        n_pack = _sanitize_id(f"pack_{pack_id}")
-        n_dep = _sanitize_id(f"pack_{dep}")
+        n_pack = sanitize_id(f"pack_{pack_id}")
+        n_dep = sanitize_id(f"pack_{dep}")
         # draw from dependency into the dependent pack
         lines.append(f"  {n_dep} -> {n_pack} [color=\"#90A4AE\", style=dashed, penwidth=1.2, label=\"depends_on\", fontsize=10];")
     # Edges: includes (page -> pack)
     for pack_id, title in include_edges:
-        n_pack = _sanitize_id(f"pack_{pack_id}")
-        n_page = _sanitize_id(f"page_{title}")
+        n_pack = sanitize_id(f"pack_{pack_id}")
+        n_page = sanitize_id(f"page_{title}")
         lines.append(f"  {n_page} -> {n_pack} [color=\"#64B5F6\", penwidth=1.4];")
     lines.append("}")
     return "\n".join(lines) + "\n"
