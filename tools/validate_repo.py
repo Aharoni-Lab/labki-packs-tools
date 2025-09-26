@@ -211,38 +211,25 @@ def validate(manifest: Path | str, schema_arg: Path | str = 'auto') -> int:
         m = re.match(r"^(\d+)\.(\d+)\.(\d+)$", version_str or '')
         schema_dir = Path(__file__).resolve().parents[1] / 'schema'
         if not m:
-            warn("Manifest 'schema_version' missing or not semantic; using latest schema")
-            schema_path = schema_dir / 'manifest.schema.json'
-            return check_manifest(manifest_path, schema_path)
-        major = m.group(1)
+            error("Manifest 'schema_version' must be a semantic version (MAJOR.MINOR.PATCH)")
+            return 1
         index_path = schema_dir / 'index.json'
         schema_path = None
-        # Try flat index mapping: exact → best same-major → latest
+        # Require exact mapping in index
         try:
             index = load_json(index_path)
             manifest_map = (index.get('manifest') or {})
-            rel = None
-            if version_str in manifest_map:
-                rel = manifest_map[version_str]
-            else:
-                candidates = []
-                for ver, path_rel in manifest_map.items():
-                    if ver == 'latest':
-                        continue
-                    m2 = re.match(r"^(\d+)\.(\d+)\.(\d+)$", ver)
-                    if m2 and m2.group(1) == major:
-                        candidates.append((int(m2.group(1)), int(m2.group(2)), int(m2.group(3)), path_rel))
-                if candidates:
-                    candidates.sort(reverse=True)
-                    rel = candidates[0][3]
-                elif 'latest' in manifest_map:
-                    rel = manifest_map['latest']
-            if rel:
-                schema_path = schema_dir / rel
-        except Exception:
-            schema_path = schema_dir / 'manifest.schema.json'
-        if schema_path is None:
-            schema_path = schema_dir / 'manifest.schema.json'
+            if version_str not in manifest_map:
+                error(f"Schema version '{version_str}' not found in index. Available: {', '.join(sorted([k for k in manifest_map.keys() if k != 'latest']))}")
+                return 1
+            rel = manifest_map[version_str]
+            schema_path = schema_dir / rel
+        except Exception as e:
+            error(f"Failed to read schema index: {e}")
+            return 1
+        if not schema_path.exists():
+            error(f"Resolved schema path does not exist: {schema_path}")
+            return 1
         return check_manifest(manifest_path, schema_path)
     else:
         schema_path = Path(schema_arg)

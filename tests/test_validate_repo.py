@@ -407,11 +407,11 @@ def test_pack_with_no_pages_and_no_dependencies_is_invalid(manifest, run_validat
     assert 'must include at least one page or depend on at least two packs' in out
 
 
-def test_schema_auto_uses_major_mapping(tmp_path):
-    # version 1.2.3 should resolve via index majors → v1 schema
+def test_schema_auto_requires_exact_version(tmp_path):
+    # exact version present in index → should succeed
     manifest_yaml = textwrap.dedent(
         '''
-        schema_version: 1.2.3
+        schema_version: 1.0.0
         pages:
           Template:Example:
             file: pages/Templates/Template_Example.wiki
@@ -429,7 +429,7 @@ def test_schema_auto_uses_major_mapping(tmp_path):
 
 
 def test_schema_auto_falls_back_when_major_unmapped(tmp_path):
-    # If major isn't mapped in index and version is valid semver, fall back to latest
+    # With strict exact version requirement, unmapped version should fail
     manifest_yaml = textwrap.dedent(
         '''
         schema_version: 9.9.9
@@ -447,7 +447,8 @@ def test_schema_auto_falls_back_when_major_unmapped(tmp_path):
     write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
     manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
     rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest)])
-    assert rc == 0
+    assert rc != 0
+    assert "Schema version '9.9.9' not found in index" in out
 
 
 def test_explicit_schema_override_path(tmp_path):
