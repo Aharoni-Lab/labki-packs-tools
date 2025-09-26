@@ -86,12 +86,14 @@ def manifest(tmp_path):
     return _build
 
 
+# ---- Basic validation (fixtures manifest) ----
 def test_validate_ok_uses_fixtures_manifest(run_validate):
     manifest = (FIXTURES / 'manifest.yml').resolve()
     rc, out, err = run_validate(manifest, SCHEMA)
     assert rc == 0, f"expected success, got rc={rc}, out={out}, err={err}"
 
 
+# ---- Page rules ----
 def test_rejects_underscore_in_page_key(manifest, tmp_page_factory, run_validate):
     page = tmp_page_factory()
     mpath = manifest({
@@ -143,6 +145,7 @@ def test_validate_missing_page_file(manifest, run_validate, tmp_path):
     assert 'Page file not found' in out
 
 
+# ---- Pack / dependency rules ----
 def test_validate_dep_cycle(manifest, run_validate, tmp_path):
     mpath = manifest({
         'pages': {},
@@ -219,6 +222,7 @@ def test_validate_warns_on_orphan_files(manifest, run_validate, tmp_path):
     assert 'Orphan page file not referenced in manifest:' in out
 
 
+# ---- Module page rules ----
 def test_validate_module_page_rules(manifest, run_validate, tmp_path):
     # Proper module: Module:Name, .lua under pages/Modules/
     good_manifest = {
@@ -245,6 +249,7 @@ def test_validate_module_page_rules(manifest, run_validate, tmp_path):
     assert rc2 == 0
 
 
+# ---- Pack composition matrix ----
 @pytest.mark.parametrize(
     "case_id, packs_builder, expect_ok",
     [
@@ -296,6 +301,7 @@ def test_pack_pages_or_two_deps(manifest, run_validate, tmp_page_factory, case_i
         assert 'must include at least one page or depend on at least two packs' in out
 
 
+# ---- Schema selection ----
 def test_schema_auto_requires_exact_version(tmp_path, run_validate, tmp_page_factory, manifest):
     # exact version present in index → should succeed
     page = tmp_page_factory(name='Example')
@@ -334,6 +340,7 @@ def test_explicit_schema_override_path(tmp_path, run_validate, tmp_page_factory,
     assert rc == 0
 
 
+# ---- Tags rules ----
 @pytest.mark.parametrize(
     "tags, expect_ok, expect_msg_any",
     [
@@ -356,6 +363,7 @@ def test_pack_tags_variants(tmp_path, run_validate, tmp_page_factory, manifest, 
         assert any(s in out for s in expect_msg_any)
 
 
+# ---- CLI parity ----
 @pytest.mark.parametrize("runner_fixture", ["run_validate", "run_validate_cli"])
 def test_cli_and_function_parity(request, tmp_path, runner_fixture):
     run_fn = request.getfixturevalue(runner_fixture)
@@ -470,6 +478,7 @@ def test_pack_pages_unique_items(manifest, run_validate, tmp_page_factory):
     assert 'non-unique elements' in out or 'uniqueItems' in out
 
 
+# ---- Schema properties and structure validations ----
 def test_pages_reject_unknown_field(run_validate, manifest, tmp_page_factory):
     page = tmp_page_factory(name='T')
     # Inject unknown field into page meta
