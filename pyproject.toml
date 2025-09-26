@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "labki-packs-tools"
+version = "0.1.0"
+description = "Tools for validating and visualizing Labki content packs"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "PyYAML>=6.0",
+  "jsonschema>=4.18",
+]
+
+[tool.setuptools.packages.find]
+include = ["tools*"]
+
+[project.scripts]
+labki-validate = "tools.validate_repo:main"
+labki-graph = "tools.graph_repo:main"
+
+

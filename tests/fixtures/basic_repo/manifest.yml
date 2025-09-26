@@ -26,6 +26,15 @@ pages:
   Onboarding:
     file: pages/Layouts/Onboarding.md
     version: 1.0.0
+  Module:Util:
+    file: pages/Modules/Module_Util.lua
+    version: 1.0.0
+  Help:GettingStarted:
+    file: pages/Help/Help_GettingStarted.wiki
+    version: 1.0.0
+  MediaWiki:Common.css:
+    file: pages/MediaWiki/Common.css
+    version: 1.0.0
 
 packs:
   publication:
@@ -51,3 +60,20 @@ packs:
     pages:
       - Onboarding
     depends_on: [publication]
+  shared_base:
+    description: Shared utilities and help pages
+    version: 1.1.0
+    pages:
+      - Module:Util
+      - Help:GettingStarted
+    depends_on: []
+  meta_pack:
+    description: Meta pack aggregating publication + meeting
+    version: 1.0.0
+    pages: []
+    depends_on: [publication, meeting_notes]
+  app:
+    description: App that depends on shared base and onboarding
+    version: 1.0.0
+    pages: []
+    depends_on: [shared_base, onboarding]

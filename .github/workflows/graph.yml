@@ -1,0 +1,83 @@
+name: Pack Graph
+
+on:
+  workflow_dispatch:
+    inputs:
+      manifest_path:
+        description: Path to manifest.yml
+        required: false
+        default: tests/fixtures/basic_repo/manifest.yml
+      generate_dot_svg:
+        description: Generate DOT and SVG artifacts
+        required: false
+        default: 'true'
+      generate_text:
+        description: Generate Mermaid (graph.md) and JSON (graph.json) artifacts
+        required: false
+        default: 'true'
+  workflow_call:
+    inputs:
+      manifest_path:
+        description: Path to manifest.yml
+        required: false
+        default: tests/fixtures/basic_repo/manifest.yml
+        type: string
+      generate_dot_svg:
+        description: Generate DOT and SVG artifacts
+        required: false
+        default: true
+        type: boolean
+      generate_text:
+        description: Generate Mermaid (graph.md) and JSON (graph.json) artifacts
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  graph-dot-svg:
+    if: ${{ inputs.generate_dot_svg == true || inputs.generate_dot_svg == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install git+https://github.com/Aharoni-Lab/labki-packs-tools.git
+      - name: Ensure manifest exists
+        run: |
+          test -f "${{ inputs.manifest_path }}" || (echo "Manifest not found: ${{ inputs.manifest_path }}" && exit 1)
+      - name: Generate DOT
+        run: labki-graph "${{ inputs.manifest_path }}" --format dot --output graph.dot
+      - name: Render SVG
+        run: |
+          sudo apt-get update && sudo apt-get install -y graphviz
+          dot -Tsvg graph.dot -o graph.svg
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pack-graph
+          path: |
+            graph.dot
+            graph.svg
+
+  graph-text:
+    if: ${{ inputs.generate_text == true || inputs.generate_text == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install git+https://github.com/Aharoni-Lab/labki-packs-tools.git
+      - name: Ensure manifest exists
+        run: |
+          test -f "${{ inputs.manifest_path }}" || (echo "Manifest not found: ${{ inputs.manifest_path }}" && exit 1)
+      - name: Generate Mermaid
+        run: labki-graph "${{ inputs.manifest_path }}" --format mermaid --output graph.md
+      - name: Generate JSON
+        run: labki-graph "${{ inputs.manifest_path }}" --format json --output graph.json
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pack-graph-text
+          path: |
+            graph.md
+            graph.json
