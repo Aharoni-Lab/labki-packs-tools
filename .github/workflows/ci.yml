@@ -34,6 +34,8 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install pyyaml jsonschema pytest
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
       - name: "sanity check: validate sample fixture"
         run: python tools/validate_repo.py validate tests/fixtures/basic_repo/manifest.yml schema/v1_0_0/manifest.schema.json
       - name: Run tests
