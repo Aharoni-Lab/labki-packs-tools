@@ -8,7 +8,7 @@ Tools:
 
 Quick start (Windows PowerShell):
 
-1) Create and activate a virtualenv
+1. Create and activate a virtualenv
 
 ```powershell
 python -m venv .venv
@@ -16,13 +16,13 @@ python -m venv .venv
 python -m pip install --upgrade pip
 ```
 
-2) Install the project in editable mode
+2. Install the project in editable mode
 
 ```powershell
 python -m pip install -e .
 ```
 
-3) Run the tools
+3. Run the tools
 
 ```powershell
 # Validate a manifest
@@ -56,7 +56,7 @@ choco install graphviz -y
 
 dot -Tsvg graph.dot -o graph.svg
 ```
-
+ 
 Notes:
 - Shared YAML/JSON helpers live in `tools/utils/common.py`.
 - For CI examples and future outputs (Mermaid, JSON for MediaWiki), see `docs/graph_tools_plan.md`.
