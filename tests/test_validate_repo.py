@@ -87,9 +87,9 @@ def manifest(tmp_path):
     return _build
 
 
-def test_validate_ok_uses_fixtures_manifest():
+def test_validate_ok_uses_fixtures_manifest(run_validate):
     manifest = (FIXTURES / 'manifest.yml').resolve()
-    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
+    rc, out, err = run_validate(manifest, SCHEMA)
     assert rc == 0, f"expected success, got rc={rc}, out={out}, err={err}"
 
 
@@ -124,129 +124,87 @@ def test_allows_main_namespace_title_without_colon(manifest, tmp_page_factory, r
 
 def test_validate_missing_page_file(manifest, run_validate, tmp_path):
     # Build a tiny manifest that references a non-existent file
-    manifest_yaml = textwrap.dedent(
-        '''
-        schema_version: 2.0.0
-        last_updated: "2025-09-22T00:00:00Z"
-        pages:
-          Template:Example:
-            file: pages/Templates/Template_Example.wiki
-            version: 1.0.0
-        packs:
-          example:
-            version: 1.0.0
-            pages: [Template:Example]
-            depends_on: []
-        '''
-    ).strip() + "\n"
-    mpath = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    mpath = manifest({
+        'pages': {
+            'Template:Example': {
+                'file': 'pages/Templates/Template_Example.wiki',
+                'version': '1.0.0',
+            }
+        },
+        'packs': {
+            'example': {
+                'version': '1.0.0',
+                'pages': ['Template:Example'],
+                'depends_on': [],
+            }
+        }
+    })
     rc, out, err = run_validate(mpath)
     assert rc != 0
     assert 'Page file not found' in out
 
 
 def test_validate_dep_cycle(manifest, run_validate, tmp_path):
-    manifest_yaml = textwrap.dedent(
-        '''
-        schema_version: 2.0.0
-        pages: {}
-        packs:
-          a:
-            version: 1.0.0
-            pages: []
-            depends_on: [b]
-          b:
-            version: 1.0.0
-            pages: []
-            depends_on: [a]
-        '''
-    ).strip() + "\n"
-    mpath = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    mpath = manifest({
+        'pages': {},
+        'packs': {
+            'a': {'version': '1.0.0', 'pages': [], 'depends_on': ['b']},
+            'b': {'version': '1.0.0', 'pages': [], 'depends_on': ['a']},
+        }
+    })
     rc, out, err = run_validate(mpath)
     assert rc != 0
     assert 'Dependency cycle detected' in out
 
 
 def test_validate_manifest_without_extra_sections_is_ok(manifest, run_validate, tmp_path):
-    manifest_yaml = textwrap.dedent(
-        '''
-        schema_version: 2.0.0
-        pages: {}
-        packs:
-          a:
-            version: 1.0.0
-            pages: []
-        '''
-    ).strip() + "\n"
-    mpath = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    mpath = manifest({
+        'pages': {},
+        'packs': {
+            'a': {'version': '1.0.0', 'pages': []}
+        }
+    })
     rc, out, err = run_validate(mpath)
     assert rc == 0
 
 
-def test_validate_invalid_page_version(manifest, run_validate, tmp_path):
-    manifest_yaml = textwrap.dedent(
-        '''
-        schema_version: 2.0.0
-        pages:
-          Template:Example:
-            file: pages/Templates/Template_Example.wiki
-            version: v1
-        packs:
-          example:
-            version: 1.0.0
-            pages: [Template:Example]
-        '''
-    ).strip() + "\n"
+def test_validate_invalid_page_version(manifest, run_validate, tmp_path, tmp_page_factory):
     # create the file so only version format triggers error
-    tmp_page_path = write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
-    mpath = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    page = tmp_page_factory(name='Example')
+    page['version'] = 'v1'
+    mpath = manifest({
+        'pages': {
+            'Template:Example': page
+        },
+        'packs': {
+            'example': {'version': '1.0.0', 'pages': ['Template:Example']}
+        }
+    })
     rc, out, err = run_validate(mpath)
     assert rc != 0
     assert 'must have semantic version' in out
 
 
-def test_validate_valid_page_version_passes(manifest, run_validate, tmp_path):
-    manifest_yaml = textwrap.dedent(
-        '''
-        schema_version: 2.0.0
-        last_updated: "2025-09-22T00:00:00Z"
-        pages:
-          Template:Example:
-            file: pages/Templates/Template_Example.wiki
-            version: 2.3.4
-        packs:
-          example:
-            version: 1.0.0
-            pages: [Template:Example]
-            depends_on: []
-        '''
-    ).strip() + "\n"
-    write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
-    mpath = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+def test_validate_valid_page_version_passes(manifest, run_validate, tmp_path, tmp_page_factory):
+    page = tmp_page_factory(name='Example')
+    page['version'] = '2.3.4'
+    mpath = manifest({
+        'pages': {'Template:Example': page},
+        'packs': {'example': {'version': '1.0.0', 'pages': ['Template:Example'], 'depends_on': []}},
+    })
     rc, out, err = run_validate(mpath)
     assert rc == 0, f"expected success, got rc={rc}, out={out}, err={err}"
 
 
-def test_validate_duplicate_page_across_packs_fails(manifest, run_validate, tmp_path):
-    manifest_yaml = textwrap.dedent(
-        '''
-        schema_version: 2.0.0
-        last_updated: "2025-09-22T00:00:00Z"
-        pages:
-          Template:Shared:
-            file: pages/Templates/Template_Shared.wiki
-            version: 1.0.0
-        packs:
-          a:
-            version: 1.0.0
-            pages: [Template:Shared]
-          b:
-            version: 1.0.0
-            pages: [Template:Shared]
-        '''
-    ).strip() + "\n"
-    write_tmp(tmp_path, 'pages/Templates/Template_Shared.wiki', '== Shared ==\n')
-    mpath = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+def test_validate_duplicate_page_across_packs_fails(manifest, run_validate, tmp_path, tmp_page_factory):
+    page = tmp_page_factory(name='Shared')
+    mpath = manifest({
+        'pages': {'Template:Shared': page},
+        'packs': {
+            'a': {'version': '1.0.0', 'pages': ['Template:Shared']},
+            'b': {'version': '1.0.0', 'pages': ['Template:Shared']},
+        },
+    })
     rc, out, err = run_validate(mpath)
     assert rc != 0
     assert "included in multiple packs" in out
@@ -254,16 +212,8 @@ def test_validate_duplicate_page_across_packs_fails(manifest, run_validate, tmp_
 
 def test_validate_warns_on_orphan_files(manifest, run_validate, tmp_path):
     # manifest has no pages, but file exists under pages/ -> expect WARNING
-    manifest_yaml = textwrap.dedent(
-        '''
-        schema_version: 2.0.0
-        last_updated: "2025-09-22T00:00:00Z"
-        pages: {}
-        packs: {}
-        '''
-    ).strip() + "\n"
     write_tmp(tmp_path, 'pages/Templates/Template_Orphan.wiki', '== Orphan ==\n')
-    mpath = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    mpath = manifest({'pages': {}, 'packs': {}})
     rc, out, err = run_validate(mpath)
     # should still be success (warning only) and include warning text
     assert rc == 0
@@ -272,268 +222,160 @@ def test_validate_warns_on_orphan_files(manifest, run_validate, tmp_path):
 
 def test_validate_module_page_rules(manifest, run_validate, tmp_path):
     # Proper module: Module:Name, .lua under pages/Modules/
-    good_manifest = textwrap.dedent(
-        '''
-        schema_version: 2.0.0
-        last_updated: "2025-09-22T00:00:00Z"
-        pages:
-          Module:Util:
-            file: pages/Modules/Module_Util.lua
-            version: 1.0.0
-        packs:
-          base:
-            version: 1.0.0
-            pages: [Module:Util]
-        '''
-    ).strip() + "\n"
+    good_manifest = {
+        'pages': {
+            'Module:Util': {'file': 'pages/Modules/Module_Util.lua', 'version': '1.0.0'}
+        },
+        'packs': {'base': {'version': '1.0.0', 'pages': ['Module:Util']}},
+    }
     write_tmp(tmp_path, 'pages/Modules/Module_Util.lua', '-- lua module\n')
-    mpath = write_tmp(tmp_path, 'manifest.yml', good_manifest)
+    mpath = manifest(good_manifest)
     rc, out, err = run_validate(mpath)
     assert rc == 0
 
     # Module with mismatched namespace/extension/dir should warn, not fail
-    bad_manifest = textwrap.dedent(
-        '''
-        schema_version: 2.0.0
-        last_updated: "2025-09-22T00:00:00Z"
-        pages:
-          NotModule:Wrong:
-            file: pages/Templates/Module_Wrong.txt
-            version: 1.0.0
-        packs:
-          base:
-            version: 1.0.0
-            pages: [NotModule:Wrong]
-        '''
-    ).strip() + "\n"
+    bad_manifest = {
+        'pages': {
+            'NotModule:Wrong': {'file': 'pages/Templates/Module_Wrong.txt', 'version': '1.0.0'}
+        },
+        'packs': {'base': {'version': '1.0.0', 'pages': ['NotModule:Wrong']}},
+    }
     write_tmp(tmp_path, 'pages/Templates/Module_Wrong.txt', 'placeholder\n')
-    mpath2 = write_tmp(tmp_path, 'manifest.yml', bad_manifest)
+    mpath2 = manifest(bad_manifest)
     rc2, out2, err2 = run_validate(mpath2)
     assert rc2 == 0
 
 
-def test_validate_manifest_with_single_pack_valid(manifest, run_validate, tmp_path):
-    manifest_yaml = textwrap.dedent(
-        '''
-        schema_version: 2.0.0
-        last_updated: "2025-09-22T00:00:00Z"
-        pages:
-          Template:Only:
-            file: pages/Templates/Template_Only.wiki
-            version: 1.0.0
-        packs:
-          one:
-            version: 1.0.0
-            pages: [Template:Only]
-        '''
-    ).strip() + "\n"
-    write_tmp(tmp_path, 'pages/Templates/Template_Only.wiki', '== Only ==\n')
-    mpath = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+@pytest.mark.parametrize(
+    "case_id, packs_builder, expect_ok",
+    [
+        (
+            "pages_present",
+            lambda pages: {
+                'one': {'version': '1.0.0', 'pages': ['Template:A']},
+            },
+            True,
+        ),
+        (
+            "two_deps",
+            lambda pages: {
+                'depA': {'version': '1.0.0', 'pages': ['Template:A']},
+                'depB': {'version': '1.0.0', 'pages': ['Template:B']},
+                'meta': {'version': '1.0.0', 'pages': [], 'depends_on': ['depA', 'depB']},
+            },
+            True,
+        ),
+        (
+            "one_dep_only",
+            lambda pages: {
+                'depA': {'version': '1.0.0', 'pages': ['Template:A']},
+                'meta': {'version': '1.0.0', 'pages': [], 'depends_on': ['depA']},
+            },
+            False,
+        ),
+        (
+            "neither_pages_nor_deps",
+            lambda pages: {
+                'meta': {'version': '1.0.0', 'pages': [], 'depends_on': []},
+            },
+            False,
+        ),
+    ],
+)
+def test_pack_pages_or_two_deps(manifest, run_validate, tmp_page_factory, case_id, packs_builder, expect_ok):
+    # Prepare two pages for dependency packs to be valid
+    page_a = tmp_page_factory(name='A')
+    page_b = tmp_page_factory(name='B')
+    pages = {'Template:A': page_a, 'Template:B': page_b}
+    packs = packs_builder(pages)
+    mpath = manifest({'pages': pages, 'packs': packs})
     rc, out, err = run_validate(mpath)
-    assert rc == 0
+    if expect_ok:
+        assert rc == 0, f"{case_id} should pass, got rc={rc}, out={out}"
+    else:
+        assert rc != 0, f"{case_id} should fail, got rc=0"
+        assert 'must include at least one page or depend on at least two packs' in out
 
 
-def test_pack_with_two_dependencies_but_no_pages_is_valid(manifest, run_validate, tmp_path):
-    manifest_yaml = textwrap.dedent(
-        '''
-        schema_version: 2.0.0
-        pages:
-          Template:A:
-            file: pages/Templates/A.wiki
-            version: 1.0.0
-          Template:B:
-            file: pages/Templates/B.wiki
-            version: 1.0.0
-        packs:
-          depA:
-            version: 1.0.0
-            pages: [Template:A]
-          depB:
-            version: 1.0.0
-            pages: [Template:B]
-          meta:
-            version: 1.0.0
-            pages: []
-            depends_on: [depA, depB]
-        '''
-    ).strip() + "\n"
-    write_tmp(tmp_path, 'pages/Templates/A.wiki', '== A ==\n')
-    write_tmp(tmp_path, 'pages/Templates/B.wiki', '== B ==\n')
-    mpath = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
-    rc, out, err = run_validate(mpath)
-    assert rc == 0
-
-
-def test_pack_with_single_dependency_and_no_pages_is_invalid(manifest, run_validate, tmp_path):
-    manifest_yaml = textwrap.dedent(
-        '''
-        schema_version: 2.0.0
-        pages:
-          Template:A:
-            file: pages/Templates/A.wiki
-            version: 1.0.0
-        packs:
-          depA:
-            version: 1.0.0
-            pages: [Template:A]
-          meta:
-            version: 1.0.0
-            pages: []
-            depends_on: [depA]
-        '''
-    ).strip() + "\n"
-    write_tmp(tmp_path, 'pages/Templates/A.wiki', '== A ==\n')
-    mpath = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
-    rc, out, err = run_validate(mpath)
-    assert rc != 0
-    assert 'must include at least one page or depend on at least two packs' in out
-
-
-def test_pack_with_no_pages_and_no_dependencies_is_invalid(manifest, run_validate, tmp_path):
-    manifest_yaml = textwrap.dedent(
-        '''
-        schema_version: 2.0.0
-        pages: {}
-        packs:
-          meta:
-            version: 1.0.0
-            pages: []
-            depends_on: []
-        '''
-    ).strip() + "\n"
-    mpath = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
-    rc, out, err = run_validate(mpath)
-    assert rc != 0
-    assert 'must include at least one page or depend on at least two packs' in out
-
-
-def test_schema_auto_requires_exact_version(tmp_path):
+def test_schema_auto_requires_exact_version(tmp_path, run_validate, tmp_page_factory, manifest):
     # exact version present in index → should succeed
-    manifest_yaml = textwrap.dedent(
-        '''
-        schema_version: 1.0.0
-        pages:
-          Template:Example:
-            file: pages/Templates/Template_Example.wiki
-            version: 1.0.0
-        packs:
-          example:
-            version: 1.0.0
-            pages: [Template:Example]
-        '''
-    ).strip() + "\n"
-    write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
-    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
-    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest)])
+    page = tmp_page_factory(name='Example')
+    mpath = manifest({
+        'schema_version': '1.0.0',
+        'pages': {'Template:Example': page},
+        'packs': {'example': {'version': '1.0.0', 'pages': ['Template:Example']}},
+    })
+    rc, out, err = run_validate(mpath, 'auto')
     assert rc == 0
 
 
-def test_schema_auto_falls_back_when_major_unmapped(tmp_path):
+def test_schema_auto_falls_back_when_major_unmapped(tmp_path, run_validate, tmp_page_factory, manifest):
     # With strict exact version requirement, unmapped version should fail
-    manifest_yaml = textwrap.dedent(
-        '''
-        schema_version: 9.9.9
-        last_updated: "2025-09-22T00:00:00Z"
-        pages:
-          Template:Example:
-            file: pages/Templates/Template_Example.wiki
-            version: 1.0.0
-        packs:
-          example:
-            version: 1.0.0
-            pages: [Template:Example]
-        '''
-    ).strip() + "\n"
-    write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
-    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
-    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest)])
+    page = tmp_page_factory(name='Example')
+    mpath = manifest({
+        'schema_version': '9.9.9',
+        'pages': {'Template:Example': page},
+        'packs': {'example': {'version': '1.0.0', 'pages': ['Template:Example']}},
+    })
+    rc, out, err = run_validate(mpath, 'auto')
     assert rc != 0
     assert "Schema version '9.9.9' not found in index" in out
 
 
-def test_explicit_schema_override_path(tmp_path):
+def test_explicit_schema_override_path(tmp_path, run_validate, tmp_page_factory, manifest):
     # Explicit schema path should work regardless of manifest version
-    manifest_yaml = textwrap.dedent(
-        '''
-        schema_version: 9.9.9
-        last_updated: "2025-09-22T00:00:00Z"
-        pages:
-          Template:Example:
-            file: pages/Templates/Template_Example.wiki
-            version: 1.0.0
-        packs:
-          example:
-            version: 1.0.0
-            pages: [Template:Example]
-        '''
-    ).strip() + "\n"
-    write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
-    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    page = tmp_page_factory(name='Example')
+    mpath = manifest({
+        'schema_version': '9.9.9',
+        'pages': {'Template:Example': page},
+        'packs': {'example': {'version': '1.0.0', 'pages': ['Template:Example']}},
+    })
     schema_v1 = REPO_ROOT / 'schema' / 'v1_0_0' / 'manifest.schema.json'
-    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(schema_v1)])
+    rc, out, err = run_validate(mpath, schema_v1)
     assert rc == 0
 
 
-def test_tags_accept_slugified_unique(tmp_path):
-    manifest_yaml = textwrap.dedent(
-        '''
-        schema_version: 2.0.0
-        pages:
-          Template:Example:
-            file: pages/Templates/Template_Example.wiki
-            version: 1.0.0
-        packs:
-          ok:
-            version: 1.0.0
-            pages: [Template:Example]
-            tags: [core, data-tools]
-        '''
-    ).strip() + "\n"
-    write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
-    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
-    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
-    assert rc == 0
+@pytest.mark.parametrize(
+    "tags, expect_ok, expect_msg_any",
+    [
+        (['core', 'data-tools'], True, []),
+        (['Core'], False, ['pattern', 'does not match']),
+        (['core', 'core'], False, ['non-unique elements']),
+    ],
+)
+def test_pack_tags_variants(tmp_path, run_validate, tmp_page_factory, manifest, tags, expect_ok, expect_msg_any):
+    page = tmp_page_factory(name='Example')
+    mpath = manifest({
+        'pages': {'Template:Example': page},
+        'packs': {'t': {'version': '1.0.0', 'pages': ['Template:Example'], 'tags': tags}},
+    })
+    rc, out, err = run_validate(mpath, SCHEMA)
+    if expect_ok:
+        assert rc == 0
+    else:
+        assert rc != 0
+        assert any(s in out for s in expect_msg_any)
 
 
-def test_tags_reject_uppercase(tmp_path):
-    manifest_yaml = textwrap.dedent(
-        '''
-        schema_version: 2.0.0
-        pages:
-          Template:Example:
-            file: pages/Templates/Template_Example.wiki
-            version: 1.0.0
-        packs:
-          bad:
-            version: 1.0.0
-            pages: [Template:Example]
-            tags: [Core]
-        '''
-    ).strip() + "\n"
-    write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
-    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
-    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
-    assert rc != 0
-    assert 'does not match' in out or 'pattern' in out
-
-
-def test_tags_reject_duplicates(tmp_path):
-    manifest_yaml = textwrap.dedent(
-        '''
-        schema_version: 2.0.0
-        pages:
-          Template:Example:
-            file: pages/Templates/Template_Example.wiki
-            version: 1.0.0
-        packs:
-          bad:
-            version: 1.0.0
-            pages: [Template:Example]
-            tags: [core, core]
-        '''
-    ).strip() + "\n"
-    write_tmp(tmp_path, 'pages/Templates/Template_Example.wiki', '== Example ==\n')
-    manifest = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
-    rc, out, err = run([sys.executable, str(VALIDATOR), 'validate', str(manifest), str(SCHEMA)])
-    assert rc != 0
-    assert 'non-unique elements' in out
+@pytest.mark.parametrize("runner_fixture", ["run_validate", "run_validate_cli"])
+def test_cli_and_function_parity(request, tmp_path, runner_fixture):
+    run_fn = request.getfixturevalue(runner_fixture)
+    write_tmp(tmp_path, 'pages/Templates/T.wiki', '== T ==\n')
+    m = {
+        'schema_version': '1.0.0',
+        'pages': {
+            'Template:T': {
+                'file': 'pages/Templates/T.wiki',
+                'version': '1.0.0',
+            }
+        },
+        'packs': {
+            'p': {
+                'version': '1.0.0',
+                'pages': ['Template:T'],
+            }
+        }
+    }
+    mpath = write_tmp(tmp_path, 'manifest.yml', yaml.safe_dump(m, sort_keys=False))
+    rc, out, err = run_fn(mpath)
+    assert rc == 0, f"expected success, got rc={rc}, out={out}, err={err}"
