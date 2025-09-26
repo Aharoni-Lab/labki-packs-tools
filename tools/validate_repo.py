@@ -6,37 +6,11 @@ import re
 import sys
 from pathlib import Path
 
-import yaml
 from jsonschema import Draft202012Validator
+from tools.utils import load_yaml, load_json, UniqueKeyLoader
 
 
-class UniqueKeyLoader(yaml.SafeLoader):
-    """YAML loader that raises on duplicate mapping keys to prevent silent overrides."""
-
-    def construct_mapping(self, node, deep=False):
-        mapping = {}
-        for key_node, value_node in node.value:
-            key = self.construct_object(key_node, deep=deep)
-            if key in mapping:
-                raise yaml.constructor.ConstructorError(
-                    "while constructing a mapping",
-                    node.start_mark,
-                    f"found duplicate key: {key}",
-                    key_node.start_mark,
-                )
-            value = self.construct_object(value_node, deep=deep)
-            mapping[key] = value
-        return mapping
-
-
-def load_yaml(path: Path):
-    with path.open('r', encoding='utf-8') as f:
-        return yaml.load(f, Loader=UniqueKeyLoader)
-
-
-def load_json(path: Path):
-    with path.open('r', encoding='utf-8') as f:
-        return json.load(f)
+import yaml  # only used by jsonschema loader internals; keep import available
 
 
 def validate_with_schema(data, schema):
