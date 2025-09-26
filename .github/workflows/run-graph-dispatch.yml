@@ -23,5 +23,3 @@ jobs:
       manifest_path: ${{ inputs.manifest_path }}
       generate_dot_svg: ${{ inputs.generate_dot_svg == 'true' }}
       generate_text: ${{ inputs.generate_text == 'true' }}
-
-
