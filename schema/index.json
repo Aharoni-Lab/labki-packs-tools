@@ -1,11 +1,6 @@
 {
   "manifest": {
-    "majors": {
-      "1": "v1/manifest.schema.json"
-    },
-    "versions": {
-      "1.0.0": "v1/manifest.schema.json"
-    },
+    "1.0.0": "v1/manifest.schema.json",
     "latest": "v1/manifest.schema.json"
   }
 }
