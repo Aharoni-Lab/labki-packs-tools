@@ -74,3 +74,23 @@ jobs:
             graph.md
             graph.json
 ```
+
+Reusable workflow (from this repo):
+
+```yaml
+name: Pack Graph
+on:
+  workflow_dispatch:
+
+jobs:
+  call-graph-workflow:
+    uses: ./.github/workflows/graph.yml
+    with:
+      manifest_path: tests/fixtures/basic_repo/manifest.yml
+      generate_dot_svg: true
+      generate_text: true
+```
+
+Notes on styling:
+- Mermaid output applies classes to packs by type (content/aggregator/meta/other) and pages by namespace. It also uses `linkStyle` for dashed depends_on edges.
+- JSON output includes `style` fields on nodes (fill/stroke) and edges (color/dashed/width) to help consumers render with consistent colors.
