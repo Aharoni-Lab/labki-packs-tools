@@ -11,6 +11,7 @@ Fields:
   - key: canonical wiki title (e.g., `Template:Microscope`)
   - value: object with fields:
     - `file` (string): repository path to the file under `pages/`
+    - `last_updated` (string): UTC timestamp `YYYY-MM-DDThh:mm:ssZ` when the page was last updated
 Title keys and namespaces:
 - Keys should follow [canonical page names](https://www.mediawiki.org/wiki/Manual:Page_naming#Canonical_form_of_page_names).
 - Enforced by validator:
@@ -21,7 +22,6 @@ Title keys and namespaces:
   - Prefer unicode characters over percent-encoded sequences
   - Capitalize the first letter of a namespace (if present) and the first letter of the page
 - The namespace is inferred from the key prefix before `:` (e.g., `Module:`, `Help:`, `MediaWiki:`).
-  - `version` (string): semantic version for this page
   - `description` (string, optional)
 - `packs` (mapping): flat registry of packs
   - Each key is a pack id; value has:
@@ -40,10 +40,10 @@ last_updated: 2025-09-22T00:00:00Z
 pages:
   Template:Publication:
     file: pages/Templates/Template_Publication.wiki
-    version: 1.0.0
+    last_updated: 2025-09-22T00:00:00Z
   Form:Publication:
     file: pages/Forms/Form_Publication.wiki
-    version: 1.0.0
+    last_updated: 2025-09-22T00:00:00Z
 
 packs:
   publication:
@@ -65,7 +65,7 @@ packs:
   - `schema_version` must be exact-matched in `schema/index.json` when using `auto` selection.
   - `$schema` may override schema selection via absolute or relative path.
 - Pages:
-  - Each page requires `file` and `version` (semantic `MAJOR.MINOR.PATCH`).
+  - Each page requires `file` and `last_updated` (UTC `YYYY-MM-DDThh:mm:ssZ`).
   - File must exist and must not contain `:`.
   - `Module:` pages: warnings suggest `.lua` extension and `pages/Modules/` location.
   - Orphan `.wiki`/`.md` files under `pages/` emit warnings.

@@ -65,7 +65,7 @@ def tmp_page_factory(tmp_path):
         rel_dir = 'pages/Templates' if namespace == 'Template' else 'pages'
         rel_path = f"{rel_dir}/{filename}"
         write_tmp(tmp_path, rel_path, content)
-        return {"file": rel_path, "version": "1.0.0"}
+        return {"file": rel_path, "last_updated": "2025-09-22T00:00:00Z"}
     return _make_page
 
 
@@ -170,10 +170,11 @@ def test_validate_manifest_without_extra_sections_is_ok(manifest, run_validate, 
     assert rc == 0
 
 
-def test_validate_invalid_page_version(manifest, run_validate, tmp_path, tmp_page_factory):
-    # create the file so only version format triggers error
+def test_validate_invalid_page_last_updated(manifest, run_validate, tmp_path, tmp_page_factory):
+    # create the file so only last_updated format triggers error
     page = tmp_page_factory(name='Example')
-    page['version'] = 'v1'
+    page.pop('version', None)
+    page['last_updated'] = '2025-09-22'  # invalid (missing time)
     mpath = manifest({
         'pages': {
             'Template:Example': page
@@ -184,12 +185,13 @@ def test_validate_invalid_page_version(manifest, run_validate, tmp_path, tmp_pag
     })
     rc, out, err = run_validate(mpath)
     assert rc != 0
-    assert 'must have semantic version' in out
+    assert 'last_updated' in out or 'does not match' in out
 
 
-def test_validate_valid_page_version_passes(manifest, run_validate, tmp_path, tmp_page_factory):
+def test_validate_valid_page_last_updated_passes(manifest, run_validate, tmp_path, tmp_page_factory):
     page = tmp_page_factory(name='Example')
-    page['version'] = '2.3.4'
+    page.pop('version', None)
+    page['last_updated'] = '2025-09-22T00:00:00Z'
     mpath = manifest({
         'pages': {'Template:Example': page},
         'packs': {'example': {'version': '1.0.0', 'pages': ['Template:Example'], 'depends_on': []}},
@@ -227,7 +229,7 @@ def test_validate_module_page_rules(manifest, run_validate, tmp_path):
     # Proper module: Module:Name, .lua under pages/Modules/
     good_manifest = {
         'pages': {
-            'Module:Util': {'file': 'pages/Modules/Module_Util.lua', 'version': '1.0.0'}
+            'Module:Util': {'file': 'pages/Modules/Module_Util.lua', 'last_updated': '2025-09-22T00:00:00Z'}
         },
         'packs': {'base': {'version': '1.0.0', 'pages': ['Module:Util']}},
     }
@@ -239,7 +241,7 @@ def test_validate_module_page_rules(manifest, run_validate, tmp_path):
     # Module with mismatched namespace/extension/dir should warn, not fail
     bad_manifest = {
         'pages': {
-            'NotModule:Wrong': {'file': 'pages/Templates/Module_Wrong.txt', 'version': '1.0.0'}
+            'NotModule:Wrong': {'file': 'pages/Templates/Module_Wrong.txt', 'last_updated': '2025-09-22T00:00:00Z'}
         },
         'packs': {'base': {'version': '1.0.0', 'pages': ['NotModule:Wrong']}},
     }
@@ -373,7 +375,7 @@ def test_cli_and_function_parity(request, tmp_path, runner_fixture):
         'pages': {
             'Template:T': {
                 'file': 'pages/Templates/T.wiki',
-                'version': '1.0.0',
+                'last_updated': '2025-09-22T00:00:00Z',
             }
         },
         'packs': {
@@ -514,7 +516,7 @@ def test_warns_on_title_missing_namespace(manifest, run_validate, tmp_page_facto
 def test_module_warnings_wrong_extension_and_dir(manifest, run_validate, tmp_path):
     write_tmp(tmp_path, 'pages/Templates/Module_Wrong.txt', 'x\n')
     mpath = manifest({
-        'pages': {'Module:Wrong': {'file': 'pages/Templates/Module_Wrong.txt', 'version': '1.0.0'}},
+        'pages': {'Module:Wrong': {'file': 'pages/Templates/Module_Wrong.txt', 'last_updated': '2025-09-22T00:00:00Z'}},
         'packs': {'base': {'version': '1.0.0', 'pages': ['Module:Wrong']}},
     })
     rc, out, err = run_validate(mpath)

@@ -12,11 +12,10 @@
       "propertyNames": { "pattern": "^[^_]*$" },
       "additionalProperties": {
         "type": "object",
-        "required": ["file", "version"],
+        "required": ["file", "last_updated"],
         "properties": {
           "file": { "type": "string", "pattern": "^[^:]+$", "description": "Repository-relative path under 'pages/' to the file that defines this page" },
-          
-          "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$", "description": "Semantic version for this page" },
+          "last_updated": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$", "description": "Timestamp the page was last updated, in UTC (YYYY-MM-DDThh:mm:ssZ)" },
           "description": { "type": "string", "description": "Optional human-readable description of the page" }
         },
         "additionalProperties": false

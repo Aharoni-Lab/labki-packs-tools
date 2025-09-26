@@ -58,11 +58,11 @@ def _format_schema_error(e) -> list[str]:
             msgs.append(
                 f"Schema validation: Pack '{pack_id}' must have semantic version (MAJOR.MINOR.PATCH)"
             )
-        # Page version pattern
-        if len(path_list) >= 3 and path_list[0] == 'pages' and path_list[2] == 'version':
+        # Page last_updated pattern
+        if len(path_list) >= 3 and path_list[0] == 'pages' and path_list[2] == 'last_updated':
             page_title = path_list[1]
             msgs.append(
-                f"Schema validation: Page '{page_title}' must have semantic version (MAJOR.MINOR.PATCH)"
+                f"Schema validation: Page '{page_title}' last_updated must match YYYY-MM-DDThh:mm:ssZ"
             )
         # last_updated timestamp pattern
         if path_list == ['last_updated']:
@@ -129,9 +129,7 @@ def validate_pages(manifest_path: Path, pages):
         referenced_abs_paths.add(abs_path)
         if not abs_path.exists():
             errors.append(f"Page file not found: {file_rel} (for {title})")
-        page_version = meta.get('version')
-        if not is_semver(page_version):
-            errors.append(f"Page '{title}' must have semantic version (MAJOR.MINOR.PATCH)")
+        # Per-page last_updated format is enforced by the JSON Schema; no extra check here.
         # Additional type-specific checks
         inferred_ns = None
         if ':' in title:

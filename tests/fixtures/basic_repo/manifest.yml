@@ -4,37 +4,37 @@ last_updated: "2025-09-22T00:00:00Z"
 pages:
   Template:Publication:
     file: pages/Templates/Template_Publication.wiki
-    version: 1.0.0
+    last_updated: "2025-09-22T00:00:00Z"
   Form:Publication:
     file: pages/Forms/Form_Publication.wiki
-    version: 1.0.0
+    last_updated: "2025-09-22T00:00:00Z"
   Category:Publication:
     file: pages/Categories/Category_Publication.wiki
-    version: 1.0.0
+    last_updated: "2025-09-22T00:00:00Z"
   Property:Has author:
     file: pages/Properties/Property_Has author.wiki
-    version: 1.0.0
+    last_updated: "2025-09-22T00:00:00Z"
   Template:MeetingNotes:
     file: pages/Templates/Template_MeetingNotes.wiki
-    version: 1.0.0
+    last_updated: "2025-09-22T00:00:00Z"
   Form:MeetingNotes:
     file: pages/Forms/Form_MeetingNotes.wiki
-    version: 1.0.0
+    last_updated: "2025-09-22T00:00:00Z"
   Category:Meeting:
     file: pages/Categories/Category_Meeting.wiki
-    version: 1.0.0
+    last_updated: "2025-09-22T00:00:00Z"
   Onboarding:
     file: pages/Layouts/Onboarding.md
-    version: 1.0.0
+    last_updated: "2025-09-22T00:00:00Z"
   Module:Util:
     file: pages/Modules/Module_Util.lua
-    version: 1.0.0
+    last_updated: "2025-09-22T00:00:00Z"
   Help:GettingStarted:
     file: pages/Help/Help_GettingStarted.wiki
-    version: 1.0.0
+    last_updated: "2025-09-22T00:00:00Z"
   MediaWiki:Common.css:
     file: pages/MediaWiki/Common.css
-    version: 1.0.0
+    last_updated: "2025-09-22T00:00:00Z"
 
 packs:
   publication:
