@@ -53,6 +53,85 @@ def warn(msg):
     print(f"WARNING: {msg}")
 
 
+def _format_schema_error(e) -> list[str]:
+    """Return friendly, contextualized messages for common schema errors.
+
+    Always preserve the raw jsonschema message elsewhere so tests and users
+    can see the exact validator detail. This function only adds extra hints.
+    """
+    try:
+        path_list = list(e.path)
+    except Exception:
+        path_list = []
+
+    msgs: list[str] = []
+    # Packs content rule handled elsewhere (anyOf)
+    if e.validator == 'pattern':
+        # Packs tags slug pattern
+        if len(path_list) >= 4 and path_list[0] == 'packs' and path_list[2] == 'tags':
+            pack_id = path_list[1]
+            tag_value = getattr(e, 'instance', None)
+            msgs.append(
+                f"Schema validation: Pack '{pack_id}' has tag '{tag_value}' that must be slugified (lowercase letters, digits, hyphens)"
+            )
+        # Pack version pattern
+        if len(path_list) >= 3 and path_list[0] == 'packs' and path_list[2] == 'version':
+            pack_id = path_list[1]
+            msgs.append(
+                f"Schema validation: Pack '{pack_id}' must have semantic version (MAJOR.MINOR.PATCH)"
+            )
+        # Page version pattern
+        if len(path_list) >= 3 and path_list[0] == 'pages' and path_list[2] == 'version':
+            page_title = path_list[1]
+            msgs.append(
+                f"Schema validation: Page '{page_title}' must have semantic version (MAJOR.MINOR.PATCH)"
+            )
+        # last_updated timestamp pattern
+        if path_list == ['last_updated']:
+            msgs.append(
+                "Schema validation: 'last_updated' must match YYYY-MM-DDThh:mm:ssZ"
+            )
+        # file path (no colon) — only if schema adds this pattern in future
+        if len(path_list) >= 3 and path_list[0] == 'pages' and path_list[2] == 'file':
+            page_title = path_list[1]
+            msgs.append(
+                f"Schema validation: Page '{page_title}' file path must not contain ':'"
+            )
+
+    if e.validator == 'uniqueItems':
+        if len(path_list) >= 3 and path_list[0] == 'packs':
+            pack_id = path_list[1]
+            field = path_list[2]
+            if field == 'tags':
+                msgs.append(f"Schema validation: Pack '{pack_id}' has duplicate tags")
+            if field == 'pages':
+                msgs.append(f"Schema validation: Pack '{pack_id}' has duplicate page titles in 'pages'")
+
+    if e.validator == 'additionalProperties':
+        if len(path_list) >= 2 and path_list[0] == 'pages':
+            page_title = path_list[1]
+            msgs.append(f"Schema validation: Page '{page_title}' contains unknown field(s)")
+        if len(path_list) >= 2 and path_list[0] == 'packs':
+            pack_id = path_list[1]
+            msgs.append(f"Schema validation: Pack '{pack_id}' contains unknown field(s)")
+
+    if e.validator == 'type':
+        # Pack pages must be an array
+        if len(path_list) >= 3 and path_list[0] == 'packs' and path_list[2] == 'pages':
+            pack_id = path_list[1]
+            msgs.append(f"Schema validation: Pack '{pack_id}' pages must be an array")
+
+    if e.validator == 'required':
+        if len(path_list) >= 2 and path_list[0] == 'pages':
+            page_title = path_list[1]
+            msgs.append(f"Schema validation: Page '{page_title}' is missing required field(s)")
+        if len(path_list) >= 2 and path_list[0] == 'packs':
+            pack_id = path_list[1]
+            msgs.append(f"Schema validation: Pack '{pack_id}' is missing required field(s)")
+
+    return msgs
+
+
 def check_manifest(manifest_path: Path, schema_path: Path) -> int:
     rc = 0
     try:
@@ -78,7 +157,11 @@ def check_manifest(manifest_path: Path, schema_path: Path) -> int:
                     error(
                         f"Schema validation: Pack '{pack_id}' must include at least one page or depend on at least two packs"
                     )
-                    continue
+                    # fall through to also print raw message for completeness
+            # Extra friendly hints
+            for msg in _format_schema_error(e):
+                error(msg)
+            # Always include the raw jsonschema message
             error(f"Schema validation: {e.message} at path {list(e.path)}")
         rc = 1
 
