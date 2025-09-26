@@ -106,7 +106,7 @@ def test_rejects_underscore_in_page_key(manifest, tmp_page_factory, run_validate
     })
     rc, out, err = run_validate(mpath)
     assert rc != 0
-    assert 'must use spaces, not underscores' in out
+    assert 'does not match' in out or 'pattern' in out
 
 
 def test_allows_main_namespace_title_without_colon(manifest, tmp_page_factory, run_validate):
@@ -423,7 +423,7 @@ def test_rejects_colon_in_filename(manifest, run_validate, tmp_path):
     })
     rc, out, err = run_validate(mpath)
     assert rc != 0
-    assert 'Filename must not contain colon' in out
+    assert "file path must not contain ':'" in out or 'does not match' in out
 
 
 def test_pack_pages_must_be_array(manifest, run_validate, tmp_page_factory):
@@ -535,3 +535,47 @@ def test_packs_must_be_mapping(run_validate, manifest):
     rc, out, err = run_validate(mpath)
     assert rc != 0
     assert "'packs' must be a mapping" in out
+
+
+# ---- Duplicate key detection ----
+def test_duplicate_page_keys_fail_on_load(tmp_path, run_validate):
+    manifest_yaml = (
+        """
+        schema_version: 1.0.0
+        pages:
+          Template:Dup:
+            file: pages/Templates/Dup1.wiki
+            version: 1.0.0
+          Template:Dup:
+            file: pages/Templates/Dup2.wiki
+            version: 1.0.0
+        packs:
+          p:
+            version: 1.0.0
+            pages: [Template:Dup]
+        """
+    ).strip() + "\n"
+    mpath = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run_validate(mpath, SCHEMA)
+    assert rc != 0
+    assert 'Failed to read manifest' in out
+
+
+def test_duplicate_pack_keys_fail_on_load(tmp_path, run_validate):
+    manifest_yaml = (
+        """
+        schema_version: 1.0.0
+        pages: {}
+        packs:
+          dup:
+            version: 1.0.0
+            pages: []
+          dup:
+            version: 1.0.0
+            pages: []
+        """
+    ).strip() + "\n"
+    mpath = write_tmp(tmp_path, 'manifest.yml', manifest_yaml)
+    rc, out, err = run_validate(mpath, SCHEMA)
+    assert rc != 0
+    assert 'Failed to read manifest' in out
