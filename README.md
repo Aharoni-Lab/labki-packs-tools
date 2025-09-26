@@ -4,10 +4,9 @@ CLI validator and JSON Schemas for Labki/MediaWiki content packs. Use this in CI
 
 ## What it validates (v2)
 
-- Root manifest structure (`version`, `pages`, `packs`, optional `groups`) against `schema/root-manifest.schema.json`.
+- Manifest structure (`version`, `pages`, `packs`) against `schema/manifest.schema.json`.
 - Page entries: required `file`, `type`, `version` (semantic version), Windows-safe filenames, file existence.
 - Packs: required semantic version, page titles exist, dependency sanity and cycle detection.
-- Groups: pack references are valid; warns when a pack appears in multiple groups.
 - Additional conventions (warnings), e.g., `Module:` pages should be `.lua` under `pages/Modules/`.
 
 ## Quickstart (local)
@@ -17,12 +16,8 @@ Requires Python 3.10+.
 ```bash
 pip install pyyaml jsonschema
 
-# Validate a repo's root manifest against the schema
-python tools/validate_repo.py validate-root path/to/manifest.yml schema/root-manifest.schema.json
-
-# Validate legacy per-pack structures (if migrating v1 → v2)
-python tools/validate_repo.py validate-packs path/to/repo schema/pack.schema.json
-```
+# Validate a manifest (auto-selects schema based on manifest.version)
+python tools/validate_repo.py validate path/to/manifest.yml
 
 Exit code is non-zero on validation errors (suitable for CI). Warnings do not change the exit code.
 
@@ -31,7 +26,7 @@ Exit code is non-zero on validation errors (suitable for CI). Warnings do not ch
 This repo ships a small sample under `tests/fixtures/basic_repo/`:
 
 ```bash
-python tools/validate_repo.py validate-root tests/fixtures/basic_repo/manifest.yml schema/root-manifest.schema.json
+python tools/validate_repo.py validate tests/fixtures/basic_repo/manifest.yml
 ```
 
 ## Use in CI (content repo)
@@ -61,7 +56,8 @@ jobs:
         run: pip install pyyaml jsonschema
       - name: Validate manifest
         run: |
-          python tools-cache/tools/validate_repo.py validate-root manifest.yml tools-cache/schema/root-manifest.schema.json
+          # auto schema selection
+          python tools-cache/tools/validate_repo.py validate manifest.yml
 ```
 
 Alternatively, vendor or pin a release artifact of this repo. A reusable GitHub Action is on the roadmap.

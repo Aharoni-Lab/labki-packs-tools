@@ -23,9 +23,9 @@ jobs:
           python-version: '3.11'
       - name: Install deps
         run: pip install pyyaml jsonschema
-      - name: Validate manifest
+      - name: Validate manifest (auto schema)
         run: |
-          python tools-cache/tools/validate_repo.py validate-root manifest.yml tools-cache/schema/root-manifest.schema.json
+          python tools-cache/tools/validate_repo.py validate manifest.yml
 ```
 
 Notes:

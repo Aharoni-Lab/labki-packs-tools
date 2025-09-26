@@ -4,34 +4,36 @@
 
 Fields:
 
-- `version` (string): manifest schema/version of the registry (v2 and up)
-- `last_updated` (date/string): informational timestamp
+- `schema_version` (string): semantic version `MAJOR.MINOR.PATCH` used to select the schema
+- `$schema` (string, optional): schema URL or path; if provided, it is used directly
+- `last_updated` (string): ISO-like UTC timestamp `YYYY-MM-DDThh:mm:ssZ`
 - `pages` (mapping): global flat registry of pages
   - key: canonical wiki title (e.g., `Template:Microscope`)
   - value: object with fields:
     - `file` (string): repository path to the file under `pages/`
-    - `type` (string): one of `template|form|category|property|layout|module|help|mediawiki|other`
-    - `version` (string): semantic version for this page
-    - `description` (string, optional)
+Title keys and namespaces:
+- Keys must be [canonical page names](https://www.mediawiki.org/wiki/Manual:Page_naming#Canonical_form_of_page_names)
+  - Use spaces, not underscores. Example: `"A Person"`, `"Template:A Person"`
+  - Strip leading and trailing whitespace
+  - Reduce multiple consecutive spaces to a single space
+  - Use unicode, not percent-encoded characters: Example `"À"` not `"%C3%80"`; `" "` not `"%20"`
+  - Capitalize the first letter of a namespace (if present) and the first letter of the page
+- The namespace is inferred from the key prefix before `:` (e.g., `Module:`, `Help:`, `MediaWiki:`).
+  - `version` (string): semantic version for this page
+  - `description` (string, optional)
 - `packs` (mapping): flat registry of packs
   - Each key is a pack id; value has:
     - `description` (string, optional)
     - `version` (string, required): semantic version for the pack
     - `pages` (array of strings): page titles from the global `pages` registry
-    - `depends_on` (array of strings, optional): other pack ids this pack depends on
+    - `depends_on` (array of strings, optional): pack ids this pack depends on. Each string must be a pack id, a key that exists under `packs`.
     - `tags` (array of strings, optional): free-form labels to aid discovery/filtering (e.g., `core`, `imaging`)
-- `groups` (mapping, optional): hierarchical grouping for UI navigation
-  - Each key is a group id; value has:
-    - `description` (string, optional)
-    - `packs` (array of strings): pack ids included in this group
-    - `children` (mapping, optional): nested group nodes
-  - Best practice: list each pack in a single logical group; if a pack spans categories, use `tags` for cross-cutting labels.
 
 Example (aligned to repository samples; using `tests/fixtures/basic_repo/manifest.yml`):
 
 ```yaml
 version: 2.0.0
-last_updated: 2025-09-22
+last_updated: 2025-09-22T00:00:00Z
 
 pages:
   Template:Publication:
@@ -50,10 +52,7 @@ packs:
     pages: [Template:Publication, Form:Publication]
     depends_on: []
 
-groups:
-  content:
-    description: Content creation
-    packs: [publication]
+ 
 ```
 
 ## Title resolution and filenames
@@ -64,4 +63,4 @@ groups:
 
 ## Backward compatibility (v1)
 
-In v1, the root manifest referenced directory-level `pack.yml` files, which in turn referenced file paths and titles. v2 centralizes page metadata into a flat registry and references titles from packs. During migration, tooling can read v1 and emit v2 with the same titles and files.
+In v1, the repository manifest referenced directory-level `pack.yml` files, which in turn referenced file paths and titles. v2 centralizes page metadata into a flat registry and references titles from packs. During migration, tooling can read v1 and emit v2 with the same titles and files.

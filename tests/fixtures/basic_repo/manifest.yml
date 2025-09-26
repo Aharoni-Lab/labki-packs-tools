@@ -1,38 +1,30 @@
-version: 2.0.0
-last_updated: "2025-09-22"
+schema_version: 1.0.0
+last_updated: "2025-09-22T00:00:00Z"
 
 pages:
   Template:Publication:
     file: pages/Templates/Template_Publication.wiki
-    type: template
     version: 1.0.0
   Form:Publication:
     file: pages/Forms/Form_Publication.wiki
-    type: form
     version: 1.0.0
   Category:Publication:
     file: pages/Categories/Category_Publication.wiki
-    type: category
     version: 1.0.0
   Property:Has author:
     file: pages/Properties/Property_Has author.wiki
-    type: property
     version: 1.0.0
   Template:MeetingNotes:
     file: pages/Templates/Template_MeetingNotes.wiki
-    type: template
     version: 1.0.0
   Form:MeetingNotes:
     file: pages/Forms/Form_MeetingNotes.wiki
-    type: form
     version: 1.0.0
   Category:Meeting:
     file: pages/Categories/Category_Meeting.wiki
-    type: category
     version: 1.0.0
   Onboarding:
     file: pages/Layouts/Onboarding.md
-    type: layout
     version: 1.0.0
 
 packs:
@@ -59,12 +51,3 @@ packs:
     pages:
       - Onboarding
     depends_on: [publication]
-
-groups:
-  operations:
-    description: Operational packs
-    packs: [onboarding, meeting_notes]
-    children:
-      content:
-        description: Content creation
-        packs: [publication]
