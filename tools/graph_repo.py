@@ -36,7 +36,23 @@ def emit_dot(manifest: dict) -> str:
     for title in page_titles:
         nid = sanitize_id(f"page_{title}")
         label = title.replace('"', '\\"')
-        lines.append(f"    {nid} [label=\"{label}\", shape=ellipse, fillcolor=\"#E8F5E9\", color=\"#43A047\"];")
+        # Color pages by namespace for better visual grouping
+        if ':' in title:
+            ns = title.split(':', 1)[0]
+        else:
+            ns = 'Main'
+        ns_styles = {
+            'Template': ("#E3F2FD", "#42A5F5"),
+            'Form': ("#E8F5E9", "#43A047"),
+            'Category': ("#F3E5F5", "#AB47BC"),
+            'Property': ("#F1F8E9", "#7CB342"),
+            'Module': ("#EDE7F6", "#7E57C2"),
+            'Help': ("#FFFDE7", "#FBC02D"),
+            'MediaWiki': ("#ECEFF1", "#607D8B"),
+            'Main': ("#F5F5F5", "#9E9E9E"),
+        }
+        fill, border = ns_styles.get(ns, ("#F5F5F5", "#9E9E9E"))
+        lines.append(f"    {nid} [label=\"{label}\", shape=ellipse, fillcolor=\"{fill}\", color=\"{border}\"];")
     lines.append("  }\n")
     # Edges: depends_on (dep -> pack)
     for pack_id, dep in dep_edges:
