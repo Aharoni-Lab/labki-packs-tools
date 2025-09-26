@@ -106,7 +106,7 @@ def test_rejects_underscore_in_page_key(manifest, tmp_page_factory, run_validate
     })
     rc, out, err = run_validate(mpath)
     assert rc != 0
-    assert 'must use spaces, not underscores' in out
+    assert 'does not match' in out or 'pattern' in out
 
 
 def test_allows_main_namespace_title_without_colon(manifest, tmp_page_factory, run_validate):
@@ -423,7 +423,7 @@ def test_rejects_colon_in_filename(manifest, run_validate, tmp_path):
     })
     rc, out, err = run_validate(mpath)
     assert rc != 0
-    assert 'Filename must not contain colon' in out
+    assert "file path must not contain ':'" in out or 'does not match' in out
 
 
 def test_pack_pages_must_be_array(manifest, run_validate, tmp_page_factory):

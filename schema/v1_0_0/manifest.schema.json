@@ -9,11 +9,12 @@
     "pages": {
       "description": "Global registry of pages. Keys are canonical wiki titles (e.g., 'Template:Microscope').",
       "type": "object",
+      "propertyNames": { "pattern": "^[^_]*$" },
       "additionalProperties": {
         "type": "object",
         "required": ["file", "version"],
         "properties": {
-          "file": { "type": "string", "description": "Repository-relative path under 'pages/' to the file that defines this page" },
+          "file": { "type": "string", "pattern": "^[^:]+$", "description": "Repository-relative path under 'pages/' to the file that defines this page" },
           
           "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$", "description": "Semantic version for this page" },
           "description": { "type": "string", "description": "Optional human-readable description of the page" }
