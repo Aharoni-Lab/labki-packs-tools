@@ -188,7 +188,6 @@ def check_manifest(manifest_path: Path, schema_path: Path) -> int:
             error("Dependency cycle detected among packs")
             rc = 1
 
-    # no groups validation (feature removed)
     return rc
 
 
