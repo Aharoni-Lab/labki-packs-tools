@@ -79,7 +79,7 @@ labki-packs-tools/
 
 - Validator CLI: `docs/validator.md`
 - CI integration: `docs/ci.md`
-- Manifest spec (v2): `docs/manifest.md`
+- Manifest spec (v1): `docs/manifest.md`
 - Content conventions (warnings): `docs/content-conventions.md`
 
 ## Roadmap
