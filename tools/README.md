@@ -10,27 +10,27 @@ Quick start (Windows PowerShell):
 
 1. Create and activate a virtualenv
 
-```powershell
-python -m venv .venv
-. .\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-```
+    ```powershell
+    python -m venv .venv
+    . .\.venv\Scripts\Activate.ps1
+    python -m pip install --upgrade pip
+    ```
 
 2. Install the project in editable mode
 
-```powershell
-python -m pip install -e .
-```
+    ```powershell
+    python -m pip install -e .
+    ```
 
 3. Run the tools
 
-```powershell
-# Validate a manifest
-labki-validate validate tests/fixtures/basic_repo/manifest.yml
+    ```powershell
+    # Validate a manifest
+    labki-validate validate tests/fixtures/basic_repo/manifest.yml
 
-# Generate DOT graph from a manifest
-labki-graph tests/fixtures/basic_repo/manifest.yml --format dot --output graph.dot
-```
+    # Generate DOT graph from a manifest
+    labki-graph tests/fixtures/basic_repo/manifest.yml --format dot --output graph.dot
+    ```
 
 Other formats:
 
