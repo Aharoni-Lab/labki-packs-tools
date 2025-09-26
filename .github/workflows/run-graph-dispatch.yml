@@ -1,0 +1,27 @@
+name: Run Pack Graph (dispatcher)
+
+on:
+  workflow_dispatch:
+    inputs:
+      manifest_path:
+        description: Path to manifest.yml
+        required: false
+        default: tests/fixtures/basic_repo/manifest.yml
+      generate_dot_svg:
+        description: Generate DOT and SVG artifacts
+        required: false
+        default: 'true'
+      generate_text:
+        description: Generate Mermaid (graph.md) and JSON (graph.json) artifacts
+        required: false
+        default: 'true'
+
+jobs:
+  call-reusable-graph:
+    uses: ./.github/workflows/graph.yml
+    with:
+      manifest_path: ${{ inputs.manifest_path }}
+      generate_dot_svg: ${{ inputs.generate_dot_svg == 'true' }}
+      generate_text: ${{ inputs.generate_text == 'true' }}
+
+
