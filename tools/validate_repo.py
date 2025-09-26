@@ -199,7 +199,6 @@ def main():
     p_root.add_argument('manifest', type=str)
     p_root.add_argument('schema', type=str, nargs='?', default='auto', help="Path to schema or 'auto' (default)")
 
-    # No legacy aliases; use `validate` only
 
     args = parser.parse_args()
 
