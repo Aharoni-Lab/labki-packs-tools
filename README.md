@@ -2,7 +2,7 @@
 
 CLI validator and JSON Schemas for Labki/MediaWiki content packs. Use this in CI or locally to validate a content repository like `labki-packs`.
 
-## What it validates (v2)
+## What it validates (v1)
 
 - Manifest structure (`version`, `pages`, `packs`) against `schema/manifest.schema.json`.
 - Page entries: required `file`, `type`, `version` (semantic version), Windows-safe filenames, file existence.
