@@ -67,32 +67,35 @@ def emit_dot(manifest: dict) -> str:
     lines: list[str] = []
     lines.append("digraph Manifest {")
     lines.append("  rankdir=LR;")
-    lines.append("  node [fontname=\"Helvetica\"];\n")
+    lines.append("  graph [bgcolor=\"white\", ranksep=\"0.7\", nodesep=\"0.5\"];\n")
+    lines.append("  node [fontname=\"Helvetica\", style=filled, color=\"#90A4AE\", fillcolor=\"#ECEFF1\"];\n")
+    lines.append("  edge [fontname=\"Helvetica\", arrowsize=0.8];\n")
     # Clusters
     lines.append("  subgraph cluster_packs {")
-    lines.append("    label=\"Packs\"; style=rounded;")
+    lines.append("    label=\"Packs\"; style=rounded; color=\"#5C6BC0\";")
     for pid in pack_ids:
         nid = _sanitize_id(f"pack_{pid}")
         label = pid.replace('"', '\\"')
-        lines.append(f"    {nid} [label=\"{label}\", shape=box];")
+        lines.append(f"    {nid} [label=\"{label}\", shape=box, fillcolor=\"#E8F0FE\", color=\"#5C6BC0\"];")
     lines.append("  }")
     lines.append("  subgraph cluster_pages {")
-    lines.append("    label=\"Pages\"; style=rounded;")
+    lines.append("    label=\"Pages\"; style=rounded; color=\"#43A047\";")
     for title in page_titles:
         nid = _sanitize_id(f"page_{title}")
         label = title.replace('"', '\\"')
-        lines.append(f"    {nid} [label=\"{label}\", shape=ellipse];")
+        lines.append(f"    {nid} [label=\"{label}\", shape=ellipse, fillcolor=\"#E8F5E9\", color=\"#43A047\"];")
     lines.append("  }\n")
-    # Edges: depends_on (pack -> pack)
-    for a, b in dep_edges:
-        na = _sanitize_id(f"pack_{a}")
-        nb = _sanitize_id(f"pack_{b}")
-        lines.append(f"  {na} -> {nb};")
-    # Edges: includes (pack -> page)
-    for a, title in include_edges:
-        na = _sanitize_id(f"pack_{a}")
-        nb = _sanitize_id(f"page_{title}")
-        lines.append(f"  {na} -> {nb};")
+    # Edges: depends_on (dep -> pack)
+    for pack_id, dep in dep_edges:
+        n_pack = _sanitize_id(f"pack_{pack_id}")
+        n_dep = _sanitize_id(f"pack_{dep}")
+        # draw from dependency into the dependent pack
+        lines.append(f"  {n_dep} -> {n_pack} [color=\"#90A4AE\", style=dashed, penwidth=1.2, label=\"depends_on\", fontsize=10];")
+    # Edges: includes (page -> pack)
+    for pack_id, title in include_edges:
+        n_pack = _sanitize_id(f"pack_{pack_id}")
+        n_page = _sanitize_id(f"page_{title}")
+        lines.append(f"  {n_page} -> {n_pack} [color=\"#64B5F6\", penwidth=1.4];")
     lines.append("}")
     return "\n".join(lines) + "\n"
 
