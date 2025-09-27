@@ -14,10 +14,10 @@ CLI validator and JSON Schemas for Labki/MediaWiki content packs. Use this in CI
 Requires Python 3.10+.
 
 ```bash
-pip install pyyaml jsonschema
+pip install -e .
 
 # Validate a manifest (auto-selects schema based on manifest.version)
-python tools/validate_repo.py validate path/to/manifest.yml
+labki-validate validate path/to/manifest.yml
 
 Exit code is non-zero on validation errors (suitable for CI). Warnings do not change the exit code.
 
@@ -26,7 +26,7 @@ Exit code is non-zero on validation errors (suitable for CI). Warnings do not ch
 This repo ships a small sample under `tests/fixtures/basic_repo/`:
 
 ```bash
-python tools/validate_repo.py validate tests/fixtures/basic_repo/manifest.yml
+labki-validate validate tests/fixtures/basic_repo/manifest.yml
 ```
 
 ## Use in CI (content repo)
@@ -53,11 +53,11 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install deps
-        run: pip install pyyaml jsonschema
+        run: pip install ./tools-cache
       - name: Validate manifest
         run: |
           # auto schema selection
-          python tools-cache/tools/validate_repo.py validate manifest.yml
+          labki-validate validate manifest.yml
 ```
 
 Alternatively, vendor or pin a release artifact of this repo. A reusable GitHub Action is on the roadmap.
@@ -67,8 +67,9 @@ Alternatively, vendor or pin a release artifact of this repo. A reusable GitHub 
 ```text
 labki-packs-tools/
 ├─ schema/                     # JSON Schemas used by the validator
-├─ tools/
-│  └─ validate_repo.py         # CLI validator
+├─ src/
+|  └─ labki_packs_tools/
+│     └─ validate_repo.py         # CLI validator
 ├─ tests/
 │  ├─ fixtures/basic_repo/     # Sample manifest + pages for tests/examples
 │  └─ test_validate_repo.py
