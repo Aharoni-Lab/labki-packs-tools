@@ -1,4 +1,7 @@
-from .utils import load_yaml, load_json, UniqueKeyLoader  # re-export for convenience
-# Make 'tools' a package for imports in tests/CI
+from .utils import UniqueKeyLoader, load_json, load_yaml
 
-
+__all__ = [
+    "UniqueKeyLoader",
+    "load_json",
+    "load_yaml",
+]
