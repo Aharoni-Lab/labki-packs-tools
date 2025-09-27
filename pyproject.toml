@@ -13,6 +13,11 @@ dependencies = [
 labki-validate = "tools.validate_repo:main"
 labki-graph = "tools.graph_repo:main"
 
+[project.optional-dependencies]
+tests = [
+    "pytest>=8.4.2",
+]
+
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"

@@ -37,7 +37,7 @@ def test_graph_cli_writes_dot_to_file(tmp_path: Path):
     out = tmp_path / 'graph.dot'
     manifest_path = FIXTURES / 'manifest.yml'
     rc = subprocess.run(
-        [sys.executable, '-m', 'tools.graph_repo', str(manifest_path), '--format', 'dot', '--output', str(out)],
+        [sys.executable, '-m', 'labki_packs_tools.graph_repo', str(manifest_path), '--format', 'dot', '--output', str(out)],
         capture_output=True,
         text=True,
     )
