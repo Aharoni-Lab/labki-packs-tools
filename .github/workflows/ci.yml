@@ -36,6 +36,6 @@ jobs:
       - name: Install project (editable) and pytest
         run: pip install -e . pytest
       - name: "sanity check: validate sample fixture"
-        run: python -m tools.validate_repo validate tests/fixtures/basic_repo/manifest.yml schema/v1_0_0/manifest.schema.json
+        run: python -m labki_packs_tools.validate_repo validate tests/fixtures/basic_repo/manifest.yml schema/v1_0_0/manifest.schema.json
       - name: Run tests
         run: pytest -q

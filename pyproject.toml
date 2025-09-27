@@ -1,7 +1,3 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "labki-packs-tools"
 version = "0.1.0"
@@ -13,11 +9,18 @@ dependencies = [
   "jsonschema>=4.18",
 ]
 
-[tool.setuptools.packages.find]
-include = ["tools*"]
-
 [project.scripts]
 labki-validate = "tools.validate_repo:main"
 labki-graph = "tools.graph_repo:main"
 
+[project.optional-dependencies]
+tests = [
+    "pytest>=8.4.2",
+]
 
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm]
+distribution = true

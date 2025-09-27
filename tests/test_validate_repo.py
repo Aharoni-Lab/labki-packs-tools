@@ -10,7 +10,7 @@ import io
 import contextlib
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-VALIDATOR = REPO_ROOT / 'tools' / 'validate_repo.py'
+VALIDATOR = REPO_ROOT / 'src' / 'labki_packs_tools' / 'validate_repo.py'
 SCHEMA = REPO_ROOT / 'schema' / 'v1_0_0' / 'manifest.schema.json'
 FIXTURES = REPO_ROOT / 'tests' / 'fixtures' / 'basic_repo'
 
@@ -40,7 +40,7 @@ def _deep_merge(base: dict, override: dict) -> dict:
 @pytest.fixture
 def run_validate():
     # Prefer calling python function directly for speed and debuggability
-    from tools.validate_repo import validate as py_validate
+    from labki_packs_tools.validate_repo import validate as py_validate
     def _run(manifest_path: Path, schema_path: Path = SCHEMA):
         # Capture printed output from validator
         stdout = io.StringIO()

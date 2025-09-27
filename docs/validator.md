@@ -12,10 +12,10 @@
 ## Examples
 
 ```bash
-python tools/validate_repo.py validate tests/fixtures/basic_repo/manifest.yml
+labki-validate validate tests/fixtures/basic_repo/manifest.yml
 
 # Pin a specific schema if needed
-python tools/validate_repo.py validate tests/fixtures/basic_repo/manifest.yml schema/v1/manifest.schema.json
+labki-validate validate tests/fixtures/basic_repo/manifest.yml schema/v1/manifest.schema.json
 ```
 
 ## Common messages

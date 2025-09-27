@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from jsonschema import Draft202012Validator
-from tools.utils import load_yaml, load_json, UniqueKeyLoader, is_semver
+from labki_packs_tools.utils import load_yaml, load_json, UniqueKeyLoader, is_semver
 
 
 import yaml  # only used by jsonschema loader internals; keep import available
@@ -350,7 +350,7 @@ def validate(manifest: Path | str, schema_arg: Path | str = 'auto') -> int:
 
         version_str = str(manifest_data.get('schema_version') or '').strip()
         m = re.match(r"^(\d+)\.(\d+)\.(\d+)$", version_str or '')
-        schema_dir = Path(__file__).resolve().parents[1] / 'schema'
+        schema_dir = Path(__file__).resolve().parents[2] / 'schema'
         if not m:
             error("Manifest 'schema_version' must be a semantic version (MAJOR.MINOR.PATCH)")
             return 1

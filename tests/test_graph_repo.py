@@ -2,8 +2,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from tools.utils import load_yaml
-from tools.graph_repo import emit_dot, emit_mermaid, emit_json
+from labki_packs_tools.utils import load_yaml
+from labki_packs_tools.graph_repo import emit_dot, emit_mermaid, emit_json
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -37,7 +37,7 @@ def test_graph_cli_writes_dot_to_file(tmp_path: Path):
     out = tmp_path / 'graph.dot'
     manifest_path = FIXTURES / 'manifest.yml'
     rc = subprocess.run(
-        [sys.executable, '-m', 'tools.graph_repo', str(manifest_path), '--format', 'dot', '--output', str(out)],
+        [sys.executable, '-m', 'labki_packs_tools.graph_repo', str(manifest_path), '--format', 'dot', '--output', str(out)],
         capture_output=True,
         text=True,
     )
