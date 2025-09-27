@@ -2,8 +2,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from tools.utils import load_yaml
-from tools.graph_repo import emit_dot, emit_mermaid, emit_json
+from labki_packs_tools.utils import load_yaml
+from labki_packs_tools.graph_repo import emit_dot, emit_mermaid, emit_json
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]

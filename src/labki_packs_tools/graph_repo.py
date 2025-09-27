@@ -6,11 +6,11 @@ from pathlib import Path
 import json
 from datetime import datetime, timezone
 
-from tools.utils import load_yaml, UniqueKeyLoader, sanitize_id, extract_graph, categorize_packs
+from labki_packs_tools.utils import load_yaml, UniqueKeyLoader, sanitize_id, extract_graph, categorize_packs
 import yaml
 
 
-# YAML loader is provided by tools.common (UniqueKeyLoader)
+# YAML loader is provided by labki_packs_tools.common (UniqueKeyLoader)
 
 
  

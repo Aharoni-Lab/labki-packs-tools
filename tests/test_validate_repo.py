@@ -40,7 +40,7 @@ def _deep_merge(base: dict, override: dict) -> dict:
 @pytest.fixture
 def run_validate():
     # Prefer calling python function directly for speed and debuggability
-    from tools.validate_repo import validate as py_validate
+    from labki_packs_tools.validate_repo import validate as py_validate
     def _run(manifest_path: Path, schema_path: Path = SCHEMA):
         # Capture printed output from validator
         stdout = io.StringIO()

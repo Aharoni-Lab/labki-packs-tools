@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from jsonschema import Draft202012Validator
-from tools.utils import load_yaml, load_json, UniqueKeyLoader, is_semver
+from labki_packs_tools.utils import load_yaml, load_json, UniqueKeyLoader, is_semver
 
 
 import yaml  # only used by jsonschema loader internals; keep import available
