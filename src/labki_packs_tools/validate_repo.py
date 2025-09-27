@@ -1,19 +1,16 @@
 ﻿#!/usr/bin/env python3
 import argparse
-import json
 import os
 import re
 import sys
 from pathlib import Path
 
-from jsonschema import Draft202012Validator
-from labki_packs_tools.utils import load_yaml, load_json, UniqueKeyLoader, is_semver
+from jsonschema import Draft202012Validator, ValidationError
+
+from labki_packs_tools.utils import is_semver, load_json, load_yaml
 
 
-import yaml  # only used by jsonschema loader internals; keep import available
-
-
-def validate_with_schema(data, schema):
+def validate_with_schema(data: dict, schema: dict) -> list[ValidationError]:
     """Validate manifest data against JSON Schema and return sorted errors.
 
     Sorting by error.path makes outputs deterministic for testing and easier to scan.
@@ -23,15 +20,15 @@ def validate_with_schema(data, schema):
     return errors
 
 
-def error(msg):
+def error(msg: str) -> None:
     print(f"ERROR: {msg}")
 
 
-def warn(msg):
+def warn(msg: str) -> None:
     print(f"WARNING: {msg}")
 
 
-def _format_schema_error(e) -> list[str]:
+def _format_schema_error(e: ValidationError) -> list[str]:
     """Return friendly, contextualized messages for common schema errors.
 
     Always preserve the raw jsonschema message elsewhere so tests and users
@@ -44,82 +41,84 @@ def _format_schema_error(e) -> list[str]:
 
     msgs: list[str] = []
     # Packs content rule handled elsewhere (anyOf)
-    if e.validator == 'pattern':
+    if e.validator == "pattern":
         # Packs tags slug pattern
-        if len(path_list) >= 4 and path_list[0] == 'packs' and path_list[2] == 'tags':
+        if len(path_list) >= 4 and path_list[0] == "packs" and path_list[2] == "tags":
             pack_id = path_list[1]
-            tag_value = getattr(e, 'instance', None)
+            tag_value = getattr(e, "instance", None)
             msgs.append(
-                f"Schema validation: Pack '{pack_id}' has tag '{tag_value}' that must be slugified (lowercase letters, digits, hyphens)"
+                f"Schema validation: Pack '{pack_id}' has tag '{tag_value}' that must be slugified "
+                "(lowercase letters, digits, hyphens)"
             )
         # Pack version pattern
-        if len(path_list) >= 3 and path_list[0] == 'packs' and path_list[2] == 'version':
+        if len(path_list) >= 3 and path_list[0] == "packs" and path_list[2] == "version":
             pack_id = path_list[1]
             msgs.append(
-                f"Schema validation: Pack '{pack_id}' must have semantic version (MAJOR.MINOR.PATCH)"
+                f"Schema validation: Pack '{pack_id}' must have semantic version "
+                f"(MAJOR.MINOR.PATCH)"
             )
         # Page last_updated pattern
-        if len(path_list) >= 3 and path_list[0] == 'pages' and path_list[2] == 'last_updated':
+        if len(path_list) >= 3 and path_list[0] == "pages" and path_list[2] == "last_updated":
             page_title = path_list[1]
             msgs.append(
-                f"Schema validation: Page '{page_title}' last_updated must match YYYY-MM-DDThh:mm:ssZ"
+                f"Schema validation: Page '{page_title}' last_updated must match "
+                "YYYY-MM-DDThh:mm:ssZ"
             )
         # last_updated timestamp pattern
-        if path_list == ['last_updated']:
-            msgs.append(
-                "Schema validation: 'last_updated' must match YYYY-MM-DDThh:mm:ssZ"
-            )
+        if path_list == ["last_updated"]:
+            msgs.append("Schema validation: 'last_updated' must match YYYY-MM-DDThh:mm:ssZ")
         # file path (no colon) — only if schema adds this pattern in future
-        if len(path_list) >= 3 and path_list[0] == 'pages' and path_list[2] == 'file':
+        if len(path_list) >= 3 and path_list[0] == "pages" and path_list[2] == "file":
             page_title = path_list[1]
-            msgs.append(
-                f"Schema validation: Page '{page_title}' file path must not contain ':'"
-            )
+            msgs.append(f"Schema validation: Page '{page_title}' file path must not contain ':'")
 
-    if e.validator == 'uniqueItems':
-        if len(path_list) >= 3 and path_list[0] == 'packs':
-            pack_id = path_list[1]
-            field = path_list[2]
-            if field == 'tags':
-                msgs.append(f"Schema validation: Pack '{pack_id}' has duplicate tags")
-            if field == 'pages':
-                msgs.append(f"Schema validation: Pack '{pack_id}' has duplicate page titles in 'pages'")
+    if e.validator == "uniqueItems" and len(path_list) >= 3 and path_list[0] == "packs":
+        pack_id = path_list[1]
+        field = path_list[2]
+        if field == "tags":
+            msgs.append(f"Schema validation: Pack '{pack_id}' has duplicate tags")
+        if field == "pages":
+            msgs.append(f"Schema validation: Pack '{pack_id}' has duplicate page titles in 'pages'")
 
-    if e.validator == 'additionalProperties':
-        if len(path_list) >= 2 and path_list[0] == 'pages':
+    if e.validator == "additionalProperties":
+        if len(path_list) >= 2 and path_list[0] == "pages":
             page_title = path_list[1]
             msgs.append(f"Schema validation: Page '{page_title}' contains unknown field(s)")
-        if len(path_list) >= 2 and path_list[0] == 'packs':
+        if len(path_list) >= 2 and path_list[0] == "packs":
             pack_id = path_list[1]
             msgs.append(f"Schema validation: Pack '{pack_id}' contains unknown field(s)")
 
-    if e.validator == 'type':
-        # Pack pages must be an array
-        if len(path_list) >= 3 and path_list[0] == 'packs' and path_list[2] == 'pages':
-            pack_id = path_list[1]
-            msgs.append(f"Schema validation: Pack '{pack_id}' pages must be an array")
+    if (
+        e.validator == "type"
+        and len(path_list) >= 3
+        and path_list[0] == "packs"
+        and path_list[2] == "pages"
+    ):
+        pack_id = path_list[1]
+        msgs.append(f"Schema validation: Pack '{pack_id}' pages must be an array")
 
-    if e.validator == 'required':
-        if len(path_list) >= 2 and path_list[0] == 'pages':
+    if e.validator == "required":
+        if len(path_list) >= 2 and path_list[0] == "pages":
             page_title = path_list[1]
             msgs.append(f"Schema validation: Page '{page_title}' is missing required field(s)")
-        if len(path_list) >= 2 and path_list[0] == 'packs':
+        if len(path_list) >= 2 and path_list[0] == "packs":
             pack_id = path_list[1]
             msgs.append(f"Schema validation: Pack '{pack_id}' is missing required field(s)")
 
     return msgs
 
 
-def validate_pages(manifest_path: Path, pages):
+def validate_pages(manifest_path: Path, pages: dict) -> tuple[list[str], list[str], set[Path]]:
     """Validate pages mapping; return (errors, warnings, referenced_abs_paths)."""
     errors = []
     warnings = []
     referenced_abs_paths = set()
     for title, meta in pages.items():
-        # Title underscore validation handled by JSON Schema (propertyNames). Keep hints only hereafter.
-        if ':' not in title:
+        # Title underscore validation handled by JSON Schema (propertyNames).
+        # Keep hints only hereafter.
+        if ":" not in title:
             warnings.append(f"Title missing namespace: {title}")
-        file_rel = meta.get('file')
+        file_rel = meta.get("file")
         if not file_rel:
             errors.append(f"Page '{title}' missing file path")
             # Skip further file-based checks for this page
@@ -132,25 +131,25 @@ def validate_pages(manifest_path: Path, pages):
         # Per-page last_updated format is enforced by the JSON Schema; no extra check here.
         # Additional type-specific checks
         inferred_ns = None
-        if ':' in title:
-            inferred_ns = title.split(':', 1)[0]
-        if inferred_ns == 'Module':
-            if not abs_path.suffix == '.lua':
+        if ":" in title:
+            inferred_ns = title.split(":", 1)[0]
+        if inferred_ns == "Module":
+            if abs_path.suffix != ".lua":
                 warnings.append(f"Module files should use .lua extension: {file_rel}")
-            if 'Modules' not in file_rel.replace('\\', '/'):
+            if "Modules" not in file_rel.replace("\\", "/"):
                 warnings.append(f"Module files should be stored under pages/Modules/: {file_rel}")
     return errors, warnings, referenced_abs_paths
 
 
-def detect_orphan_pages(manifest_path: Path, referenced_abs_paths):
+def detect_orphan_pages(manifest_path: Path, referenced_abs_paths: set[Path]) -> list[str]:
     """Return warnings for .wiki/.md files under pages/ not referenced."""
     warnings = []
-    pages_dir = (manifest_path.parent / 'pages').resolve()
+    pages_dir = (manifest_path.parent / "pages").resolve()
     if not pages_dir.exists():
         return warnings
     for root, _dirs, files in os.walk(pages_dir):
         for fname in files:
-            if not (fname.endswith('.wiki') or fname.endswith('.md')):
+            if not (fname.endswith(".wiki") or fname.endswith(".md")):
                 continue
             f_abs = Path(root) / fname
             if f_abs not in referenced_abs_paths:
@@ -159,16 +158,16 @@ def detect_orphan_pages(manifest_path: Path, referenced_abs_paths):
     return warnings
 
 
-def validate_packs(pages, packs):
+def validate_packs(pages: dict, packs: dict) -> tuple[list[str], list[tuple[str, str]]]:
     """Validate packs mapping; return (errors, dependency_edges)."""
     errors = []
     edges = []  # (dep, pack_id)
     seen_page_to_pack = {}
     for pack_id, meta in packs.items():
-        version = meta.get('version')
+        version = meta.get("version")
         if not is_semver(version):
             errors.append(f"Pack '{pack_id}' must have semantic version (MAJOR.MINOR.PATCH)")
-        pages_list = meta.get('pages', [])
+        pages_list = meta.get("pages", [])
         if pages_list and not isinstance(pages_list, list):
             errors.append(f"Pack '{pack_id}' pages must be an array")
         for title in pages_list or []:
@@ -177,11 +176,12 @@ def validate_packs(pages, packs):
             if title in seen_page_to_pack and seen_page_to_pack[title] != pack_id:
                 other = seen_page_to_pack[title]
                 errors.append(
-                    f"Page title '{title}' included in multiple packs ('{other}' and '{pack_id}'). Move to a shared dependency pack."
+                    f"Page title '{title}' included in multiple packs ('{other}' and '{pack_id}'). "
+                    "Move to a shared dependency pack."
                 )
             else:
                 seen_page_to_pack[title] = pack_id
-        for dep in meta.get('depends_on', []) or []:
+        for dep in meta.get("depends_on", []) or []:
             if dep not in packs:
                 errors.append(f"Pack '{pack_id}' depends_on unknown pack id: {dep}")
             else:
@@ -189,19 +189,20 @@ def validate_packs(pages, packs):
     return errors, edges
 
 
-def detect_cycles(packs, edges):
+def detect_cycles(packs: dict, edges: list[tuple[str, str]]) -> list[str]:
     """Detect cycles among packs using Kahn's algorithm; return errors."""
     if not packs:
         return []
     from collections import defaultdict, deque
+
     indeg = defaultdict(int)
     graph = defaultdict(list)
-    for pid in packs.keys():
+    for pid in packs:
         indeg[pid] = 0
     for a, b in edges:
         graph[a].append(b)
         indeg[b] += 1
-    q = deque([n for n in packs.keys() if indeg[n] == 0])
+    q = deque([n for n in packs if indeg[n] == 0])
     visited = 0
     while q:
         n = q.popleft()
@@ -224,7 +225,8 @@ def check_manifest(manifest_path: Path, schema_path: Path) -> int:
     3. Run repository-level checks:
        - Page rules: title format hints, file path checks, version format, file existence
        - Orphan detection: warn on unreferenced `.wiki`/`.md` files under `pages/`
-       - Pack rules: version format, references to existing pages, dependency existence, cycle detection, cross-pack duplicate pages
+       - Pack rules: version format, references to existing pages, dependency existence,
+         cycle detection, cross-pack duplicate pages
 
     Note: Warnings do not affect the exit code; any ERROR makes the return code non-zero.
     """
@@ -246,20 +248,26 @@ def check_manifest(manifest_path: Path, schema_path: Path) -> int:
     if schema_errors:
         for e in schema_errors:
             # Provide clearer message for anyOf failures on packs content rule
-            if e.validator == 'anyOf':
+            if e.validator == "anyOf":
                 path_list = list(e.path)
-                if len(path_list) >= 2 and path_list[0] == 'packs':
+                if len(path_list) >= 2 and path_list[0] == "packs":
                     pack_id = path_list[1]
-                    schema_msgs.append(('error', f"Schema validation: Pack '{pack_id}' must include at least one page or depend on at least two packs"))
+                    schema_msgs.append(
+                        (
+                            "error",
+                            f"Schema validation: Pack '{pack_id}' must include "
+                            f"at least one page or depend on at least two packs",
+                        )
+                    )
             # Extra friendly hints
             for msg in _format_schema_error(e):
-                schema_msgs.append(('error', msg))
+                schema_msgs.append(("error", msg))
             # Always include the raw jsonschema message
-            schema_msgs.append(('error', f"Schema validation: {e.message} at path {list(e.path)}"))
+            schema_msgs.append(("error", f"Schema validation: {e.message} at path {list(e.path)}"))
         rc = 1
 
     # v1: validate flat pages registry
-    pages = manifest.get('pages', {})
+    pages = manifest.get("pages", {})
     misc_errors: list[str] = []
     page_errors: list[str] = []
     page_warnings: list[str] = []
@@ -276,7 +284,7 @@ def check_manifest(manifest_path: Path, schema_path: Path) -> int:
             rc = 1
 
     # v1 packs: flat registry with depends_on
-    packs = manifest.get('packs', {})
+    packs = manifest.get("packs", {})
     pack_errors: list[str] = []
     cycle_errors: list[str] = []
     if not isinstance(packs, dict):
@@ -294,7 +302,7 @@ def check_manifest(manifest_path: Path, schema_path: Path) -> int:
     if schema_msgs:
         print("Schema validation errors:")
         for level, msg in schema_msgs:
-            if level == 'error':
+            if level == "error":
                 error(msg)
                 total_errors += 1
             else:
@@ -332,36 +340,39 @@ def check_manifest(manifest_path: Path, schema_path: Path) -> int:
     return rc
 
 
-def validate(manifest: Path | str, schema_arg: Path | str = 'auto') -> int:
+def validate(manifest: Path | str, schema_arg: Path | str = "auto") -> int:
     manifest_path = Path(manifest)
-    if schema_arg == 'auto':
+    if schema_arg == "auto":
         try:
             manifest_data = load_yaml(manifest_path)
         except Exception as e:
             error(f"Failed to read manifest for auto schema selection: {e}")
             return 1
         # Allow explicit schema override via $schema in the manifest
-        explicit_schema = manifest_data.get('$schema')
+        explicit_schema = manifest_data.get("$schema")
         if isinstance(explicit_schema, str) and explicit_schema.strip():
             schema_path = Path(explicit_schema)
             if not schema_path.is_absolute():
                 schema_path = (manifest_path.parent / schema_path).resolve()
             return check_manifest(manifest_path, schema_path)
 
-        version_str = str(manifest_data.get('schema_version') or '').strip()
-        m = re.match(r"^(\d+)\.(\d+)\.(\d+)$", version_str or '')
-        schema_dir = Path(__file__).resolve().parents[2] / 'schema'
+        version_str = str(manifest_data.get("schema_version") or "").strip()
+        m = re.match(r"^(\d+)\.(\d+)\.(\d+)$", version_str or "")
+        schema_dir = Path(__file__).resolve().parents[2] / "schema"
         if not m:
             error("Manifest 'schema_version' must be a semantic version (MAJOR.MINOR.PATCH)")
             return 1
-        index_path = schema_dir / 'index.json'
+        index_path = schema_dir / "index.json"
         schema_path = None
         # Require exact mapping in index
         try:
             index = load_json(index_path)
-            manifest_map = (index.get('manifest') or {})
+            manifest_map = index.get("manifest") or {}
             if version_str not in manifest_map:
-                error(f"Schema version '{version_str}' not found in index. Available: {', '.join(sorted([k for k in manifest_map.keys() if k != 'latest']))}")
+                error(
+                    f"Schema version '{version_str}' not found in index. Available: "
+                    f"{', '.join(sorted([k for k in manifest_map if k != 'latest']))}"
+                )
                 return 1
             rel = manifest_map[version_str]
             schema_path = schema_dir / rel
@@ -377,21 +388,22 @@ def validate(manifest: Path | str, schema_arg: Path | str = 'auto') -> int:
         return check_manifest(manifest_path, schema_path)
 
 
-def main():
-    parser = argparse.ArgumentParser(description='Validate labki-packs repository')
-    sub = parser.add_subparsers(dest='cmd', required=True)
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Validate labki-packs repository")
+    sub = parser.add_subparsers(dest="cmd", required=True)
 
-    p_root = sub.add_parser('validate', help='Validate manifest')
-    p_root.add_argument('manifest', type=str)
-    p_root.add_argument('schema', type=str, nargs='?', default='auto', help="Path to schema or 'auto' (default)")
-
+    p_root = sub.add_parser("validate", help="Validate manifest")
+    p_root.add_argument("manifest", type=str)
+    p_root.add_argument(
+        "schema", type=str, nargs="?", default="auto", help="Path to schema or 'auto' (default)"
+    )
 
     args = parser.parse_args()
 
-    if args.cmd == 'validate':
+    if args.cmd == "validate":
         rc = validate(args.manifest, args.schema)
         sys.exit(rc)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -84,7 +84,7 @@ ignore = [
     # builtin type annotations
     "UP006", "UP035",
     # | for Union types (only supported >=3.10
-    "UP007", "UP038",
+    "UP007",
     # using Optional[] is fine
     "UP045",
     # docstrings for __init__
