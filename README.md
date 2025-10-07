@@ -4,8 +4,8 @@ CLI validator and JSON Schemas for Labki/MediaWiki content packs. Use this in CI
 
 ## What it validates (v1)
 
-- Manifest structure (`version`, `pages`, `packs`) against `schema/manifest.schema.json`.
-- Page entries: required `file`, `type`, `version` (semantic version), Windows-safe filenames, file existence.
+- Manifest structure (`schema_version`, `name`, `pages`, `packs`) against the JSON Schema.
+- Pages: required `file` and `last_updated` timestamp; Windows-safe filenames; file existence.
 - Packs: required semantic version, page titles exist, dependency sanity and cycle detection.
 - Additional conventions (warnings), e.g., `Module:` pages should be `.lua` under `pages/Modules/`.
 
@@ -16,8 +16,11 @@ Requires Python 3.10+.
 ```bash
 pip install -e .
 
-# Validate a manifest (auto-selects schema based on manifest.schema_version)
-python -m labki_packs_tools.validate_repo validate path/to/manifest.yml
+# Validate a manifest (auto-selects schema based on schema_version)
+labki-validate validate path/to/manifest.yml
+
+# JSON output (suitable for CI ingestion)
+labki-validate validate path/to/manifest.yml --json
 
 Exit code is non-zero on validation errors (suitable for CI). Warnings do not change the exit code.
 
@@ -26,7 +29,7 @@ Exit code is non-zero on validation errors (suitable for CI). Warnings do not ch
 This repo ships a small sample under `tests/fixtures/basic_repo/`:
 
 ```bash
-python -m labki_packs_tools.validate_repo validate tests/fixtures/basic_repo/manifest.yml
+labki-validate validate tests/fixtures/basic_repo/manifest.yml
 ```
 
 ## Use in CI (content repo)
@@ -60,9 +63,9 @@ jobs:
         run: |
           # Auto schema selection based on manifest.schema_version
           export LABKI_SCHEMA_DIR=$GITHUB_WORKSPACE/tools-cache/schema
-          python -m labki_packs_tools.validate_repo validate manifest.yml
+          labki-validate validate manifest.yml --json
       # Optional: validate with an explicit schema path (pin to a version)
       - name: Validate manifest (explicit schema path)
         run: |
-          python -m labki_packs_tools.validate_repo validate manifest.yml tools-cache/schema/v1_0_0/manifest.schema.json
+          labki-validate validate manifest.yml tools-cache/schema/v1_0_0/manifest.schema.json --json
 ```
