@@ -93,7 +93,8 @@ def _format_schema_error(e: ValidationError) -> list[str]:
         msgs.append("Schema validation: 'name' must not be empty")
     if e.validator == "pattern" and path_list == ["name"]:
         msgs.append(
-            "Schema validation: 'name' may include letters, digits, spaces, hyphens, colons, underscores"
+            "Schema validation: 'name' may include letters, digits, spaces, "
+            "hyphens, colons, underscores"
         )
 
     if (
