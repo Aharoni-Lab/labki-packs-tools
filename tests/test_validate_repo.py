@@ -38,11 +38,9 @@ def _deep_merge(base: dict, override: dict) -> dict:
 
 @pytest.fixture
 def run_validate():
-    # Prefer calling python function directly for speed and debuggability
     from labki_packs_tools.validate_repo import validate as py_validate
 
     def _run(manifest_path: Path, schema_path: Path = SCHEMA) -> tuple[int, str, str]:
-        # Capture printed output from validator
         stdout = io.StringIO()
         with contextlib.redirect_stdout(stdout):
             rc = py_validate(manifest_path, str(schema_path))
@@ -82,13 +80,13 @@ def tmp_page_factory(tmp_path):
 def manifest(tmp_path):
     def _build(overrides: dict | None = None) -> Path:
         base = {
+            "name": "example-repo",
             "schema_version": "2.0.0",
             "last_updated": "2025-09-22T00:00:00Z",
             "pages": {},
             "packs": {},
         }
         data = _deep_merge(base, overrides or {})
-        # write YAML preserving order
         out = tmp_path / "manifest.yml"
         out.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
         return out
@@ -103,14 +101,46 @@ def test_validate_ok_uses_fixtures_manifest(run_validate):
     assert rc == 0, f"expected success, got rc={rc}, out={out}, err={err}"
 
 
+# ---- New tests for required `name` field ----
+def test_manifest_missing_name_fails(manifest, run_validate, tmp_path):
+    mpath = manifest({"name": None})
+    data = yaml.safe_load(mpath.read_text())
+    data.pop("name", None)
+    mpath.write_text(yaml.safe_dump(data, sort_keys=False))
+    rc, out, err = run_validate(mpath)
+    assert rc != 0
+    assert "name" in out and "required" in out
+
+
+def test_manifest_empty_name_fails(manifest, run_validate):
+    mpath = manifest({"name": ""})
+    rc, out, err = run_validate(mpath)
+    assert rc != 0
+    assert "name" in out and ("minLength" in out or "must not be empty" in out)
+
+
+def test_manifest_valid_name_passes(manifest, run_validate):
+    mpath = manifest({"name": "labki-demo"})
+    rc, out, err = run_validate(mpath)
+    assert rc == 0, f"expected success, got rc={rc}, out={out}, err={err}"
+
+
+def test_manifest_name_pattern_rejects_bad_chars(manifest, run_validate):
+    mpath = manifest({"name": "bad name with spaces"})
+    rc, out, err = run_validate(mpath)
+    assert rc != 0
+    assert "name" in out and ("pattern" in out or "does not match" in out)
+
+
+# ---- Existing tests continue below ----
+# (No logic changed, only the base manifest fixture now includes a valid "name")
+
 # ---- Page rules ----
 def test_rejects_underscore_in_page_key(manifest, tmp_page_factory, run_validate):
     page = tmp_page_factory()
     mpath = manifest(
         {
-            "pages": {
-                "Template:Has_Underscore": page,
-            },
+            "pages": {"Template:Has_Underscore": page},
             "packs": {"example": {"version": "1.0.0", "pages": ["Template:Has_Underscore"]}},
         }
     )
