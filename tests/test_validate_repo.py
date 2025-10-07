@@ -126,10 +126,16 @@ def test_manifest_valid_name_passes(manifest, run_validate):
 
 
 def test_manifest_name_pattern_rejects_bad_chars(manifest, run_validate):
-    mpath = manifest({"name": "bad name with spaces"})
+    mpath = manifest({"name": "bad_name_with_semicolon;"})
     rc, out, err = run_validate(mpath)
     assert rc != 0
     assert "name" in out and ("pattern" in out or "does not match" in out)
+
+
+def test_manifest_name_allows_spaces_and_special_chars(manifest, run_validate):
+    mpath = manifest({"name": "Labki Demo: Content-_"})
+    rc, out, err = run_validate(mpath)
+    assert rc == 0
 
 
 # ---- Existing tests continue below ----
@@ -438,6 +444,7 @@ def test_cli_and_function_parity(request, tmp_path, runner_fixture):
     run_fn = request.getfixturevalue(runner_fixture)
     write_tmp(tmp_path, "pages/Templates/T.wiki", "== T ==\n")
     m = {
+        "name": "cli-parity",
         "schema_version": "1.0.0",
         "pages": {
             "Template:T": {
@@ -643,6 +650,7 @@ def test_duplicate_page_keys_fail_on_load(tmp_path, run_validate):
         (
             """
         schema_version: 1.0.0
+        name: dup-test
         pages:
           Template:Dup:
             file: pages/Templates/Dup1.wiki
@@ -669,6 +677,7 @@ def test_duplicate_pack_keys_fail_on_load(tmp_path, run_validate):
         (
             """
         schema_version: 1.0.0
+        name: dup-test
         pages: {}
         packs:
           dup:

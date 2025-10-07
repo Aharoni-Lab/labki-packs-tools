@@ -88,6 +88,14 @@ def _format_schema_error(e: ValidationError) -> list[str]:
             pack_id = path_list[1]
             msgs.append(f"Schema validation: Pack '{pack_id}' contains unknown field(s)")
 
+    # Friendly messages for manifest-level fields
+    if e.validator == "minLength" and path_list == ["name"]:
+        msgs.append("Schema validation: 'name' must not be empty")
+    if e.validator == "pattern" and path_list == ["name"]:
+        msgs.append(
+            "Schema validation: 'name' may include letters, digits, spaces, hyphens, colons, underscores"
+        )
+
     if (
         e.validator == "type"
         and len(path_list) >= 3
