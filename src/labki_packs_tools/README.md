@@ -77,7 +77,6 @@ Auto schema selection (from another repo using this tool):
 $env:LABKI_SCHEMA_DIR = "$PWD\schema"
 labki-validate validate path\to\manifest.yml --json
 ```
-```
 
 Graph rendering (optional):
 - Install Graphviz locally to render DOT → SVG/PNG
