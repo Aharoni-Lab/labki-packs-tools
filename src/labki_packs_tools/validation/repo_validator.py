@@ -9,7 +9,9 @@ from .pack_validator import validate_packs, detect_cycles
 from .repo_schema_resolver import auto_resolve_schema
 
 
-def validate_repo(manifest_path: Path | str, schema_arg: Path | str = "auto") -> tuple[int, ValidationResult]:
+def validate_repo(
+    manifest_path: Path | str, schema_arg: Path | str = "auto"
+) -> tuple[int, ValidationResult]:
     """
     Validate a Labki content repository manifest.
 

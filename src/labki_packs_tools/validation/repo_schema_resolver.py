@@ -3,6 +3,7 @@ import re
 from pathlib import Path
 from labki_packs_tools.utils import load_yaml, load_json
 
+
 def auto_resolve_schema(manifest_path: Path | str, schema_arg: Path | str = "auto") -> Path:
     """
     Determine which JSON Schema file to validate a manifest against.
@@ -50,9 +51,7 @@ def auto_resolve_schema(manifest_path: Path | str, schema_arg: Path | str = "aut
     # Default to repository layout when running from sources. This module lives under
     # src/labki_packs_tools/validation/, so repo root is parents[3].
     schema_dir = (
-        Path(schema_dir_env)
-        if schema_dir_env
-        else Path(__file__).resolve().parents[3] / "schema"
+        Path(schema_dir_env) if schema_dir_env else Path(__file__).resolve().parents[3] / "schema"
     )
 
     index_path = schema_dir / "index.json"
@@ -67,7 +66,9 @@ def auto_resolve_schema(manifest_path: Path | str, schema_arg: Path | str = "aut
     manifest_map = index.get("manifest") or {}
     if version_str not in manifest_map:
         available = ", ".join(sorted([k for k in manifest_map if k != "latest"]))
-        raise ValueError(f"Schema version '{version_str}' not found in index. Available: {available}")
+        raise ValueError(
+            f"Schema version '{version_str}' not found in index. Available: {available}"
+        )
 
     schema_rel = manifest_map[version_str]
     schema_path = (schema_dir / schema_rel).resolve()

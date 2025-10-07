@@ -11,6 +11,7 @@ class ValidationResult:
     Used by all validator modules (schema, pages, packs, etc.)
     to accumulate errors and warnings in a consistent structure.
     """
+
     errors: List[str] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
 

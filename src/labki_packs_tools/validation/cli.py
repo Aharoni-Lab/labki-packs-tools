@@ -6,6 +6,7 @@ from pathlib import Path
 from .repo_validator import validate_repo
 from .result_formatter import print_results, print_results_json
 
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Validate a Labki content repository")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -34,6 +35,7 @@ def main() -> None:
         else:
             print_results(result, title="Validation results")
         sys.exit(rc)
+
 
 if __name__ == "__main__":
     main()

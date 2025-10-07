@@ -10,6 +10,7 @@ import yaml
 # Paths
 # ────────────────────────────────────────────────────────────────
 
+
 @pytest.fixture
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
@@ -28,6 +29,7 @@ def fixtures_repo(repo_root: Path) -> Path:
 # ────────────────────────────────────────────────────────────────
 # Helpers
 # ────────────────────────────────────────────────────────────────
+
 
 def _deep_merge(base: dict, override: dict | None) -> dict:
     result = dict(base)
@@ -63,7 +65,9 @@ def base_manifest(tmp_path: Path) -> Callable[[dict | None], Path]:
 def tmp_page(tmp_path: Path) -> Callable[..., dict]:
     """Create a valid dummy page and return its manifest entry."""
 
-    def _create(namespace: str = "Template", name: str = "Example", content: str = "== Example ==") -> dict:
+    def _create(
+        namespace: str = "Template", name: str = "Example", content: str = "== Example =="
+    ) -> dict:
         rel_dir = "pages/Templates" if namespace == "Template" else "pages"
         rel_path = f"{rel_dir}/{namespace}_{name}.wiki"
         out = tmp_path / rel_path
@@ -72,5 +76,3 @@ def tmp_page(tmp_path: Path) -> Callable[..., dict]:
         return {"file": rel_path, "last_updated": "2025-09-22T00:00:00Z"}
 
     return _create
-
-

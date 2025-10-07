@@ -33,7 +33,9 @@ def _format_schema_error(e: ValidationError) -> list[str]:
         # Pack version pattern
         if len(path_list) >= 3 and path_list[0] == "packs" and path_list[2] == "version":
             pack_id = path_list[1]
-            msgs.append(f"Schema validation: Pack '{pack_id}' must have semantic version (MAJOR.MINOR.PATCH)")
+            msgs.append(
+                f"Schema validation: Pack '{pack_id}' must have semantic version (MAJOR.MINOR.PATCH)"
+            )
         # Page last_updated pattern
         if len(path_list) >= 3 and path_list[0] == "pages" and path_list[2] == "last_updated":
             page_title = path_list[1]

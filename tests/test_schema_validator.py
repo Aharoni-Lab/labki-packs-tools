@@ -30,5 +30,3 @@ def test_validate_schema_collects_messages():
     result = validate_schema({}, schema)
     assert isinstance(result, ValidationResult)
     assert result.errors and any("foo" in e for e in result.errors)
-
-

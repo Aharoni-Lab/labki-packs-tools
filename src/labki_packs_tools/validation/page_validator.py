@@ -46,7 +46,9 @@ def validate_pages(manifest_path: Path, pages: dict) -> tuple[ValidationResult, 
                 result.add_warning(f"Module files should use .lua extension: {file_rel}")
             # Must be under pages/Modules/
             if "Modules" not in file_rel.replace("\\", "/"):
-                result.add_warning(f"Module files should be stored under pages/Modules/: {file_rel}")
+                result.add_warning(
+                    f"Module files should be stored under pages/Modules/: {file_rel}"
+                )
 
     return result, referenced_abs_paths
 

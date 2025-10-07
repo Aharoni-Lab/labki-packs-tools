@@ -18,16 +18,28 @@ def test_valid_fixture_repo_passes(fixtures_repo: Path, schema_v1: Path):
 
 def test_cli_parity_like_flow(base_manifest, schema_v1: Path, tmp_page):
     page = tmp_page(name="T")
-    mpath = base_manifest({
-        "pages": {"Template:T": page},
-        "packs": {"p": {"version": "1.0.0", "pages": ["Template:T"]}},
-    })
+    mpath = base_manifest(
+        {
+            "pages": {"Template:T": page},
+            "packs": {"p": {"version": "1.0.0", "pages": ["Template:T"]}},
+        }
+    )
     rc, result = validate_repo(mpath, schema_v1)
     assert rc == 0, f"expected success, got rc={rc}, errors={result.errors}"
 
 
 def test_formatter_prints_human():
-    result = type("Dummy", (), {"errors": ["err1"], "warnings": ["warn1"], "has_errors": True, "has_warnings": True, "summary": lambda self: "1 error(s), 1 warning(s)"})()
+    result = type(
+        "Dummy",
+        (),
+        {
+            "errors": ["err1"],
+            "warnings": ["warn1"],
+            "has_errors": True,
+            "has_warnings": True,
+            "summary": lambda self: "1 error(s), 1 warning(s)",
+        },
+    )()
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
         print_results(result, title="Test Section")
@@ -43,5 +55,3 @@ def test_formatter_prints_json():
     parsed = json.loads(buf.getvalue())
     assert parsed["summary"]["errors"] == 1
     assert parsed["warnings"] == ["w1"]
-
-
