@@ -1,12 +1,14 @@
 from __future__ import annotations
+
 from pathlib import Path
 
-from labki_packs_tools.utils import load_yaml, load_json
+from labki_packs_tools.utils import load_json, load_yaml
+
+from .pack_validator import detect_cycles, validate_packs
+from .page_validator import detect_orphans, validate_pages
+from .repo_schema_resolver import auto_resolve_schema
 from .result_types import ValidationResult
 from .schema_validator import validate_schema
-from .page_validator import validate_pages, detect_orphans
-from .pack_validator import validate_packs, detect_cycles
-from .repo_schema_resolver import auto_resolve_schema
 
 
 def validate_repo(

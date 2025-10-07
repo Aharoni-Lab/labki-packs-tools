@@ -1,7 +1,8 @@
 import os
 import re
 from pathlib import Path
-from labki_packs_tools.utils import load_yaml, load_json
+
+from labki_packs_tools.utils import load_json, load_yaml
 
 
 def auto_resolve_schema(manifest_path: Path | str, schema_arg: Path | str = "auto") -> Path:
@@ -28,7 +29,7 @@ def auto_resolve_schema(manifest_path: Path | str, schema_arg: Path | str = "aut
     try:
         manifest_data = load_yaml(manifest_path)
     except Exception as e:
-        raise ValueError(f"Failed to read manifest: {e}")
+        raise ValueError(f"Failed to read manifest: {e}") from e
 
     # 2️⃣ Case: manifest explicitly declares a $schema
     explicit_schema = manifest_data.get("$schema")
@@ -61,7 +62,7 @@ def auto_resolve_schema(manifest_path: Path | str, schema_arg: Path | str = "aut
     try:
         index = load_json(index_path)
     except Exception as e:
-        raise ValueError(f"Failed to load schema index: {e}")
+        raise ValueError(f"Failed to load schema index: {e}") from e
 
     manifest_map = index.get("manifest") or {}
     if version_str not in manifest_map:

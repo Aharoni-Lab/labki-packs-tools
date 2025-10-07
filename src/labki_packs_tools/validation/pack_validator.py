@@ -1,9 +1,9 @@
 from __future__ import annotations
-from pathlib import Path
-from typing import List, Tuple
+
 from collections import defaultdict, deque
 
 from labki_packs_tools.utils import is_semver
+
 from .result_types import ValidationResult
 
 

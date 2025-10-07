@@ -1,8 +1,9 @@
 from __future__ import annotations
+
 from jsonschema import Draft202012Validator
 
-from labki_packs_tools.validation.schema_validator import _format_schema_error, validate_schema
 from labki_packs_tools.validation.result_types import ValidationResult
+from labki_packs_tools.validation.schema_validator import _format_schema_error, validate_schema
 
 
 def test_format_schema_error_messages():

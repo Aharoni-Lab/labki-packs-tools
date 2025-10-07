@@ -1,8 +1,10 @@
 from __future__ import annotations
+
+import json
 import os
 import sys
-import json
 from typing import Iterable
+
 from .result_types import ValidationResult
 
 # ────────────────────────────────────────────────────────────────

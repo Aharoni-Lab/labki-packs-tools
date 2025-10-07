@@ -1,8 +1,9 @@
 from __future__ import annotations
+
 import contextlib
 import io
 import json
-from subprocess import run, PIPE
+from subprocess import run
 
 import yaml
 
@@ -51,9 +52,7 @@ def test_cli_json_output(tmp_path):
     mpath = tmp_path / "manifest.yml"
     mpath.write_text(yaml.safe_dump(m))
 
-    proc = run(
-        ["labki-validate", "validate", str(mpath), "--json"], text=True, stdout=PIPE, stderr=PIPE
-    )
+    proc = run(["labki-validate", "validate", str(mpath), "--json"], text=True, capture_output=True)
     assert proc.returncode == 0
     data = json.loads(proc.stdout)
     assert "summary" in data and "errors" in data and "warnings" in data

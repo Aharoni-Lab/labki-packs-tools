@@ -1,6 +1,8 @@
 from __future__ import annotations
-from jsonschema import Draft202012Validator, ValidationError
+
 from typing import List
+
+from jsonschema import Draft202012Validator, ValidationError
 
 from .result_types import ValidationResult
 
@@ -34,13 +36,15 @@ def _format_schema_error(e: ValidationError) -> list[str]:
         if len(path_list) >= 3 and path_list[0] == "packs" and path_list[2] == "version":
             pack_id = path_list[1]
             msgs.append(
-                f"Schema validation: Pack '{pack_id}' must have semantic version (MAJOR.MINOR.PATCH)"
+                f"Schema validation: Pack '{pack_id}' must have semantic version "
+                "(MAJOR.MINOR.PATCH)"
             )
         # Page last_updated pattern
         if len(path_list) >= 3 and path_list[0] == "pages" and path_list[2] == "last_updated":
             page_title = path_list[1]
             msgs.append(
-                f"Schema validation: Page '{page_title}' last_updated must match YYYY-MM-DDThh:mm:ssZ"
+                f"Schema validation: Page '{page_title}' last_updated must match "
+                "YYYY-MM-DDThh:mm:ssZ"
             )
         # Root last_updated
         if path_list == ["last_updated"]:
@@ -79,7 +83,8 @@ def _format_schema_error(e: ValidationError) -> list[str]:
         msgs.append("Schema validation: 'name' must not be empty")
     if e.validator == "pattern" and path_list == ["name"]:
         msgs.append(
-            "Schema validation: 'name' may include letters, digits, spaces, hyphens, colons, underscores"
+            "Schema validation: 'name' may include letters, digits, spaces, "
+            "hyphens, colons, underscores"
         )
 
     # ───────────────────────────────

@@ -1,12 +1,13 @@
 from __future__ import annotations
+
+import contextlib
+import io
+import json
 from pathlib import Path
 
 from labki_packs_tools.validation.repo_validator import validate_repo
 from labki_packs_tools.validation.result_formatter import print_results, print_results_json
 from labki_packs_tools.validation.result_types import ValidationResult
-import contextlib
-import io
-import json
 
 
 def test_valid_fixture_repo_passes(fixtures_repo: Path, schema_v1: Path):
