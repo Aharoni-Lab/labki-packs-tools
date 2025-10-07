@@ -367,7 +367,13 @@ def validate(manifest: Path | str, schema_arg: Path | str = "auto") -> int:
 
         version_str = str(manifest_data.get("schema_version") or "").strip()
         m = re.match(r"^(\d+)\.(\d+)\.(\d+)$", version_str or "")
-        schema_dir = Path(__file__).resolve().parents[2] / "schema"
+        # Resolve schema root directory
+        schema_dir_env = os.environ.get("LABKI_SCHEMA_DIR")
+        if schema_dir_env:
+            schema_dir = Path(schema_dir_env)
+        else:
+            # Default to repository layout when running from sources
+            schema_dir = Path(__file__).resolve().parents[2] / "schema"
         if not m:
             error("Manifest 'schema_version' must be a semantic version (MAJOR.MINOR.PATCH)")
             return 1
@@ -386,7 +392,10 @@ def validate(manifest: Path | str, schema_arg: Path | str = "auto") -> int:
             rel = manifest_map[version_str]
             schema_path = schema_dir / rel
         except Exception as e:
-            error(f"Failed to read schema index: {e}")
+            error(
+                "Failed to read schema index: "
+                f"{e}. Set LABKI_SCHEMA_DIR to your schema root (e.g., tools-cache/schema)."
+            )
             return 1
         if not schema_path.exists():
             error(f"Resolved schema path does not exist: {schema_path}")

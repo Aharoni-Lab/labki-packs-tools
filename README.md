@@ -59,42 +59,10 @@ jobs:
       - name: Validate manifest (auto schema)
         run: |
           # Auto schema selection based on manifest.schema_version
+          export LABKI_SCHEMA_DIR=$GITHUB_WORKSPACE/tools-cache/schema
           python -m labki_packs_tools.validate_repo validate manifest.yml
       # Optional: validate with an explicit schema path (pin to a version)
       - name: Validate manifest (explicit schema path)
         run: |
           python -m labki_packs_tools.validate_repo validate manifest.yml tools-cache/schema/v1_0_0/manifest.schema.json
 ```
-
-Alternatively, vendor or pin a release artifact of this repo. A reusable GitHub Action is on the roadmap.
-
-## Repository layout
-
-```text
-labki-packs-tools/
-├─ schema/                     # JSON Schemas used by the validator
-├─ src/
-|  └─ labki_packs_tools/
-│     └─ validate_repo.py         # CLI validator
-├─ tests/
-│  ├─ fixtures/basic_repo/     # Sample manifest + pages for tests/examples
-│  └─ test_validate_repo.py
-└─ docs/                       # Validator spec and usage docs
-```
-
-## Docs
-
-- Validator CLI: `docs/validator.md`
-- CI integration: `docs/ci.md`
-- Manifest spec (v1): `docs/manifest.md`
-- Content conventions (warnings): `docs/content-conventions.md`
-
-## Roadmap
-
-- Packaged CLI `labki-validate` (bundled schemas)
-- Reusable GitHub Action
-- Optional Docker wrapper for hermetic CI
-
-## License
-
-TBD
