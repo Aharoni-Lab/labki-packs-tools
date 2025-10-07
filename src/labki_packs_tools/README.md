@@ -3,8 +3,8 @@
 This package provides CLI tools for validating a Labki content pack manifest and generating a graph of packs/pages.
 
 Tools:
-- labki-validate: Validate a manifest against the schema and repository rules
-- labki-graph: Emit a Graphviz DOT graph of packs and pages
+- labki-validate: Validate a manifest against the JSON Schema and repository rules (supports --json)
+- labki-graph: Emit a Graphviz DOT / Mermaid / JSON graph of packs and pages
 
 Quick start (Windows PowerShell):
 
@@ -25,8 +25,11 @@ Quick start (Windows PowerShell):
 3. Run the tools
 
     ```powershell
-    # Validate a manifest
+    # Validate a manifest (auto-selects schema based on schema_version)
     labki-validate validate tests/fixtures/basic_repo/manifest.yml
+
+    # JSON output (useful in CI)
+    labki-validate validate tests/fixtures/basic_repo/manifest.yml --json
 
     # Generate DOT graph from a manifest
     labki-graph tests/fixtures/basic_repo/manifest.yml --format dot --output graph.dot
@@ -57,15 +60,23 @@ If the commands are not found, either re-activate the venv or use one of these o
 - Full path to console scripts:
 
 ```powershell
- .\.venv\Scripts\labki-validate.exe validate tests/fixtures/basic_repo/manifest.yml
+ .\.venv\Scripts\labki-validate.exe validate tests/fixtures/basic_repo/manifest.yml --json
  .\.venv\Scripts\labki-graph.exe tests/fixtures/basic_repo/manifest.yml --format dot --output graph.dot
 ```
 
 - Module form (no console scripts needed):
 
 ```powershell
-python -m tools.validate_repo validate tests/fixtures/basic_repo/manifest.yml
-python -m tools.graph_repo tests/fixtures/basic_repo/manifest.yml --format dot --output graph.dot
+python -m labki_packs_tools.validation.cli validate tests/fixtures/basic_repo/manifest.yml --json
+python -m labki_packs_tools.graph_repo tests/fixtures/basic_repo/manifest.yml --format dot --output graph.dot
+
+Auto schema selection (from another repo using this tool):
+
+```powershell
+# Point to the schemas bundled with this package/repo
+$env:LABKI_SCHEMA_DIR = "$PWD\schema"
+labki-validate validate path\to\manifest.yml --json
+```
 ```
 
 Graph rendering (optional):
@@ -80,5 +91,5 @@ dot -Tsvg graph.dot -o graph.svg
 ```
 
 Notes:
-- Shared YAML/JSON helpers live in `tools/utils/common.py`.
-- For CI examples and future outputs (Mermaid, JSON for MediaWiki), see `docs/graph_tools_plan.md`.
+- Shared YAML/JSON helpers live in `labki_packs_tools/utils/common.py`.
+- For CI examples and additional outputs, see the repository root `README.md`.
