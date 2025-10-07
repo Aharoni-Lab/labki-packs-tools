@@ -141,6 +141,7 @@ def test_manifest_name_allows_spaces_and_special_chars(manifest, run_validate):
 # ---- Existing tests continue below ----
 # (No logic changed, only the base manifest fixture now includes a valid "name")
 
+
 # ---- Page rules ----
 def test_rejects_underscore_in_page_key(manifest, tmp_page_factory, run_validate):
     page = tmp_page_factory()
