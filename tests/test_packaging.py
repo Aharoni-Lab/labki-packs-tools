@@ -17,7 +17,7 @@ def test_schema_dir():
     assert SCHEMA_INDEX.exists()
     with open(SCHEMA_INDEX) as jfile:
         index = json.load(jfile)
-    with open(SCHEMA_DIR / index["latest"]) as jfile:
+    with open(SCHEMA_DIR / index["manifest"]["latest"]) as jfile:
         latest = json.load(jfile)
 
     # boolean assert is enough here, we just want to confirm it contains something
