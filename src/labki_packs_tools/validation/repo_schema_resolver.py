@@ -27,7 +27,7 @@ def resolve_schema(manifest: Path | str | dict) -> Path:
     explicit_schema = manifest.get("$schema")
     if isinstance(explicit_schema, str) and explicit_schema.strip():
         warnings.warn(
-            "Explicit $schema set, but validating from schema URI not supported yet. " "Ignoring.",
+            "Explicit $schema set, but validating from schema URI not supported yet. Ignoring.",
             stacklevel=2,
         )
 
