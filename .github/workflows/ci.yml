@@ -74,5 +74,3 @@ jobs:
         run: python -m pip install --force-reinstall $(find ./dist -name "*.tar.gz")
       - name: Packaging tests - sdist
         run: pytest -m packaging --only-packaging
-
-
