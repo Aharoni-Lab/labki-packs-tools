@@ -6,14 +6,12 @@ from labki_packs_tools.utils import load_json, load_yaml
 
 from .pack_validator import detect_cycles, validate_packs
 from .page_validator import detect_orphans, validate_pages
-from .repo_schema_resolver import auto_resolve_schema
+from .repo_schema_resolver import resolve_schema
 from .result_types import ValidationResult
 from .schema_validator import validate_schema
 
 
-def validate_repo(
-    manifest_path: Path | str, schema_arg: Path | str = "auto"
-) -> tuple[int, ValidationResult]:
+def validate_repo(manifest_path: Path | str) -> tuple[int, ValidationResult]:
     """
     Validate a Labki content repository manifest.
 
@@ -30,28 +28,18 @@ def validate_repo(
     result = ValidationResult()
 
     # ───────────────────────────────
-    # Resolve and load schema
-    # ───────────────────────────────
-    try:
-        schema_path = auto_resolve_schema(manifest_path, schema_arg)
-    except ValueError as e:
-        result.add_error(str(e))
-        return result.rc, result
-
-    # ───────────────────────────────
     # Load manifest and schema files
     # ───────────────────────────────
     try:
         manifest = load_yaml(manifest_path)
     except Exception as e:
-        result.add_error(f"Failed to read manifest {manifest_path}: {e}")
-        return result.rc, result
+        raise ValueError(f"Failed to read manifest {manifest_path}: {e}") from e
 
-    try:
-        schema = load_json(schema_path)
-    except Exception as e:
-        result.add_error(f"Failed to read schema {schema_path}: {e}")
-        return result.rc, result
+    # ───────────────────────────────
+    # Resolve and load schema
+    # ───────────────────────────────
+    schema_path = resolve_schema(manifest)
+    schema = load_json(schema_path)
 
     # ───────────────────────────────
     # 1. JSON Schema validation

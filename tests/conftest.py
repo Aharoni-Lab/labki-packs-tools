@@ -1,10 +1,34 @@
 from __future__ import annotations
 
+import argparse
 from pathlib import Path
 from typing import Callable
 
 import pytest
 import yaml
+from _pytest.python import Function
+
+# ----------------------------------------------------------------
+# Pytest hooks
+# ----------------------------------------------------------------
+
+
+def pytest_addoption(parser: argparse.ArgumentParser) -> None:
+    parser.addoption(
+        "--with-packaging",
+        action="store_true",
+        default=False,
+        help="Run tests marked with `packaging`, which are excluded by default",
+    )
+
+
+def pytest_collection_modifyitems(config: pytest.Config, items: list[Function]) -> None:
+    if not config.getoption("--with-packaging"):
+        skip_packaging = pytest.mark.skip(reason="need --with-packaging to run packaging tests")
+        for item in items:
+            if item.get_closest_marker("packaging"):
+                item.add_marker(skip_packaging)
+
 
 # ────────────────────────────────────────────────────────────────
 # Paths
@@ -14,11 +38,6 @@ import yaml
 @pytest.fixture
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
-
-
-@pytest.fixture
-def schema_v1(repo_root: Path) -> Path:
-    return repo_root / "schema" / "v1_0_0" / "manifest.schema.json"
 
 
 @pytest.fixture

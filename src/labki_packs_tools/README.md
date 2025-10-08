@@ -73,8 +73,6 @@ python -m labki_packs_tools.graph_repo tests/fixtures/basic_repo/manifest.yml --
 Auto schema selection (from another repo using this tool):
 
 ```powershell
-# Point to the schemas bundled with this package/repo
-$env:LABKI_SCHEMA_DIR = "$PWD\schema"
 labki-validate validate path\to\manifest.yml --json
 ```
 

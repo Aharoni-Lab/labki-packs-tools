@@ -2,10 +2,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
+from labki_packs_tools.validation.repo_schema_resolver import resolve_schema
 from labki_packs_tools.validation.repo_validator import validate_repo
 
 
-def test_schema_auto_requires_exact_version(tmp_path: Path, base_manifest, tmp_page):
+def test_schema_resolution(tmp_path: Path, base_manifest, tmp_page):
+    """The schema specified in schema_version is correctly resolved, when present"""
     page = tmp_page(name="Example")
     mpath = base_manifest(
         {
@@ -14,8 +18,10 @@ def test_schema_auto_requires_exact_version(tmp_path: Path, base_manifest, tmp_p
             "packs": {"example": {"version": "1.0.0", "pages": ["Template:Example"]}},
         }
     )
-    rc, result = validate_repo(mpath, "auto")
-    assert rc == 0
+    schema_path = resolve_schema(mpath)
+    assert schema_path.parent.name == "v1_0_0"
+    assert schema_path.name == "manifest.schema.json"
+    assert schema_path.exists()
 
 
 def test_schema_auto_unmapped_version_fails(tmp_path: Path, base_manifest, tmp_page):
@@ -27,6 +33,5 @@ def test_schema_auto_unmapped_version_fails(tmp_path: Path, base_manifest, tmp_p
             "packs": {"example": {"version": "1.0.0", "pages": ["Template:Example"]}},
         }
     )
-    rc, result = validate_repo(mpath, "auto")
-    assert rc != 0
-    assert any("Schema version '9.9.9' not found in index" in e for e in result.errors)
+    with pytest.raises(ValueError):
+        validate_repo(mpath)

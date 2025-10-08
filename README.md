@@ -53,19 +53,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Aharoni-Lab/labki-packs-tools
-          path: tools-cache
+          path: labki-packs-tools
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Install deps
-        run: pip install ./tools-cache
-      - name: Validate manifest (auto schema)
+        run: pip install ./labki-packs-tools
+      - name: Validate manifest
         run: |
-          # Auto schema selection based on manifest.schema_version
-          export LABKI_SCHEMA_DIR=$GITHUB_WORKSPACE/tools-cache/schema
           labki-validate validate manifest.yml --json
-      # Optional: validate with an explicit schema path (pin to a version)
-      - name: Validate manifest (explicit schema path)
-        run: |
-          labki-validate validate manifest.yml tools-cache/schema/v1_0_0/manifest.schema.json --json
 ```

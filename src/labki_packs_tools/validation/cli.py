@@ -15,13 +15,6 @@ def main() -> None:
     p_validate = sub.add_parser("validate", help="Validate a manifest")
     p_validate.add_argument("manifest", type=Path, help="Path to manifest.yml")
     p_validate.add_argument(
-        "schema",
-        type=str,
-        nargs="?",
-        default="auto",
-        help="Path to schema file or 'auto' (default)",
-    )
-    p_validate.add_argument(
         "--json",
         action="store_true",
         help="Output results as JSON instead of colored text",
@@ -30,7 +23,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.cmd == "validate":
-        rc, result = validate_repo(args.manifest, args.schema)
+        rc, result = validate_repo(args.manifest)
         if args.json:
             print_results_json(result)
         else:

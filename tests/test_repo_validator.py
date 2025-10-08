@@ -10,14 +10,14 @@ from labki_packs_tools.validation.result_formatter import print_results, print_r
 from labki_packs_tools.validation.result_types import ValidationResult
 
 
-def test_valid_fixture_repo_passes(fixtures_repo: Path, schema_v1: Path):
+def test_valid_fixture_repo_passes(fixtures_repo: Path):
     manifest = fixtures_repo / "manifest.yml"
-    rc, result = validate_repo(manifest, schema_v1)
+    rc, result = validate_repo(manifest)
     assert rc == 0
     assert not result.errors
 
 
-def test_cli_parity_like_flow(base_manifest, schema_v1: Path, tmp_page):
+def test_cli_parity_like_flow(base_manifest, tmp_page):
     page = tmp_page(name="T")
     mpath = base_manifest(
         {
@@ -25,7 +25,7 @@ def test_cli_parity_like_flow(base_manifest, schema_v1: Path, tmp_page):
             "packs": {"p": {"version": "1.0.0", "pages": ["Template:T"]}},
         }
     )
-    rc, result = validate_repo(mpath, schema_v1)
+    rc, result = validate_repo(mpath)
     assert rc == 0, f"expected success, got rc={rc}, errors={result.errors}"
 
 
