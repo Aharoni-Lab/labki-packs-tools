@@ -22,7 +22,7 @@ def validate_pages(manifest_path: Path, pages: dict) -> tuple[ValidationResult, 
     referenced_abs_paths: set[Path] = set()
 
     for title, meta in pages.items():
-
+        file_rel = meta["file"]
         abs_path = (manifest_path.parent / file_rel).resolve()
         referenced_abs_paths.add(abs_path)
 
