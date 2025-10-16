@@ -23,12 +23,6 @@ def validate_pages(manifest_path: Path, pages: dict) -> tuple[ValidationResult, 
 
     for title, meta in pages.items():
 
-        # File path presence
-        file_rel = meta.get("file")
-        if not file_rel:
-            result.add_error(f"Page '{title}' missing file path")
-            continue
-
         abs_path = (manifest_path.parent / file_rel).resolve()
         referenced_abs_paths.add(abs_path)
 
