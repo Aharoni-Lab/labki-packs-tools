@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, List
+from typing import Any, List, Tuple
+from fnmatch import fnmatch
 
 from jsonschema import Draft202012Validator, ValidationError
 
@@ -8,7 +9,59 @@ from labki_packs_tools.validation.result_types import ValidationItem
 from labki_packs_tools.validation.validators.base import Validator
 
 
+# ────────────────────────────────────────────────
+# Declarative message map
+# ────────────────────────────────────────────────
+
+# Each key is (validator, path_pattern)
+# - path_pattern supports fnmatch-style wildcards: "packs/*/version", "pages/*/file", etc.
+# - The value is a message template, where {1}, {2} ... refer to path elements.
+MESSAGES: dict[Tuple[str, str], str] = {
+    # Pattern validator messages
+    ("pattern", "packs/*/version"): "Pack '{1}' must have semantic version (MAJOR.MINOR.PATCH)",
+    ("pattern", "packs/*/tags/*"): (
+        "Pack '{1}' has tag '{3}' that must be slugified "
+        "(lowercase letters, digits, hyphens)"
+    ),
+    ("pattern", "pages/*/last_updated"): (
+        "Page '{1}' last_updated must match YYYY-MM-DDThh:mm:ssZ"
+    ),
+    ("pattern", "last_updated"): "'last_updated' must match YYYY-MM-DDThh:mm:ssZ",
+    ("pattern", "pages/*/file"): "Page '{1}' file path must not contain ':'",
+    ("pattern", "name"): "'name' may include letters, digits, spaces, hyphens, colons, underscores",
+
+    # UniqueItems validator
+    ("uniqueItems", "packs/*/tags"): "Pack '{1}' has duplicate tags",
+    ("uniqueItems", "packs/*/pages"): "Pack '{1}' has duplicate page titles in 'pages'",
+
+    # Additional properties
+    ("additionalProperties", "pages/*"): "Page '{1}' contains unknown field(s)",
+    ("additionalProperties", "packs/*"): "Pack '{1}' contains unknown field(s)",
+
+    # Required fields
+    ("required", "pages/*"): "Page '{1}' is missing required field(s)",
+    ("required", "packs/*"): "Pack '{1}' is missing required field(s)",
+
+    # Type mismatch
+    ("type", "packs/*/pages"): "Pack '{1}' pages must be an array",
+
+    # Min length
+    ("minLength", "name"): "'name' must not be empty",
+}
+
+
+# ────────────────────────────────────────────────
+# Formatter helpers
+# ────────────────────────────────────────────────
+
+def _match_path(pattern: str, path: List[str]) -> bool:
+    """Return True if the path matches the fnmatch-style pattern."""
+    joined = "/".join(path)
+    return fnmatch(joined, pattern)
+
+
 def _format_schema_error(e: ValidationError) -> list[str]:
+    """Return user-friendly messages for known schema validation errors."""
     try:
         path_list = list(e.path)
     except Exception:
@@ -16,70 +69,26 @@ def _format_schema_error(e: ValidationError) -> list[str]:
 
     msgs: list[str] = []
 
-    if e.validator == "pattern":
-        if len(path_list) >= 4 and path_list[0] == "packs" and path_list[2] == "tags":
-            pack_id = path_list[1]
-            tag_value = getattr(e, "instance", None)
-            msgs.append(
-                f"Pack '{pack_id}' has tag '{tag_value}' that must be slugified "
-                "(lowercase letters, digits, hyphens)"
-            )
-        if len(path_list) >= 3 and path_list[0] == "packs" and path_list[2] == "version":
-            pack_id = path_list[1]
-            msgs.append(f"Pack '{pack_id}' must have semantic version (MAJOR.MINOR.PATCH)")
-        if len(path_list) >= 3 and path_list[0] == "pages" and path_list[2] == "last_updated":
-            page_title = path_list[1]
-            msgs.append(f"Page '{page_title}' last_updated must match YYYY-MM-DDThh:mm:ssZ")
-        if path_list == ["last_updated"]:
-            msgs.append("'last_updated' must match YYYY-MM-DDThh:mm:ssZ")
-        if len(path_list) >= 3 and path_list[0] == "pages" and path_list[2] == "file":
-            page_title = path_list[1]
-            msgs.append(f"Page '{page_title}' file path must not contain ':'")
+    # Try to match in the declarative map
+    for (validator, pattern), msg in MESSAGES.items():
+        if e.validator == validator and _match_path(pattern, path_list):
+            try:
+                msgs.append(msg.format(*path_list))
+            except Exception:
+                msgs.append(msg)
+            break  # Only return the first matching message
 
-    if e.validator == "uniqueItems" and len(path_list) >= 3 and path_list[0] == "packs":
-        pack_id = path_list[1]
-        field = path_list[2]
-        if field == "tags":
-            msgs.append(f"Pack '{pack_id}' has duplicate tags")
-        if field == "pages":
-            msgs.append(f"Pack '{pack_id}' has duplicate page titles in 'pages'")
-
-    if e.validator == "additionalProperties":
-        if len(path_list) >= 2 and path_list[0] == "pages":
-            page_title = path_list[1]
-            msgs.append(f"Page '{page_title}' contains unknown field(s)")
-        if len(path_list) >= 2 and path_list[0] == "packs":
-            pack_id = path_list[1]
-            msgs.append(f"Pack '{pack_id}' contains unknown field(s)")
-
-    if e.validator == "minLength" and path_list == ["name"]:
-        msgs.append("'name' must not be empty")
-    if e.validator == "pattern" and path_list == ["name"]:
-        msgs.append("'name' may include letters, digits, spaces, hyphens, colons, underscores")
-
-    if (
-        e.validator == "type"
-        and len(path_list) >= 3
-        and path_list[0] == "packs"
-        and path_list[2] == "pages"
-    ):
-        pack_id = path_list[1]
-        msgs.append(f"Pack '{pack_id}' pages must be an array")
-
-    if e.validator == "required":
-        if len(path_list) >= 2 and path_list[0] == "pages":
-            page_title = path_list[1]
-            msgs.append(f"Page '{page_title}' is missing required field(s)")
-        if len(path_list) >= 2 and path_list[0] == "packs":
-            pack_id = path_list[1]
-            msgs.append(f"Pack '{pack_id}' is missing required field(s)")
+    # Fallback if nothing matched
+    if not msgs:
+        msgs.append(f"{e.message} at path {list(e.path)}")
 
     return msgs
 
 
 def _format_anyof_error(e: ValidationError) -> list[str]:
-    msgs: list[str] = []
+    """Handle special anyOf validation cases."""
     path_list = list(e.path)
+    msgs: list[str] = []
     if e.validator == "anyOf" and len(path_list) >= 2 and path_list[0] == "packs":
         pack_id = path_list[1]
         msgs.append(
@@ -87,6 +96,10 @@ def _format_anyof_error(e: ValidationError) -> list[str]:
         )
     return msgs
 
+
+# ────────────────────────────────────────────────
+# Main validator class
+# ────────────────────────────────────────────────
 
 class ManifestSchemaValidator(Validator):
     code = "schema-validation"
@@ -96,27 +109,21 @@ class ManifestSchemaValidator(Validator):
     max_version = None
 
     def validate(self, *, manifest: dict, schema: dict, **kwargs: Any) -> list[ValidationItem]:
-        results = []
+        results: list[ValidationItem] = []
         validator = Draft202012Validator(schema)
         errors: List[ValidationError] = sorted(
             validator.iter_errors(manifest), key=lambda e: e.path
         )
 
         for e in errors:
+            # Format known schema and anyOf errors
             for msg in _format_anyof_error(e) + _format_schema_error(e):
                 results.append(
                     ValidationItem(
-                        level=self.level, message=f"Schema validation: {msg}", code=self.code
+                        level=self.level,
+                        message=f"Schema validation: {msg}",
+                        code=self.code,
                     )
                 )
-
-            # Always include raw fallback
-            results.append(
-                ValidationItem(
-                    level=self.level,
-                    message=f"Schema validation: {e.message} at path {list(e.path)}",
-                    code=self.code,
-                )
-            )
 
         return results
