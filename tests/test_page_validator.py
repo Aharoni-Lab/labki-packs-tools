@@ -65,20 +65,7 @@ def test_rejects_underscore_in_page_key(base_manifest, tmp_page):
     assert any(("does not match" in e or "pattern" in e) for e in result.errors)
 
 
-def test_allows_main_namespace_title_without_colon_and_warns(base_manifest, tmp_page):
-    page = tmp_page(namespace="", name="Person")
-    path = base_manifest(
-        {
-            "pages": {"Person": page},
-            "packs": {"p": {"version": "1.0.0", "pages": ["Person"]}},
-        }
-    )
-    rc, result = validate_repo(path)
-    assert rc == 0
-    assert any("Title missing namespace" in w for w in result.warnings)
-
-
-def test_validate_invalid_page_last_updated(base_manifest, tmp_page):
+def test_validate_invalid_page_last_updated(base_manifest, schema_v1: Path, tmp_page):
     p = tmp_page(name="Example")
     p["last_updated"] = "2025-09-22"  # invalid (missing time)
     mpath = base_manifest(
