@@ -4,8 +4,8 @@ import argparse
 import sys
 from pathlib import Path
 
-from .repo_validator import validate_repo
-from .result_formatter import print_results, print_results_json
+from labki_packs_tools.validation.repo_validator import validate_repo
+from labki_packs_tools.validation.result_formatter import print_results, print_results_json
 
 
 def main() -> None:
@@ -23,11 +23,13 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.cmd == "validate":
-        rc, result = validate_repo(args.manifest)
+        rc, results = validate_repo(args.manifest)
+
         if args.json:
-            print_results_json(result)
+            print_results_json(results)
         else:
-            print_results(result, title="Validation results")
+            print_results(results, title="Validation results")
+
         sys.exit(rc)
 
 

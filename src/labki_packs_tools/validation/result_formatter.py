@@ -5,15 +5,14 @@ import os
 import sys
 from typing import Iterable
 
-from .result_types import ValidationResult
+from labki_packs_tools.validation.result_types import ValidationItem, ValidationResults
 
-# ────────────────────────────────────────────────────────────────
-# Color handling
-# ────────────────────────────────────────────────────────────────
 
+# ────────────────────────────────────────────────
+# Color utilities
+# ────────────────────────────────────────────────
 
 def _supports_color() -> bool:
-    """Detect whether the current environment supports ANSI color."""
     if os.environ.get("NO_COLOR"):
         return False
     if not sys.stdout.isatty():
@@ -26,90 +25,84 @@ USE_COLOR = _supports_color()
 
 
 def _c(text: str, code: str) -> str:
-    """Apply color if enabled."""
     return f"\033[{code}m{text}\033[0m" if USE_COLOR else text
-
-
-# ────────────────────────────────────────────────────────────────
-# Printing helpers
-# ────────────────────────────────────────────────────────────────
-
-
-def print_error(msg: str) -> None:
-    print(f"{_c('ERROR:', '31')} {msg}")  # red
-
-
-def print_warning(msg: str) -> None:
-    print(f"{_c('WARNING:', '33')} {msg}")  # yellow
-
-
-def print_info(msg: str) -> None:
-    print(f"{_c('INFO:', '32')} {msg}")  # green
 
 
 def print_section(title: str) -> None:
     print(f"\n{_c(title, '1')}")  # bold
 
 
-# ────────────────────────────────────────────────────────────────
-# Result printing orchestration
-# ────────────────────────────────────────────────────────────────
+# ────────────────────────────────────────────────
+# Level-specific printing
+# ────────────────────────────────────────────────
+
+def _print_item(item: ValidationItem) -> None:
+    if item.level == "error":
+        print(f"{_c('ERROR:', '31')} {item}")
+    elif item.level == "warning":
+        print(f"{_c('WARNING:', '33')} {item}")
+    elif item.level == "info":
+        print(f"{_c('INFO:', '32')} {item}")
+    else:
+        print(item)
 
 
-def print_results(result: ValidationResult, *, title: str | None = None) -> None:
-    """Human-readable console output."""
+# ────────────────────────────────────────────────
+# Main printing entry points
+# ────────────────────────────────────────────────
+
+def print_results(results: ValidationResults, *, title: str | None = None) -> None:
     if title:
         print_section(title)
 
-    if result.errors:
+    if results.errors:
         print_section("Errors")
-        for msg in result.errors:
-            print_error(msg)
+        for item in results.errors:
+            _print_item(item)
 
-    if result.warnings:
+    if results.warnings:
         print_section("Warnings")
-        for msg in result.warnings:
-            print_warning(msg)
+        for item in results.warnings:
+            _print_item(item)
 
-    print_summary(result)
+    if results.infos:
+        print_section("Info")
+        for item in results.infos:
+            _print_item(item)
+
+    print_summary(results)
 
 
-def print_summary(result: ValidationResult) -> None:
-    """One-line colored summary."""
-    color = "31" if result.has_errors else ("33" if result.has_warnings else "32")
-    print(f"\n{_c('Validation completed:', color)} {result.summary()}")
+def print_summary(results: ValidationResults) -> None:
+    color = "31" if results.has_errors else ("33" if results.has_warnings else "32")
+    print(f"\n{_c('Validation completed:', color)} {results.summary()}")
 
 
-# ────────────────────────────────────────────────────────────────
+# ────────────────────────────────────────────────
 # JSON output mode
-# ────────────────────────────────────────────────────────────────
+# ────────────────────────────────────────────────
 
-
-def print_results_json(result: ValidationResult) -> None:
-    """
-    Emit JSON summary to stdout, suitable for CI or machine parsing.
-    """
+def print_results_json(results: ValidationResults) -> None:
     payload = {
         "summary": {
-            "errors": len(result.errors),
-            "warnings": len(result.warnings),
-            "exit_code": result.rc,
+            "errors": len(results.errors),
+            "warnings": len(results.warnings),
+            "infos": len(results.infos),
+            "exit_code": results.rc,
         },
-        "errors": result.errors,
-        "warnings": result.warnings,
+        "items": [item.__dict__ for item in results],
     }
     print(json.dumps(payload, indent=2, sort_keys=True))
 
 
-# ────────────────────────────────────────────────────────────────
+# ────────────────────────────────────────────────
 # Aggregate printing
-# ────────────────────────────────────────────────────────────────
+# ────────────────────────────────────────────────
 
-
-def aggregate_print(results: Iterable[ValidationResult]) -> ValidationResult:
-    aggregate = ValidationResult()
-    for r in results:
-        aggregate.merge(r)
-        print_results(r)
+def aggregate_print(results_list: Iterable[ValidationResults]) -> ValidationResults:
+    aggregate = ValidationResults()
+    for res in results_list:
+        aggregate.merge(res)
+        print_results(res)
     print_summary(aggregate)
     return aggregate

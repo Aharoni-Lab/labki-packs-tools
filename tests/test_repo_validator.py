@@ -7,14 +7,15 @@ from pathlib import Path
 
 from labki_packs_tools.validation.repo_validator import validate_repo
 from labki_packs_tools.validation.result_formatter import print_results, print_results_json
-from labki_packs_tools.validation.result_types import ValidationResult
+from labki_packs_tools.validation.result_types import ValidationItem, ValidationResults
 
 
 def test_valid_fixture_repo_passes(fixtures_repo: Path):
     manifest = fixtures_repo / "manifest.yml"
-    rc, result = validate_repo(manifest)
+    rc, results = validate_repo(manifest)
     assert rc == 0
-    assert not result.errors
+    assert not results.has_errors
+    assert not results.errors
 
 
 def test_cli_parity_like_flow(base_manifest, tmp_page):
@@ -25,34 +26,36 @@ def test_cli_parity_like_flow(base_manifest, tmp_page):
             "packs": {"p": {"version": "1.0.0", "pages": ["Template:T"]}},
         }
     )
-    rc, result = validate_repo(mpath)
-    assert rc == 0, f"expected success, got rc={rc}, errors={result.errors}"
+    rc, results = validate_repo(mpath)
+    assert rc == 0, f"expected success, got rc={rc}, errors={[i.message for i in results.errors]}"
 
 
 def test_formatter_prints_human():
-    result = type(
-        "Dummy",
-        (),
-        {
-            "errors": ["err1"],
-            "warnings": ["warn1"],
-            "has_errors": True,
-            "has_warnings": True,
-            "summary": lambda self: "1 error(s), 1 warning(s)",
-        },
-    )()
+    # Build a dummy ValidationResults with fake items
+    dummy = ValidationResults()
+    dummy.add(ValidationItem(level="error", message="err1"))
+    dummy.add(ValidationItem(level="warning", message="warn1"))
+
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
-        print_results(result, title="Test Section")
+        print_results(dummy, title="Test Section")
+
     out = buf.getvalue()
     assert "Errors" in out and "Warnings" in out
+    assert "err1" in out and "warn1" in out
 
 
 def test_formatter_prints_json():
-    res = ValidationResult(errors=["e1"], warnings=["w1"])
+    results = ValidationResults()
+    results.add(ValidationItem(level="error", message="e1"))
+    results.add(ValidationItem(level="warning", message="w1"))
+
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
-        print_results_json(res)
+        print_results_json(results)
+
     parsed = json.loads(buf.getvalue())
-    assert parsed["summary"]["errors"] == 1
-    assert parsed["warnings"] == ["w1"]
+    summary = parsed["summary"]
+    assert summary["errors"] == 1
+    assert summary["warnings"] == 1
+    assert any(i["message"] == "e1" for i in parsed["items"])

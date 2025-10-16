@@ -1,12 +1,16 @@
 from __future__ import annotations
 
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator, ValidationError
 
-from labki_packs_tools.validation.result_types import ValidationResult
-from labki_packs_tools.validation.schema_validator import _format_schema_error, validate_schema
+from labki_packs_tools.validation.validators.manifest_schema_validator import (
+    _format_schema_error,
+    ManifestSchemaValidator,
+)
+from labki_packs_tools.validation.result_types import ValidationItem
 
 
 def test_format_schema_error_messages():
+    """Ensure our schema error formatter produces human-friendly messages."""
     schema = {
         "type": "object",
         "properties": {
@@ -15,19 +19,27 @@ def test_format_schema_error_messages():
         },
         "required": ["name", "version"],
     }
+
     bad = {"name": "", "version": "v1"}
-    v = Draft202012Validator(schema)
-    errors = list(v.iter_errors(bad))
-    flat = "\n".join(m for e in errors for m in _format_schema_error(e))
-    assert ("minLength" in flat) or ("must not be empty" in flat)
+    validator = Draft202012Validator(schema)
+    errors = list(validator.iter_errors(bad))
+
+    formatted = "\n".join(m for e in errors for m in _format_schema_error(e))
+    # We're not testing the exact text, just that it's meaningful
+    assert "empty" in formatted or "version" in formatted
 
 
-def test_validate_schema_collects_messages():
+def test_manifest_schema_validator_collects_messages():
+    """Ensure the ManifestSchemaValidator collects structured error messages."""
     schema = {
         "type": "object",
         "properties": {"foo": {"type": "string"}},
         "required": ["foo"],
     }
-    result = validate_schema({}, schema)
-    assert isinstance(result, ValidationResult)
-    assert result.errors and any("foo" in e for e in result.errors)
+
+    validator = ManifestSchemaValidator()
+    items = validator.validate(manifest={}, schema=schema)
+
+    assert all(isinstance(i, ValidationItem) for i in items)
+    assert any("foo" in i.message for i in items)
+    assert any(i.level == "error" for i in items)

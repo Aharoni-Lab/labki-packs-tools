@@ -9,40 +9,53 @@ import yaml
 
 
 def test_formatter_prints_human():
+    """
+    Ensure human-readable output includes both error and warning sections.
+    """
     from labki_packs_tools.validation.result_formatter import print_results
+    from labki_packs_tools.validation.result_types import ValidationItem, ValidationResults
 
-    result = type(
-        "Dummy",
-        (),
-        {
-            "errors": ["err1"],
-            "warnings": ["warn1"],
-            "has_errors": True,
-            "has_warnings": True,
-            "summary": lambda self: "1 error(s), 1 warning(s)",
-        },
-    )()
+    # Create a fake result set
+    results = ValidationResults()
+    results.add(ValidationItem(message="err1", level="error"))
+    results.add(ValidationItem(message="warn1", level="warning"))
+
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
-        print_results(result, title="Test Section")
+        print_results(results, title="Test Section")
+
     out = buf.getvalue()
-    assert "Errors" in out and "Warnings" in out
+    assert "Errors" in out
+    assert "Warnings" in out
+    assert "Validation completed" in out
 
 
 def test_formatter_prints_json():
+    """
+    Ensure JSON output mode produces valid JSON and correct counts.
+    """
     from labki_packs_tools.validation.result_formatter import print_results_json
-    from labki_packs_tools.validation.result_types import ValidationResult
+    from labki_packs_tools.validation.result_types import ValidationItem, ValidationResults
 
-    res = ValidationResult(errors=["e1"], warnings=["w1"])
+    results = ValidationResults()
+    results.add(ValidationItem(message="e1", level="error"))
+    results.add(ValidationItem(message="w1", level="warning"))
+
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
-        print_results_json(res)
+        print_results_json(results)
+
     parsed = json.loads(buf.getvalue())
     assert parsed["summary"]["errors"] == 1
-    assert parsed["warnings"] == ["w1"]
+    assert parsed["summary"]["warnings"] == 1
+    assert "e1" in json.dumps(parsed)
+    assert "w1" in json.dumps(parsed)
 
 
 def test_cli_json_output(tmp_path):
+    """
+    Verify end-to-end CLI output in JSON mode runs and returns proper structure.
+    """
     m = {
         "name": "cli-json",
         "schema_version": "1.0.0",
@@ -52,7 +65,16 @@ def test_cli_json_output(tmp_path):
     mpath = tmp_path / "manifest.yml"
     mpath.write_text(yaml.safe_dump(m))
 
-    proc = run(["labki-validate", "validate", str(mpath), "--json"], text=True, capture_output=True)
-    assert proc.returncode == 0
+    proc = run(
+        ["labki-validate", "validate", str(mpath), "--json"],
+        text=True,
+        capture_output=True,
+    )
+
+    assert proc.returncode == 0, f"CLI failed: {proc.stderr}"
     data = json.loads(proc.stdout)
-    assert "summary" in data and "errors" in data and "warnings" in data
+
+    assert "summary" in data
+    assert "items" in data
+    assert all(k in data["summary"] for k in ["errors", "warnings", "exit_code"])
+

@@ -11,7 +11,6 @@ dependencies = [
 
 [project.scripts]
 labki-validate = "labki_packs_tools.validation.cli:main"
-labki-validate-old = "tools.validate_repo:main"
 labki-graph = "tools.graph_repo:main"
 
 [project.optional-dependencies]
