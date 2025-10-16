@@ -10,6 +10,7 @@ import yaml
 # General-purpose utilities
 # ────────────────────────────────────────────────────────────────
 
+
 def deep_merge(base: dict[str, Any], override: dict[str, Any] | None = None) -> dict[str, Any]:
     """Recursively merge dictionaries, giving precedence to override values."""
     result = dict(base)
@@ -24,6 +25,7 @@ def deep_merge(base: dict[str, Any], override: dict[str, Any] | None = None) -> 
 # ────────────────────────────────────────────────────────────────
 # Manifest helpers
 # ────────────────────────────────────────────────────────────────
+
 
 def make_manifest(path: Path, overrides: dict[str, Any] | None = None) -> Path:
     """
@@ -48,6 +50,7 @@ def make_manifest(path: Path, overrides: dict[str, Any] | None = None) -> Path:
 # ────────────────────────────────────────────────────────────────
 # Page helpers
 # ────────────────────────────────────────────────────────────────
+
 
 def make_page_file(
     path: Path,

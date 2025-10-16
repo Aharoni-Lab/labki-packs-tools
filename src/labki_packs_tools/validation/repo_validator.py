@@ -60,13 +60,14 @@ def validate_repo(manifest_path: Path | str) -> tuple[int, ValidationResults]:
                     pages=pages,
                     packs=packs,
                     schema=schema,  # optional for schema-aware checks
-                    manifest_path=manifest_path  # optional for file-path-based checks
+                    manifest_path=manifest_path,  # optional for file-path-based checks
                 )
                 results.extend(items)
             except Exception as e:
-                results.add(ValidationItem(
-                    level="error",
-                    message=f"Validator {validator_cls.__name__} failed: {e}"
-                ))
+                results.add(
+                    ValidationItem(
+                        level="error", message=f"Validator {validator_cls.__name__} failed: {e}"
+                    )
+                )
 
     return results.rc, results

@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Iterable, List, Literal, Optional
 
+
 # ────────────────────────────────────────────────
 # Container for multiple validation messages
 # ────────────────────────────────────────────────
@@ -12,6 +13,7 @@ class ValidationResults:
     Container for all validation messages produced during repo validation.
     Provides convenience accessors and merge methods.
     """
+
     _items: List[ValidationItem] = field(default_factory=list)
 
     def add(self, item: ValidationItem) -> None:
@@ -60,6 +62,7 @@ class ValidationResults:
     def __iter__(self):
         yield from self._items
 
+
 # ────────────────────────────────────────────────
 # Core structured result
 # ────────────────────────────────────────────────
@@ -68,6 +71,7 @@ class ValidationItem:
     """
     A single validation message with structured context.
     """
+
     level: Literal["info", "warning", "error"]
     message: str
     repo_url: Optional[str] = None

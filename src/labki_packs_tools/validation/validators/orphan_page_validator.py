@@ -32,10 +32,12 @@ class OrphanPageValidator(Validator):
                 f_abs = Path(root) / fname
                 if f_abs not in referenced_abs_paths:
                     rel = os.path.relpath(f_abs, manifest_path.parent)
-                    items.append(ValidationItem(
-                        level=self.level,
-                        message=f"Orphan page file not referenced in manifest: {rel}",
-                        code=self.code
-                    ))
+                    items.append(
+                        ValidationItem(
+                            level=self.level,
+                            message=f"Orphan page file not referenced in manifest: {rel}",
+                            code=self.code,
+                        )
+                    )
 
         return items

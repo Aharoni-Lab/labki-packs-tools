@@ -12,6 +12,7 @@ from labki_packs_tools.validation.result_types import ValidationItem, Validation
 # Color utilities
 # ────────────────────────────────────────────────
 
+
 def _supports_color() -> bool:
     if os.environ.get("NO_COLOR"):
         return False
@@ -36,6 +37,7 @@ def print_section(title: str) -> None:
 # Level-specific printing
 # ────────────────────────────────────────────────
 
+
 def _print_item(item: ValidationItem) -> None:
     if item.level == "error":
         print(f"{_c('ERROR:', '31')} {item}")
@@ -50,6 +52,7 @@ def _print_item(item: ValidationItem) -> None:
 # ────────────────────────────────────────────────
 # Main printing entry points
 # ────────────────────────────────────────────────
+
 
 def print_results(results: ValidationResults, *, title: str | None = None) -> None:
     if title:
@@ -82,6 +85,7 @@ def print_summary(results: ValidationResults) -> None:
 # JSON output mode
 # ────────────────────────────────────────────────
 
+
 def print_results_json(results: ValidationResults) -> None:
     payload = {
         "summary": {
@@ -98,6 +102,7 @@ def print_results_json(results: ValidationResults) -> None:
 # ────────────────────────────────────────────────
 # Aggregate printing
 # ────────────────────────────────────────────────
+
 
 def aggregate_print(results_list: Iterable[ValidationResults]) -> ValidationResults:
     aggregate = ValidationResults()

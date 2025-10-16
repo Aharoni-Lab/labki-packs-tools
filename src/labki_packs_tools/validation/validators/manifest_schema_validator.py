@@ -96,21 +96,25 @@ class ManifestSchemaValidator(Validator):
     def validate(self, *, manifest: dict, schema: dict, **kwargs) -> list[ValidationItem]:
         results = []
         validator = Draft202012Validator(schema)
-        errors: List[ValidationError] = sorted(validator.iter_errors(manifest), key=lambda e: e.path)
+        errors: List[ValidationError] = sorted(
+            validator.iter_errors(manifest), key=lambda e: e.path
+        )
 
         for e in errors:
             for msg in _format_anyof_error(e) + _format_schema_error(e):
-                results.append(ValidationItem(
-                    level=self.level,
-                    message=f"Schema validation: {msg}",
-                    code=self.code
-                ))
+                results.append(
+                    ValidationItem(
+                        level=self.level, message=f"Schema validation: {msg}", code=self.code
+                    )
+                )
 
             # Always include raw fallback
-            results.append(ValidationItem(
-                level=self.level,
-                message=f"Schema validation: {e.message} at path {list(e.path)}",
-                code=self.code
-            ))
+            results.append(
+                ValidationItem(
+                    level=self.level,
+                    message=f"Schema validation: {e.message} at path {list(e.path)}",
+                    code=self.code,
+                )
+            )
 
         return results

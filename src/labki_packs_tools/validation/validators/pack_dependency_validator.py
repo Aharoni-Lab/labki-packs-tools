@@ -12,9 +12,11 @@ class PackDependencyValidator(Validator):
         for pack_id, meta in (packs or {}).items():
             for dep in meta.get("depends_on", []) or []:
                 if dep not in packs:
-                    items.append(ValidationItem(
-                        level=self.level,
-                        message=f"Pack '{pack_id}' depends_on unknown pack id: {dep}",
-                        code=self.code
-                    ))
+                    items.append(
+                        ValidationItem(
+                            level=self.level,
+                            message=f"Pack '{pack_id}' depends_on unknown pack id: {dep}",
+                            code=self.code,
+                        )
+                    )
         return items

@@ -14,6 +14,7 @@ from tests.utils import deep_merge, make_manifest, make_page_file
 # CLI options
 # ────────────────────────────────────────────────────────────────
 
+
 def pytest_addoption(parser: argparse.ArgumentParser) -> None:
     parser.addoption(
         "--with-packaging",
@@ -35,6 +36,7 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[Function]) 
 # Paths
 # ────────────────────────────────────────────────────────────────
 
+
 @pytest.fixture
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
@@ -48,6 +50,7 @@ def fixtures_repo(repo_root: Path) -> Path:
 # ────────────────────────────────────────────────────────────────
 # Fixtures built from shared utilities
 # ────────────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def base_manifest(tmp_path: Path) -> Callable[[dict | None], Path]:

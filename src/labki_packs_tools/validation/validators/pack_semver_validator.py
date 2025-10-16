@@ -13,9 +13,11 @@ class PackSemverValidator(Validator):
         for pack_id, meta in (packs or {}).items():
             version = meta.get("version")
             if not is_semver(version):
-                items.append(ValidationItem(
-                    level=self.level,
-                    message=f"Pack '{pack_id}' must have semantic version (MAJOR.MINOR.PATCH)",
-                    code=self.code
-                ))
+                items.append(
+                    ValidationItem(
+                        level=self.level,
+                        message=f"Pack '{pack_id}' must have semantic version (MAJOR.MINOR.PATCH)",
+                        code=self.code,
+                    )
+                )
         return items

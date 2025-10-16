@@ -77,4 +77,3 @@ def test_cli_json_output(tmp_path):
     assert "summary" in data
     assert "items" in data
     assert all(k in data["summary"] for k in ["errors", "warnings", "exit_code"])
-

@@ -30,7 +30,9 @@ def test_page_file_not_found(base_manifest):
 
 def test_orphan_file_warns_only(base_manifest, tmp_path: Path):
     (tmp_path / "pages" / "Templates").mkdir(parents=True, exist_ok=True)
-    (tmp_path / "pages" / "Templates" / "Orphan.wiki").write_text("== Orphan ==\n", encoding="utf-8")
+    (tmp_path / "pages" / "Templates" / "Orphan.wiki").write_text(
+        "== Orphan ==\n", encoding="utf-8"
+    )
 
     mpath = base_manifest({"pages": {}, "packs": {}})
     rc, results = validate_repo(mpath)
@@ -125,7 +127,4 @@ def test_rejects_colon_in_filename(base_manifest, tmp_path: Path):
     errors = _messages(results, "error")
 
     assert rc != 0
-    assert any(
-        ("file path must not contain ':'" in e or "does not match" in e)
-        for e in errors
-    )
+    assert any(("file path must not contain ':'" in e or "does not match" in e) for e in errors)

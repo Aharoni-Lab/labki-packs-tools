@@ -36,9 +36,11 @@ class PackCycleValidator(Validator):
                     q.append(neighbor)
 
         if visited != len(packs):
-            items.append(ValidationItem(
-                level=self.level,
-                message="Dependency cycle detected among packs",
-                code=self.code
-            ))
+            items.append(
+                ValidationItem(
+                    level=self.level,
+                    message="Dependency cycle detected among packs",
+                    code=self.code,
+                )
+            )
         return items
