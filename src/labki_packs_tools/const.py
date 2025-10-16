@@ -18,40 +18,33 @@ def _get_schema_dir() -> Path:
     Resolve the location of the `schema` directory.
 
     Handles three cases:
-    1. Installed package with direct_url.json metadata
+    1. Installed package (schema inside site-packages)
     2. Editable install (`pip install -e .`)
     3. Running directly from source tree
     """
     here = Path(__file__).resolve()
-    root = here.parent
-    dist_info_dirs = list(root.glob("*.dist-info"))
+    pkg_root = here.parent
+    site_root = pkg_root.parent
 
-    # Case 1: Installed package with metadata
-    if dist_info_dirs:
-        dist_info = dist_info_dirs[0]
-        direct_url_path = dist_info / "direct_url.json"
+    # Case 1: Installed package (look for schema as sibling to labki_packs_tools)
+    installed_schema = site_root / "schema"
+    if installed_schema.exists():
+        return installed_schema
 
-        if direct_url_path.exists():
+    # Case 2: Editable install with direct_url metadata
+    for dist_info in site_root.glob("*.dist-info"):
+        direct_url = dist_info / "direct_url.json"
+        if direct_url.exists():
             try:
-                direct_url_text = direct_url_path.read_text(encoding="utf-8")
-                if direct_url_text:
-                    direct_url = json.loads(direct_url_text)
-                    is_editable = direct_url.get("dir_info", {}).get("editable", False)
-                    if is_editable:
-                        editable_schema = root / "schema"
-                        if editable_schema.exists():
-                            return editable_schema
+                data = json.loads(direct_url.read_text(encoding="utf-8"))
+                if data.get("dir_info", {}).get("editable", False):
+                    editable_schema = site_root / "schema"
+                    if editable_schema.exists():
+                        return editable_schema
             except Exception:
-                # fall through to fallback below
                 pass
 
-        # Try packaged schema directory (inside site-packages)
-        installed_schema = root / "schema"
-        if installed_schema.exists():
-            return installed_schema
-
-    # Case 2: Running directly from repo (not installed)
-    # Go three levels up: src/labki_packs_tools/ → src/ → project root → schema/
+    # Case 3: Running directly from source (src/labki_packs_tools/const.py → ../../..)
     dev_schema = here.parent.parent.parent / "schema"
     if dev_schema.exists():
         return dev_schema
