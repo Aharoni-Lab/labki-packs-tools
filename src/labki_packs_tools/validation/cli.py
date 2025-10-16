@@ -5,7 +5,6 @@ import sys
 from pathlib import Path
 
 from labki_packs_tools.validation.repo_validator import validate_repo
-from labki_packs_tools.validation.result_formatter import print_results, print_results_json
 
 
 def main() -> None:
@@ -24,12 +23,10 @@ def main() -> None:
 
     if args.cmd == "validate":
         rc, results = validate_repo(args.manifest)
-
         if args.json:
-            print_results_json(results)
+            results.print_json()
         else:
-            print_results(results, title="Validation results")
-
+            results.print(title="Validation results")
         sys.exit(rc)
 
 

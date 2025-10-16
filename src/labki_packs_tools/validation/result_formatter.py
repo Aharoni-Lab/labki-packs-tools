@@ -1,20 +1,16 @@
 from __future__ import annotations
-
 import json
 from typing import Iterable
-
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
 from rich.text import Text
-
 from labki_packs_tools.validation.result_types import ValidationItem, ValidationResults
 
 console = Console()
 
-
 def print_results(results: ValidationResults, *, title: str | None = None) -> None:
-    """Pretty-print results using Rich tables and colors."""
+    """Pretty-print results using Rich tables and summary."""
     if title:
         console.rule(f"[bold cyan]{title}")
 
@@ -22,8 +18,10 @@ def print_results(results: ValidationResults, *, title: str | None = None) -> No
     _print_section(results.warnings, "Warnings", "yellow")
     _print_section(results.infos, "Info", "green")
 
-    print_summary(results)
-
+    # Summary panel at the bottom
+    color = "red" if results.has_errors else ("yellow" if results.has_warnings else "green")
+    text = Text(f"Validation completed: {results.summary()}", style=f"bold {color}")
+    console.print(Panel(text, border_style=color))
 
 def _print_section(items: list[ValidationItem], label: str, color: str) -> None:
     if not items:
@@ -36,19 +34,6 @@ def _print_section(items: list[ValidationItem], label: str, color: str) -> None:
     for item in items:
         table.add_row(item.level.upper(), item.code or "-", item.message)
     console.print(table)
-
-
-def print_summary(results: ValidationResults) -> None:
-    if results.has_errors:
-        color = "red"
-    elif results.has_warnings:
-        color = "yellow"
-    else:
-        color = "green"
-
-    text = Text(f"Validation completed: {results.summary()}", style=f"bold {color}")
-    console.print(Panel(text, border_style=color))
-
 
 def print_results_json(results: ValidationResults) -> None:
     """Emit JSON for programmatic use."""
@@ -63,12 +48,11 @@ def print_results_json(results: ValidationResults) -> None:
     }
     console.print_json(json.dumps(payload, indent=2, sort_keys=True))
 
-
 def aggregate_print(results_list: Iterable[ValidationResults]) -> ValidationResults:
     """Print multiple result sets and return an aggregate."""
     aggregate = ValidationResults()
     for res in results_list:
         aggregate.merge(res)
-        print_results(res)
-    print_summary(aggregate)
+        res.print()
     return aggregate
+

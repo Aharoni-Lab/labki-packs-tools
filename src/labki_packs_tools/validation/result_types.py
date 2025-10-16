@@ -1,8 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Iterable, List, Literal, Optional
+from typing import Iterable, List, Literal, Optional, TYPE_CHECKING
 
+
+if TYPE_CHECKING:
+    from labki_packs_tools.validation.result_formatter import (
+        print_results,
+        print_results_json,
+    )
 
 # ────────────────────────────────────────────────
 # Container for multiple validation messages
@@ -64,6 +70,16 @@ class ValidationResults:
 
     def __iter__(self):
         yield from self._items
+
+    def print(self, *, title: str | None = None) -> None:
+        """Pretty-print this result set using the Rich formatter."""
+        from labki_packs_tools.validation.result_formatter import print_results
+        print_results(self, title=title)
+
+    def print_json(self) -> None:
+        """Emit structured JSON via the Rich formatter."""
+        from labki_packs_tools.validation.result_formatter import print_results_json
+        print_results_json(self)
 
 
 # ────────────────────────────────────────────────
