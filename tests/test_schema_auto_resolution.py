@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from pathlib import Path
+
 import pytest
 
-from labki_packs_tools.validation.schema_resolver import resolve_schema
 from labki_packs_tools.validation.repo_validator import validate_repo
+from labki_packs_tools.validation.schema_resolver import resolve_schema
 
 
 def test_schema_resolution(tmp_path: Path, base_manifest, tmp_page):

@@ -3,8 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from labki_packs_tools.utils import load_json, load_yaml
-from labki_packs_tools.validation.schema_resolver import resolve_schema
 from labki_packs_tools.validation.result_types import ValidationItem, ValidationResults
+from labki_packs_tools.validation.schema_resolver import resolve_schema
 from labki_packs_tools.validation.validators.base import Validator
 
 

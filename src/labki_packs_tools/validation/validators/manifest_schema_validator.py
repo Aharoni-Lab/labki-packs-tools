@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import List
+from typing import Any, List
+
 from jsonschema import Draft202012Validator, ValidationError
 
 from labki_packs_tools.validation.result_types import ValidationItem
@@ -20,7 +21,8 @@ def _format_schema_error(e: ValidationError) -> list[str]:
             pack_id = path_list[1]
             tag_value = getattr(e, "instance", None)
             msgs.append(
-                f"Pack '{pack_id}' has tag '{tag_value}' that must be slugified (lowercase letters, digits, hyphens)"
+                f"Pack '{pack_id}' has tag '{tag_value}' that must be slugified "
+                "(lowercase letters, digits, hyphens)"
             )
         if len(path_list) >= 3 and path_list[0] == "packs" and path_list[2] == "version":
             pack_id = path_list[1]
@@ -93,7 +95,7 @@ class ManifestSchemaValidator(Validator):
     min_version = None
     max_version = None
 
-    def validate(self, *, manifest: dict, schema: dict, **kwargs) -> list[ValidationItem]:
+    def validate(self, *, manifest: dict, schema: dict, **kwargs: Any) -> list[ValidationItem]:
         results = []
         validator = Draft202012Validator(schema)
         errors: List[ValidationError] = sorted(

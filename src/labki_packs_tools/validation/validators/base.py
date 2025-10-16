@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import ClassVar, Optional
-from packaging.version import Version, InvalidVersion
+
+from packaging.version import InvalidVersion, Version
 
 from labki_packs_tools.validation.result_types import ValidationItem
 
@@ -34,9 +35,7 @@ class Validator(ABC):
 
         if cls.min_version and v < Version(cls.min_version):
             return False
-        if cls.max_version and v > Version(cls.max_version):
-            return False
-        return True
+        return not (cls.max_version and v > Version(cls.max_version))
 
     @abstractmethod
     def validate(self, *, manifest: dict, pages: dict, packs: dict) -> list[ValidationItem]:

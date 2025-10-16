@@ -53,7 +53,10 @@ class ValidationResults:
         return 1 if self.has_errors else 0
 
     def summary(self) -> str:
-        return f"{len(self.errors)} error(s), {len(self.warnings)} warning(s), {len(self.infos)} info(s)"
+        return (
+            f"{len(self.errors)} error(s), {len(self.warnings)} warning(s), "
+            f"{len(self.infos)} info(s)"
+        )
 
     def __bool__(self) -> bool:
         """True if no errors."""

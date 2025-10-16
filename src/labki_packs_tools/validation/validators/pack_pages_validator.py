@@ -1,3 +1,5 @@
+from typing import Any
+
 from labki_packs_tools.validation.result_types import ValidationItem
 from labki_packs_tools.validation.validators.base import Validator
 
@@ -7,7 +9,7 @@ class PackPagesValidator(Validator):
     message = "Pages referenced in packs must be valid"
     level = "error"
 
-    def validate(self, *, packs: dict, pages: dict, **kwargs) -> list[ValidationItem]:
+    def validate(self, *, packs: dict, pages: dict, **kwargs: Any) -> list[ValidationItem]:
         items = []
         seen_page_to_pack = {}
 
@@ -38,8 +40,8 @@ class PackPagesValidator(Validator):
                         ValidationItem(
                             level=self.level,
                             message=(
-                                f"Page title '{title}' included in multiple packs ('{other}' and '{pack_id}'). "
-                                "Move to a shared dependency pack."
+                                f"Page title '{title}' included in multiple packs "
+                                f"('{other}' and '{pack_id}'). Move to a shared dependency pack."
                             ),
                             code=self.code,
                         )

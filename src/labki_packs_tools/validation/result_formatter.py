@@ -7,7 +7,6 @@ from typing import Iterable
 
 from labki_packs_tools.validation.result_types import ValidationItem, ValidationResults
 
-
 # ────────────────────────────────────────────────
 # Color utilities
 # ────────────────────────────────────────────────

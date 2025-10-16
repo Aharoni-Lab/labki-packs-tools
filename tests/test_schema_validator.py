@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from jsonschema import Draft202012Validator, ValidationError
+from jsonschema import Draft202012Validator
 
-from labki_packs_tools.validation.validators.manifest_schema_validator import (
-    _format_schema_error,
-    ManifestSchemaValidator,
-)
 from labki_packs_tools.validation.result_types import ValidationItem
+from labki_packs_tools.validation.validators.manifest_schema_validator import (
+    ManifestSchemaValidator,
+    _format_schema_error,
+)
 
 
 def test_format_schema_error_messages():

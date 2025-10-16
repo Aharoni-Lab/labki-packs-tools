@@ -1,4 +1,5 @@
 from collections import defaultdict, deque
+from typing import Any
 
 from labki_packs_tools.validation.result_types import ValidationItem
 from labki_packs_tools.validation.validators.base import Validator
@@ -9,7 +10,7 @@ class PackCycleValidator(Validator):
     message = "Packs must not form dependency cycles"
     level = "error"
 
-    def validate(self, *, packs: dict, **kwargs) -> list[ValidationItem]:
+    def validate(self, *, packs: dict, **kwargs: Any) -> list[ValidationItem]:
         items = []
         if not packs:
             return items

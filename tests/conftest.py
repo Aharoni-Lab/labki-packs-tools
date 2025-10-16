@@ -7,8 +7,7 @@ from typing import Callable
 import pytest
 from _pytest.python import Function
 
-from tests.utils import deep_merge, make_manifest, make_page_file
-
+from tests.utils import make_manifest, make_page_file
 
 # ────────────────────────────────────────────────────────────────
 # CLI options

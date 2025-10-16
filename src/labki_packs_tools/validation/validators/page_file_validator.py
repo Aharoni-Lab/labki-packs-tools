@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 from labki_packs_tools.validation.result_types import ValidationItem
 from labki_packs_tools.validation.validators.base import Validator
@@ -9,7 +10,7 @@ class PageFileValidator(Validator):
     message = "Validate page file presence and module placement"
     level = "error"
 
-    def validate(self, *, manifest_path: Path, pages: dict, **kwargs) -> list[ValidationItem]:
+    def validate(self, *, manifest_path: Path, pages: dict, **kwargs: Any) -> list[ValidationItem]:
         items = []
 
         for title, meta in pages.items():

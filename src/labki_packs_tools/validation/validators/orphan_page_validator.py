@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import Any
 
 from labki_packs_tools.validation.result_types import ValidationItem
 from labki_packs_tools.validation.validators.base import Validator
@@ -10,7 +11,7 @@ class OrphanPageValidator(Validator):
     message = "Detect orphan page files not listed in manifest"
     level = "warning"
 
-    def validate(self, *, manifest_path: Path, pages: dict, **kwargs) -> list[ValidationItem]:
+    def validate(self, *, manifest_path: Path, pages: dict, **kwargs: Any) -> list[ValidationItem]:
         items = []
         referenced_abs_paths: set[Path] = set()
 

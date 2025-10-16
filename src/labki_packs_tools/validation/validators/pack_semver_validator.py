@@ -1,3 +1,5 @@
+from typing import Any
+
 from labki_packs_tools.utils import is_semver
 from labki_packs_tools.validation.result_types import ValidationItem
 from labki_packs_tools.validation.validators.base import Validator
@@ -8,7 +10,7 @@ class PackSemverValidator(Validator):
     message = "Pack must have semantic version"
     level = "error"
 
-    def validate(self, *, packs: dict, **kwargs) -> list[ValidationItem]:
+    def validate(self, *, packs: dict, **kwargs: Any) -> list[ValidationItem]:
         items = []
         for pack_id, meta in (packs or {}).items():
             version = meta.get("version")
