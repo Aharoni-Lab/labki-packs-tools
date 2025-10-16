@@ -30,6 +30,10 @@ build-backend = "pdm.backend"
 [tool.pdm]
 distribution = true
 
+[tool.pdm.build]
+includes = ["src/labki_packs_tools", "schema"]
+
+
 [tool.pdm.scripts]
 test = "pytest"
 lint.composite = [
