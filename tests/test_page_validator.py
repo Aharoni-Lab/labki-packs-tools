@@ -65,7 +65,7 @@ def test_rejects_underscore_in_page_key(base_manifest, tmp_page):
     assert any(("does not match" in e or "pattern" in e) for e in result.errors)
 
 
-def test_validate_invalid_page_last_updated(base_manifest, schema_v1: Path, tmp_page):
+def test_validate_invalid_page_last_updated(base_manifest, tmp_page):
     p = tmp_page(name="Example")
     p["last_updated"] = "2025-09-22"  # invalid (missing time)
     mpath = base_manifest(
