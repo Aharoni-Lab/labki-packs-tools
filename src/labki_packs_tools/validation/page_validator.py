@@ -22,9 +22,6 @@ def validate_pages(manifest_path: Path, pages: dict) -> tuple[ValidationResult, 
     referenced_abs_paths: set[Path] = set()
 
     for title, meta in pages.items():
-        # Title should normally include a namespace (e.g., Template:, Module:, Form:)
-        if ":" not in title:
-            result.add_warning(f"Title missing namespace: {title}")
 
         # File path presence
         file_rel = meta.get("file")
