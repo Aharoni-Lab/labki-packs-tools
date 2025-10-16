@@ -76,3 +76,6 @@ htmlcov/
 node_modules/
 
 .pdm-build
+
+# ignore duplicated schema directory for editable installs
+src/labki_packs_tools/schema/

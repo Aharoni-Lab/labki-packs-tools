@@ -103,3 +103,8 @@ fixable = ["ALL"]
 target-version = ['py311', 'py312', 'py313']
 include = "(?:tests|src)/.*\\.py$"
 line-length = 100
+
+[tool.pytest.ini_options]
+markers = """
+  packaging: meta-tests that confirm equivalent behavior in editable/git installs, sdist, and wheels
+"""
