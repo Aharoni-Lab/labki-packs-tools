@@ -9,16 +9,19 @@ This document describes how to run all automated tests for **labki-packs-tools**
 From the project root:
 
 ### Windows (PowerShell)
+
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate
 ```
 
 ### MacOS/Linux
+
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 ```
+
 ## 2. Install dependencies
 
 ```bash
@@ -26,6 +29,7 @@ pdm install -G tests
 ```
 
 if missing pdm then first run
+
 ```bash
 pip install pdm
 ```
