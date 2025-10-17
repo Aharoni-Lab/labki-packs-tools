@@ -10,6 +10,7 @@ if TYPE_CHECKING:
         print_results_json,
     )
 
+
 # ────────────────────────────────────────────────
 # Container for multiple validation messages
 # ────────────────────────────────────────────────
@@ -74,11 +75,13 @@ class ValidationResults:
     def print(self, *, title: str | None = None) -> None:
         """Pretty-print this result set using the Rich formatter."""
         from labki_packs_tools.validation.result_formatter import print_results
+
         print_results(self, title=title)
 
     def print_json(self) -> None:
         """Emit structured JSON via the Rich formatter."""
         from labki_packs_tools.validation.result_formatter import print_results_json
+
         print_results_json(self)
 
 

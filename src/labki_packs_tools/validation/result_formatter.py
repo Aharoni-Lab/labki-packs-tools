@@ -9,6 +9,7 @@ from labki_packs_tools.validation.result_types import ValidationItem, Validation
 
 console = Console()
 
+
 def print_results(results: ValidationResults, *, title: str | None = None) -> None:
     """Pretty-print results using Rich tables and summary."""
     if title:
@@ -23,6 +24,7 @@ def print_results(results: ValidationResults, *, title: str | None = None) -> No
     text = Text(f"Validation completed: {results.summary()}", style=f"bold {color}")
     console.print(Panel(text, border_style=color))
 
+
 def _print_section(items: list[ValidationItem], label: str, color: str) -> None:
     if not items:
         return
@@ -34,6 +36,7 @@ def _print_section(items: list[ValidationItem], label: str, color: str) -> None:
     for item in items:
         table.add_row(item.level.upper(), item.code or "-", item.message)
     console.print(table)
+
 
 def print_results_json(results: ValidationResults) -> None:
     """Emit JSON for programmatic use."""
@@ -48,6 +51,7 @@ def print_results_json(results: ValidationResults) -> None:
     }
     console.print_json(json.dumps(payload, indent=2, sort_keys=True))
 
+
 def aggregate_print(results_list: Iterable[ValidationResults]) -> ValidationResults:
     """Print multiple result sets and return an aggregate."""
     aggregate = ValidationResults()
@@ -55,4 +59,3 @@ def aggregate_print(results_list: Iterable[ValidationResults]) -> ValidationResu
         aggregate.merge(res)
         res.print()
     return aggregate
-

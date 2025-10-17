@@ -28,14 +28,18 @@ class DummyValidationError(ValidationError):
 @pytest.mark.parametrize(
     "validator,path,expected",
     [
-        ("pattern", ["packs", "core_pack", "version"],
-         "Pack 'core_pack' must have semantic version (MAJOR.MINOR.PATCH)"),
-        ("pattern", ["pages", "Template_Page", "last_updated"],
-         "Page 'Template_Page' last_updated must match YYYY-MM-DDThh:mm:ssZ"),
-        ("uniqueItems", ["packs", "imaging", "tags"],
-         "Pack 'imaging' has duplicate tags"),
-        ("required", ["pages", "Missing_Page"],
-         "Page 'Missing_Page' is missing required field(s)"),
+        (
+            "pattern",
+            ["packs", "core_pack", "version"],
+            "Pack 'core_pack' must have semantic version (MAJOR.MINOR.PATCH)",
+        ),
+        (
+            "pattern",
+            ["pages", "Template_Page", "last_updated"],
+            "Page 'Template_Page' last_updated must match YYYY-MM-DDThh:mm:ssZ",
+        ),
+        ("uniqueItems", ["packs", "imaging", "tags"], "Pack 'imaging' has duplicate tags"),
+        ("required", ["pages", "Missing_Page"], "Page 'Missing_Page' is missing required field(s)"),
     ],
 )
 def test_known_schema_error_messages(validator, path, expected):

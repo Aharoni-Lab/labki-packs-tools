@@ -20,8 +20,7 @@ MESSAGES: dict[Tuple[str, str], str] = {
     # Pattern validator messages
     ("pattern", "packs/*/version"): "Pack '{1}' must have semantic version (MAJOR.MINOR.PATCH)",
     ("pattern", "packs/*/tags/*"): (
-        "Pack '{1}' has tag '{3}' that must be slugified "
-        "(lowercase letters, digits, hyphens)"
+        "Pack '{1}' has tag '{3}' that must be slugified " "(lowercase letters, digits, hyphens)"
     ),
     ("pattern", "pages/*/last_updated"): (
         "Page '{1}' last_updated must match YYYY-MM-DDThh:mm:ssZ"
@@ -29,22 +28,17 @@ MESSAGES: dict[Tuple[str, str], str] = {
     ("pattern", "last_updated"): "'last_updated' must match YYYY-MM-DDThh:mm:ssZ",
     ("pattern", "pages/*/file"): "Page '{1}' file path must not contain ':'",
     ("pattern", "name"): "'name' may include letters, digits, spaces, hyphens, colons, underscores",
-
     # UniqueItems validator
     ("uniqueItems", "packs/*/tags"): "Pack '{1}' has duplicate tags",
     ("uniqueItems", "packs/*/pages"): "Pack '{1}' has duplicate page titles in 'pages'",
-
     # Additional properties
     ("additionalProperties", "pages/*"): "Page '{1}' contains unknown field(s)",
     ("additionalProperties", "packs/*"): "Pack '{1}' contains unknown field(s)",
-
     # Required fields
     ("required", "pages/*"): "Page '{1}' is missing required field(s)",
     ("required", "packs/*"): "Pack '{1}' is missing required field(s)",
-
     # Type mismatch
     ("type", "packs/*/pages"): "Pack '{1}' pages must be an array",
-
     # Min length
     ("minLength", "name"): "'name' must not be empty",
 }
@@ -53,6 +47,7 @@ MESSAGES: dict[Tuple[str, str], str] = {
 # ────────────────────────────────────────────────
 # Formatter helpers
 # ────────────────────────────────────────────────
+
 
 def _match_path(pattern: str, path: List[str]) -> bool:
     """Return True if the path matches the fnmatch-style pattern."""
@@ -100,6 +95,7 @@ def _format_anyof_error(e: ValidationError) -> list[str]:
 # ────────────────────────────────────────────────
 # Main validator class
 # ────────────────────────────────────────────────
+
 
 class ManifestSchemaValidator(Validator):
     code = "schema-validation"

@@ -65,4 +65,3 @@ def test_format_schema_error_applies_custom_pack_message():
 
     messages = "\n".join(m for e in errors for m in _format_schema_error(e))
     assert "semantic version" in messages or "MAJOR.MINOR.PATCH" in messages
-    
