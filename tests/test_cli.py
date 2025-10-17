@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 from subprocess import run
 
-import pytest
 import yaml
 
 

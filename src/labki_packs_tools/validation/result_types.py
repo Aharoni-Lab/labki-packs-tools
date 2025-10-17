@@ -1,14 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Iterable, List, Literal, Optional, TYPE_CHECKING
-
+from typing import TYPE_CHECKING, Iterable, List, Literal, Optional
 
 if TYPE_CHECKING:
-    from labki_packs_tools.validation.result_formatter import (
-        print_results,
-        print_results_json,
-    )
+    pass
 
 
 # ────────────────────────────────────────────────

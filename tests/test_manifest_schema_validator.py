@@ -1,13 +1,13 @@
 import pytest
 from jsonschema import ValidationError
 
+from labki_packs_tools.validation.result_types import ValidationItem
 from labki_packs_tools.validation.validators.manifest_schema_validator import (
-    _format_schema_error,
-    _format_anyof_error,
     MESSAGES,
     ManifestSchemaValidator,
+    _format_anyof_error,
+    _format_schema_error,
 )
-from labki_packs_tools.validation.result_types import ValidationItem
 
 
 class DummyValidationError(ValidationError):

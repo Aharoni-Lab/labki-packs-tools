@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from typing import Any, List, Tuple
 from fnmatch import fnmatch
+from typing import Any, List, Tuple
 
 from jsonschema import Draft202012Validator, ValidationError
 
 from labki_packs_tools.validation.result_types import ValidationItem
 from labki_packs_tools.validation.validators.base import Validator
-
 
 # ────────────────────────────────────────────────
 # Declarative message map
