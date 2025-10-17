@@ -84,7 +84,11 @@ jobs:
 You can add a badge to your content repository to show validation status:
 
 ```markdown
-[![Validate content packs](https://github.com/your-org/your-content-repo/actions/workflows/validate.yml/badge.svg)](https://github.com/your-org/your-content-repo/actions/workflows/validate.yml)
+[![Validate content packs](https://github.com/your-org/your-content-repo/workflows/Validate%20content%20packs/badge.svg)](https://github.com/your-org/your-content-repo/actions/workflows/validate.yml)
 ```
 
-Replace `your-org/your-content-repo` with your actual repository details and `validate.yml` with your workflow filename if different.
+**Important:** The badge URL uses the workflow **name** (not filename) with spaces encoded as `%20`. Replace `your-org/your-content-repo` with your actual repository details.
+
+If your workflow name is different, update the badge URL accordingly. For example:
+- Workflow name: `Content Validation` → URL: `.../workflows/Content%20Validation/badge.svg`
+- Workflow name: `Validate` → URL: `.../workflows/Validate/badge.svg`
