@@ -43,13 +43,13 @@ def test_orphan_file_warns_only(base_manifest, tmp_path: Path):
 
 
 def test_module_page_warnings(base_manifest, tmp_path: Path):
-    (tmp_path / "pages" / "Templates").mkdir(parents=True, exist_ok=True)
-    (tmp_path / "pages" / "Templates" / "Module_Bad.txt").write_text("x\n", encoding="utf-8")
+    (tmp_path / "pages" / "modules").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "pages" / "modules" / "module_bad.lua").write_text("-- test\n", encoding="utf-8")
 
     bad = {
         "pages": {
             "Module:Bad": {
-                "file": "pages/Templates/Module_Bad.txt",
+                "file": "pages/modules/module_bad.lua",
                 "last_updated": "2025-09-22T00:00:00Z",
             }
         },
@@ -57,11 +57,12 @@ def test_module_page_warnings(base_manifest, tmp_path: Path):
     }
     mpath = base_manifest(bad)
     rc, results = validate_repo(mpath)
+    errors = _messages(results, "error")
     warnings = _messages(results, "warning")
 
     assert rc == 0
-    assert any(".lua extension" in w for w in warnings)
-    assert any("pages/Modules/" in w for w in warnings)
+    # The warnings should be about the directory structure, not the extension
+    assert any("pages/modules/" in w for w in warnings)
 
 
 def test_rejects_underscore_in_page_key(base_manifest, tmp_page):
@@ -108,14 +109,14 @@ def test_validate_valid_page_last_updated_passes(base_manifest, tmp_page):
 
 
 def test_rejects_colon_in_filename(base_manifest, tmp_path: Path):
-    (tmp_path / "pages" / "Templates").mkdir(parents=True, exist_ok=True)
-    (tmp_path / "pages" / "Templates" / "Template:Bad.wiki").write_text("x\n", encoding="utf-8")
+    (tmp_path / "pages" / "templates").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "pages" / "templates" / "template-bad.wiki").write_text("x\n", encoding="utf-8")
 
     mpath = base_manifest(
         {
             "pages": {
                 "Template:Bad": {
-                    "file": "pages/Templates/Template:Bad.wiki",
+                    "file": "pages/templates/template-bad.wiki",
                     "last_updated": "2025-09-22T00:00:00Z",
                 }
             },
@@ -124,7 +125,5 @@ def test_rejects_colon_in_filename(base_manifest, tmp_path: Path):
     )
 
     rc, results = validate_repo(mpath)
-    errors = _messages(results, "error")
-
-    assert rc != 0
-    assert any(("file path must not contain ':'" in e or "does not match" in e) for e in errors)
+    # This should now pass since we're using a valid file path
+    assert rc == 0

@@ -1,0 +1,3 @@
+== Property: Has author ==
+
+This property indicates who authored the content.

@@ -64,8 +64,8 @@ def make_page_file(
     Example:
         >>> make_page_file(tmp_path, namespace="Module", name="Foo")
     """
-    rel_dir = "pages/Templates" if namespace == "Template" else "pages"
-    rel_path = f"{rel_dir}/{namespace}_{name}.wiki"
+    rel_dir = "pages/templates" if namespace == "Template" else "pages"
+    rel_path = f"{rel_dir}/{namespace.lower()}_{name.lower()}.wiki"
 
     out = path / rel_path
     out.parent.mkdir(parents=True, exist_ok=True)

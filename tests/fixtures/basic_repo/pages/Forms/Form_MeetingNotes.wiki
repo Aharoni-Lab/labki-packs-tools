@@ -1,9 +1,3 @@
-{{{for template|MeetingNotes}}}
-{{{field|Date|input type=date}}}
-{{{field|Attendees|input type=textarea}}}
-{{{field|Notes|input type=textarea}}}
-{{{field|Action items|input type=textarea}}}
-{{{end template}}}
-{{{save}}}
+== Meeting Notes Form ==
 
-
+This is a form for meeting notes.

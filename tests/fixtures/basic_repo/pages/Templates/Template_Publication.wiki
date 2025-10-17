@@ -1,9 +1,5 @@
-== Publication ==
-; Title: {{{Title|}}}
-; Authors: {{{Authors|}}}
-; Year: {{{Year|}}}
-; DOI: {{{DOI|}}}
+== Publication Template ==
 
-{{#set: Has author={{{Authors|}}} }}
+This is a template for publications.
 
-
+[[Category:Publication]]

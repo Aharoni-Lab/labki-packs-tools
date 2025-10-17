@@ -1,7 +1,5 @@
-== Meeting Notes ==
-; Date: {{{Date|}}}
-; Attendees: {{{Attendees|}}}
-; Notes: {{{Notes|}}}
-; Action items: {{{Action items|}}}
+== Meeting Notes Template ==
 
+This is a template for meeting notes.
 
+[[Category:Meeting]]
