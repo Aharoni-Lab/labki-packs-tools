@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import pytest
-from jsonschema import Draft202012Validator, ValidationError
+from jsonschema import Draft202012Validator
 
 from labki_packs_tools.validation.result_types import ValidationItem
 from labki_packs_tools.validation.validators.manifest_schema_validator import (
     ManifestSchemaValidator,
     _format_schema_error,
 )
-
 
 # ────────────────────────────────────────────────
 # Generic integration behavior
@@ -78,14 +77,14 @@ def manifest_schema():
     """Load the official manifest schema."""
     from labki_packs_tools.utils import load_json
     from labki_packs_tools.validation.schema_resolver import resolve_schema
-    
+
     # Create a minimal manifest with schema_version to resolve the schema
     manifest = {"schema_version": "1.0.0"}
     schema_path = resolve_schema(manifest)
     return load_json(schema_path)
 
 
-def _validate(schema, data):
+def _validate(schema: dict, data: dict) -> list:
     """Helper returning a list of validation errors."""
     validator = Draft202012Validator(schema)
     return list(validator.iter_errors(data))
@@ -178,14 +177,12 @@ def test_invalid_file_path_variations(manifest_schema, bad_path, reason):
                 "last_updated": "2025-09-22T00:00:00Z",
             }
         },
-        "packs": {
-            "core": {"version": "1.0.0", "pages": ["Template:Example"]}
-        },
+        "packs": {"core": {"version": "1.0.0", "pages": ["Template:Example"]}},
     }
     errors = _validate(manifest_schema, bad)
-    assert any("does not match" in e.message and "file" in str(e.path) for e in errors), (
-        f"Expected file path pattern violation for case: {reason}"
-    )
+    assert any(
+        "does not match" in e.message and "file" in str(e.path) for e in errors
+    ), f"Expected file path pattern violation for case: {reason}"
 
 
 def test_valid_file_path_edge_cases(manifest_schema):
@@ -206,12 +203,9 @@ def test_valid_file_path_edge_cases(manifest_schema):
                     "last_updated": "2025-09-22T00:00:00Z",
                 }
             },
-            "packs": {
-                "core": {"version": "1.0.0", "pages": ["Template:Example"]}
-            },
+            "packs": {"core": {"version": "1.0.0", "pages": ["Template:Example"]}},
         }
         Draft202012Validator(manifest_schema).validate(good)  # should not raise
-
 
 
 def test_invalid_last_updated_pattern(manifest_schema):
@@ -264,5 +258,7 @@ def test_pack_must_have_pages_or_depends_on(manifest_schema):
     }
     errors = _validate(manifest_schema, bad)
     assert len(errors) > 0, "Expected validation errors for pack without pages or dependencies"
-    assert any("anyOf" in str(e.validator) or "pages" in e.message or "depends_on" in e.message for e in errors)
-
+    assert any(
+        "anyOf" in str(e.validator) or "pages" in e.message or "depends_on" in e.message
+        for e in errors
+    )

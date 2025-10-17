@@ -1,5 +1,6 @@
 import pytest
 from jsonschema import ValidationError
+
 from labki_packs_tools.validation.result_types import ValidationItem
 from labki_packs_tools.validation.validators.manifest_schema_validator import (
     MESSAGES,
@@ -11,6 +12,7 @@ from labki_packs_tools.validation.validators.manifest_schema_validator import (
 
 class DummyValidationError(ValidationError):
     """Helper subclass for constructing fake ValidationError objects."""
+
     def __init__(self, validator, path, message="dummy message", instance=None):
         super().__init__(message=message)
         self.validator = validator
@@ -21,6 +23,7 @@ class DummyValidationError(ValidationError):
 # ────────────────────────────────────────────────
 # _format_schema_error
 # ────────────────────────────────────────────────
+
 
 @pytest.mark.parametrize(
     "validator,path,expected",
@@ -56,6 +59,7 @@ def test_fallback_message_for_unknown_error():
 # _format_anyof_error
 # ────────────────────────────────────────────────
 
+
 def test_anyof_error_message():
     e = DummyValidationError("anyOf", ["packs", "core_pack"])
     msgs = _format_anyof_error(e)
@@ -67,6 +71,7 @@ def test_anyof_error_message():
 # ────────────────────────────────────────────────
 # ManifestSchemaValidator (mocked)
 # ────────────────────────────────────────────────
+
 
 def test_validator_wraps_errors_into_validation_items(monkeypatch):
     fake_error = DummyValidationError("pattern", ["packs", "demo_pack", "version"])
