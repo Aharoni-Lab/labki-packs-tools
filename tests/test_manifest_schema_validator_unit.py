@@ -68,7 +68,7 @@ def test_anyof_error_message():
 # ManifestSchemaValidator (mocked)
 # ────────────────────────────────────────────────
 
-def test_manifest_schema_validator_returns_validation_items(monkeypatch):
+def test_validator_wraps_errors_into_validation_items(monkeypatch):
     fake_error = DummyValidationError("pattern", ["packs", "demo_pack", "version"])
 
     monkeypatch.setattr(
