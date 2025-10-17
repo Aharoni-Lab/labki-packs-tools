@@ -17,7 +17,7 @@
         "properties": {
           "file": {
             "type": "string",
-            "pattern": "^(pages/)?[a-z0-9_\\-/]+\\.(wiki|lua)$",
+            "pattern": "^(pages/)?[a-z0-9_\\-/]+\\.(wiki|lua|js|css)$",
             "description": "Repository-relative POSIX path under 'pages/'. Lowercase only; use hyphens or underscores instead of spaces or colons; must end with .wiki or .lua"
           },
           "last_updated": {
