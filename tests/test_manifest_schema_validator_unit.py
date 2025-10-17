@@ -1,6 +1,5 @@
 import pytest
 from jsonschema import ValidationError
-
 from labki_packs_tools.validation.result_types import ValidationItem
 from labki_packs_tools.validation.validators.manifest_schema_validator import (
     MESSAGES,
@@ -11,8 +10,7 @@ from labki_packs_tools.validation.validators.manifest_schema_validator import (
 
 
 class DummyValidationError(ValidationError):
-    """Helper subclass for easier construction of fake ValidationError objects."""
-
+    """Helper subclass for constructing fake ValidationError objects."""
     def __init__(self, validator, path, message="dummy message", instance=None):
         super().__init__(message=message)
         self.validator = validator
@@ -21,9 +19,8 @@ class DummyValidationError(ValidationError):
 
 
 # ────────────────────────────────────────────────
-# _format_schema_error tests
+# _format_schema_error
 # ────────────────────────────────────────────────
-
 
 @pytest.mark.parametrize(
     "validator,path,expected",
@@ -45,21 +42,19 @@ class DummyValidationError(ValidationError):
 def test_known_schema_error_messages(validator, path, expected):
     e = DummyValidationError(validator, path)
     msgs = _format_schema_error(e)
-    assert any(expected in m for m in msgs), f"Expected message '{expected}' not found."
+    assert any(expected in m for m in msgs), f"Expected '{expected}' not found."
 
 
 def test_fallback_message_for_unknown_error():
     e = DummyValidationError("unknownValidator", ["packs", "alpha"])
     msgs = _format_schema_error(e)
-    # Should include fallback containing default jsonschema message
     assert "dummy message" in msgs[0]
     assert "packs" in msgs[0]
 
 
 # ────────────────────────────────────────────────
-# _format_anyof_error tests
+# _format_anyof_error
 # ────────────────────────────────────────────────
-
 
 def test_anyof_error_message():
     e = DummyValidationError("anyOf", ["packs", "core_pack"])
@@ -70,18 +65,12 @@ def test_anyof_error_message():
 
 
 # ────────────────────────────────────────────────
-# Integration: ManifestSchemaValidator
+# ManifestSchemaValidator (mocked)
 # ────────────────────────────────────────────────
 
-
 def test_manifest_schema_validator_returns_validation_items(monkeypatch):
-    """Simulate schema errors and ensure validator wraps them in ValidationItems."""
     fake_error = DummyValidationError("pattern", ["packs", "demo_pack", "version"])
 
-    def fake_validator(schema) -> list:
-        return [fake_error]
-
-    # Patch Draft202012Validator.iter_errors
     monkeypatch.setattr(
         "labki_packs_tools.validation.validators.manifest_schema_validator.Draft202012Validator",
         lambda schema: type("V", (), {"iter_errors": lambda self, m: [fake_error]})(),
@@ -96,7 +85,6 @@ def test_manifest_schema_validator_returns_validation_items(monkeypatch):
 
 
 def test_all_messages_mapping_is_valid():
-    """Ensure all patterns in MESSAGES dict are syntactically valid."""
     for (validator, pattern), msg in MESSAGES.items():
         assert isinstance(validator, str)
         assert isinstance(pattern, str)
