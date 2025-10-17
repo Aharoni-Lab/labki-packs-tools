@@ -17,7 +17,7 @@
         "properties": {
           "file": {
             "type": "string",
-            "pattern": "^(pages/)?[a-z0-9_\\-/]+\\.(wiki|lua|js|css)$",
+            "pattern": "^(pages/)[a-z0-9_\\-/]+\\.(wiki|lua|js|css)$",
             "description": "Repository-relative POSIX path under 'pages/'. Lowercase only; use hyphens or underscores instead of spaces or colons; must end with .wiki or .lua"
           },
           "last_updated": {
@@ -57,9 +57,20 @@
         "required": ["version"],
         "additionalProperties": false,
         "anyOf": [
-          { "properties": { "pages": { "type": "array", "minItems": 1 } } },
-          { "properties": { "depends_on": { "type": "array", "minItems": 2 } } }
+          {
+            "required": ["pages"],
+            "properties": {
+              "pages": { "type": "array", "minItems": 1 }
+            }
+          },
+          {
+            "required": ["depends_on"],
+            "properties": {
+              "depends_on": { "type": "array", "minItems": 2 }
+            }
+          }
         ]
+
       }
     }
   },
