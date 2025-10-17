@@ -35,10 +35,12 @@ labki-validate validate tests/fixtures/basic_repo/manifest.yml
 ## Use in CI (content repo)
 
 Add a job in the content repo (e.g., `labki-packs`) that installs Python deps and runs the validator.
-The snippet below checks out this tools repo, installs it, and runs the validator using `python -m` (as in our CI):
+Save the workflow as `.github/workflows/validate.yml` in your content repository.
+The snippet below checks out this tools repo, installs it, and runs the validator:
 
 ```yaml
 name: Validate content packs
+
 on:
   pull_request:
     branches: ['**']
@@ -50,16 +52,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
+
+      - name: Checkout validator tools
+        uses: actions/checkout@v4
         with:
           repository: Aharoni-Lab/labki-packs-tools
-          path: labki-packs-tools
-      - uses: actions/setup-python@v5
+          path: tools-cache
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install deps
-        run: pip install ./labki-packs-tools
+
+      - name: Install Labki validator
+        run: |
+          pip install ./tools-cache
+          # Copy schema files into installed package for runtime discovery
+          site=$(python -c "import site; print(site.getsitepackages()[0])")
+          mkdir -p "$site/labki_packs_tools/schema"
+          cp -r tools-cache/schema/* "$site/labki_packs_tools/schema/"
+
       - name: Validate manifest
         run: |
+          # schema_version field inside manifest.yml determines which schema is used
+          export LABKI_SCHEMA_DIR=$GITHUB_WORKSPACE/tools-cache/schema
           labki-validate validate manifest.yml --json
 ```
+
+### Repository Health Badge
+
+You can add a badge to your content repository to show validation status:
+
+```markdown
+[![Validate content packs](https://github.com/your-org/your-content-repo/actions/workflows/validate.yml/badge.svg)](https://github.com/your-org/your-content-repo/actions/workflows/validate.yml)
+```
+
+Replace `your-org/your-content-repo` with your actual repository details and `validate.yml` with your workflow filename if different.
