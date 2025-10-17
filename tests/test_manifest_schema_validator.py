@@ -77,7 +77,9 @@ def test_anyof_error_message():
 def test_manifest_schema_validator_returns_validation_items(monkeypatch):
     """Simulate schema errors and ensure validator wraps them in ValidationItems."""
     fake_error = DummyValidationError("pattern", ["packs", "demo_pack", "version"])
-    fake_validator = lambda schema: [fake_error]
+
+    def fake_validator(schema) -> list:
+        return [fake_error]
 
     # Patch Draft202012Validator.iter_errors
     monkeypatch.setattr(
