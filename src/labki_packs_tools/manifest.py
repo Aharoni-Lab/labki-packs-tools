@@ -10,26 +10,12 @@ to avoid defining them twice in a conflicting way.
 see the `validation` subpackage.
 """
 
-from datetime import UTC, datetime
 from pathlib import Path
-from typing import Annotated
 
 import yaml
-from pydantic import BaseModel, BeforeValidator, Field, PlainSerializer
+from pydantic import BaseModel, Field
 
-
-def _to_utc(value: str | datetime) -> datetime:
-    if isinstance(value, str):
-        value = datetime.fromisoformat(value)
-    value = value.replace(tzinfo=UTC)
-    return value
-
-
-def _to_isoformat(value: datetime) -> str:
-    return value.strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-UTCDateTime = Annotated[datetime, BeforeValidator(_to_utc), PlainSerializer(_to_isoformat)]
+from labki_packs_tools.types import UTCDateTime
 
 
 class ManifestPage(BaseModel):
