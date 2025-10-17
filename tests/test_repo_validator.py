@@ -18,7 +18,7 @@ def test_valid_fixture_repo_passes(fixtures_repo: Path):
     assert not results.errors
 
 
-def test_cli_parity_like_flow(base_manifest, tmp_page):
+def test_validate_repo_end_to_end_success(base_manifest, tmp_page):
     page = tmp_page(name="T")
     mpath = base_manifest(
         {
