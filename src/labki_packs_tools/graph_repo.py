@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-import argparse
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -10,8 +8,6 @@ from labki_packs_tools.utils import (
     load_yaml,
     sanitize_id,
 )
-
-# YAML loader is provided by labki_packs_tools.common (UniqueKeyLoader)
 
 
 def emit_dot(manifest: dict) -> str:
@@ -236,17 +232,3 @@ def graph(manifest: Path | str, fmt: str = "dot", output: str | None = None) -> 
         out_path = Path(output)
         out_path.write_text(content, encoding="utf-8")
     return 0
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate packs/pages graph from manifest")
-    parser.add_argument("manifest", type=str)
-    parser.add_argument("--format", dest="format", type=str, default="dot")
-    parser.add_argument("--output", dest="output", type=str, default="-")
-    args = parser.parse_args()
-    rc = graph(args.manifest, fmt=args.format, output=args.output)
-    raise SystemExit(rc)
-
-
-if __name__ == "__main__":
-    main()

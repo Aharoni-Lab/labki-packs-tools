@@ -7,13 +7,13 @@ Generate dependency and inclusion graphs from a `manifest.yml`.
 - DOT (Graphviz):
 
 ```powershell
-labki-graph manifest.yml --format dot --output graph.dot
+labki graph manifest.yml --format dot --output graph.dot
 ```
 
 - Mermaid (for docs/readmes):
 
 ```powershell
-labki-graph manifest.yml --format mermaid --output graph.md
+labki graph manifest.yml --format mermaid --output graph.md
 ```
 
 Wrap the output in a mermaid code fence to preview:
@@ -26,7 +26,7 @@ graph LR
 - JSON (for programmatic use / MediaWiki extension):
 
 ```powershell
-labki-graph manifest.yml --format json --output graph.json
+labki graph manifest.yml --format json --output graph.json
 ```
 
 ## Styling
