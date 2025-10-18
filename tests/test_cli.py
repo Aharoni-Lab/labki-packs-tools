@@ -4,6 +4,9 @@ import json
 from subprocess import run
 
 import yaml
+from click.testing import CliRunner
+
+from labki_packs_tools.cli.ingest import ingest as cli_ingest
 
 
 def test_formatter_prints_human(capsys):
@@ -67,6 +70,22 @@ def test_cli_json_output(tmp_path):
 
     assert proc.returncode == 0, f"CLI failed: {proc.stderr}"
     data = json.loads(proc.stdout)
-    assert "summary" in data
-    assert "items" in data
-    assert all(k in data["summary"] for k in ["errors", "warnings", "exit_code"])
+    assert "summary" in data and "errors" in data and "warnings" in data
+
+
+def test_cli_ingest(monkeypatch, base_manifest, export_data):
+    """
+    CLI ingest should update a manifest and print what pages were updated
+
+    Correctness of ingestion not tested here, just testing the cli-specific parts
+    """
+    mpath = base_manifest()
+    monkeypatch.chdir(mpath.parent)
+    export_path = export_data / "latest.xml"
+
+    runner = CliRunner()
+    result = runner.invoke(cli_ingest, [str(export_path)], terminal_width=300)
+    assert result.exit_code == 0
+    lines = result.stdout.splitlines()
+    # title + 3 header lines + 4 files + footer line
+    assert len(lines) == 9
