@@ -28,6 +28,6 @@ def validate(manifest: Path, json: bool) -> None:
         results.print_json()
     else:
         results.print(title="Validation results")
-    
+
     # Exit with the return code from validation
     raise SystemExit(rc)

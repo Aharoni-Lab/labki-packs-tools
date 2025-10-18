@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 import yaml
 from click.testing import CliRunner
@@ -67,7 +66,7 @@ def test_cli_validate_json_output(tmp_path):
 
     runner = CliRunner()
     result = runner.invoke(cli_validate, [str(mpath), "--json"])
-    
+
     assert result.exit_code == 0, f"CLI failed: {result.output}"
     data = json.loads(result.output)
     assert "summary" in data and "items" in data
@@ -89,7 +88,7 @@ def test_cli_validate_human_output(tmp_path):
 
     runner = CliRunner()
     result = runner.invoke(cli_validate, [str(mpath)])
-    
+
     assert result.exit_code == 0, f"CLI failed: {result.output}"
     assert "Validation results" in result.output
 
@@ -109,7 +108,7 @@ def test_cli_graph_dot_output(tmp_path):
 
     runner = CliRunner()
     result = runner.invoke(graph_command, [str(mpath), "--format", "dot"])
-    
+
     assert result.exit_code == 0, f"CLI failed: {result.output}"
     assert "digraph Manifest" in result.output
 
@@ -129,7 +128,7 @@ def test_cli_graph_json_output(tmp_path):
 
     runner = CliRunner()
     result = runner.invoke(graph_command, [str(mpath), "--format", "json"])
-    
+
     assert result.exit_code == 0, f"CLI failed: {result.output}"
     data = json.loads(result.output)
     assert "nodes" in data and "edges" in data and "meta" in data
@@ -141,7 +140,7 @@ def test_cli_main_help():
     """
     runner = CliRunner()
     result = runner.invoke(cli_main, ["--help"])
-    
+
     assert result.exit_code == 0
     assert "ingest" in result.output
     assert "validate" in result.output
@@ -163,7 +162,7 @@ def test_cli_main_validate_subcommand(tmp_path):
 
     runner = CliRunner()
     result = runner.invoke(cli_main, ["validate", str(mpath), "--json"])
-    
+
     assert result.exit_code == 0, f"CLI failed: {result.output}"
     data = json.loads(result.output)
     assert "summary" in data
@@ -184,7 +183,7 @@ def test_cli_main_graph_subcommand(tmp_path):
 
     runner = CliRunner()
     result = runner.invoke(cli_main, ["graph", str(mpath), "--format", "dot"])
-    
+
     assert result.exit_code == 0, f"CLI failed: {result.output}"
     assert "digraph Manifest" in result.output
 
