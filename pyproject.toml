@@ -8,9 +8,11 @@ dependencies = [
   "PyYAML>=6.0",
   "jsonschema>=4.18",
   "pydantic>=2.12.3",
+  "click>=8.3.0",
 ]
 
 [project.scripts]
+labki = "labki_packs_tools.cli.main:main"
 labki-validate = "labki_packs_tools.validation.cli:main"
 labki-validate-old = "tools.validate_repo:main"
 labki-graph = "tools.graph_repo:main"
