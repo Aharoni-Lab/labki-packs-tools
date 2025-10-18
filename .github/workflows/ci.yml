@@ -47,7 +47,7 @@ jobs:
 
       - name: Sanity check — validate sample fixture
         run: |
-          labki-validate validate tests/fixtures/basic_repo/manifest.yml
+          labki validate tests/fixtures/basic_repo/manifest.yml
 
       - name: Run test suite
         run: pytest -q

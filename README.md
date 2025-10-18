@@ -17,10 +17,16 @@ Requires Python 3.10+.
 pip install -e .
 
 # Validate a manifest (auto-selects schema based on schema_version)
-labki-validate validate path/to/manifest.yml
+labki validate path/to/manifest.yml
 
 # JSON output (suitable for CI ingestion)
-labki-validate validate path/to/manifest.yml --json
+labki validate path/to/manifest.yml --json
+
+# Generate a graph of packs and pages
+labki graph path/to/manifest.yml --format dot --output graph.dot
+
+# Ingest pages from MediaWiki export
+labki ingest path/to/export.xml
 
 Exit code is non-zero on validation errors (suitable for CI). Warnings do not change the exit code.
 
@@ -29,7 +35,7 @@ Exit code is non-zero on validation errors (suitable for CI). Warnings do not ch
 This repo ships a small sample under `tests/fixtures/basic_repo/`:
 
 ```bash
-labki-validate validate tests/fixtures/basic_repo/manifest.yml
+labki validate tests/fixtures/basic_repo/manifest.yml
 ```
 
 ## Use in CI (content repo)
@@ -76,7 +82,7 @@ jobs:
         run: |
           # schema_version field inside manifest.yml determines which schema is used
           export LABKI_SCHEMA_DIR=$GITHUB_WORKSPACE/tools-cache/schema
-          labki-validate validate manifest.yml --json
+          labki validate manifest.yml --json
 ```
 
 ### Repository Health Badge

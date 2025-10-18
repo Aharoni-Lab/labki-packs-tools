@@ -46,7 +46,7 @@ jobs:
         run: |
           test -f "${{ inputs.manifest_path }}" || (echo "Manifest not found: ${{ inputs.manifest_path }}" && exit 1)
       - name: Generate DOT
-        run: labki-graph "${{ inputs.manifest_path }}" --format dot --output graph.dot
+        run: labki graph "${{ inputs.manifest_path }}" --format dot --output graph.dot
       - name: Render SVG
         run: |
           sudo apt-get update && sudo apt-get install -y graphviz
@@ -71,9 +71,9 @@ jobs:
         run: |
           test -f "${{ inputs.manifest_path }}" || (echo "Manifest not found: ${{ inputs.manifest_path }}" && exit 1)
       - name: Generate Mermaid
-        run: labki-graph "${{ inputs.manifest_path }}" --format mermaid --output graph.md
+        run: labki graph "${{ inputs.manifest_path }}" --format mermaid --output graph.md
       - name: Generate JSON
-        run: labki-graph "${{ inputs.manifest_path }}" --format json --output graph.json
+        run: labki graph "${{ inputs.manifest_path }}" --format json --output graph.json
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
