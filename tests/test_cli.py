@@ -63,14 +63,15 @@ def test_cli_json_output(tmp_path):
     mpath.write_text(yaml.safe_dump(m))
 
     proc = run(
-        ["labki-validate", "validate", str(mpath), "--json"],
+        ["python", "-m", "labki_packs_tools.validation.cli", "validate", str(mpath), "--json"],
         text=True,
         capture_output=True,
     )
 
     assert proc.returncode == 0, f"CLI failed: {proc.stderr}"
     data = json.loads(proc.stdout)
-    assert "summary" in data and "errors" in data and "warnings" in data
+    assert "summary" in data and "items" in data
+    assert "errors" in data["summary"] and "warnings" in data["summary"]
 
 
 def test_cli_ingest(monkeypatch, base_manifest, export_data):
