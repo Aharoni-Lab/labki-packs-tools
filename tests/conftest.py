@@ -45,6 +45,21 @@ def fixtures_repo(repo_root: Path) -> Path:
     return repo_root / "tests" / "fixtures" / "basic_repo"
 
 
+@pytest.fixture
+def test_data(repo_root: Path) -> Path:
+    return repo_root / "tests" / "data"
+
+
+@pytest.fixture
+def mediawiki_data(test_data: Path) -> Path:
+    return test_data / "mediawiki"
+
+
+@pytest.fixture
+def export_data(mediawiki_data: Path) -> Path:
+    return mediawiki_data / "export"
+
+
 # ────────────────────────────────────────────────────────────────
 # Helpers
 # ────────────────────────────────────────────────────────────────
