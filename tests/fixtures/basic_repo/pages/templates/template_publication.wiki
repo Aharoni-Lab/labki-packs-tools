@@ -1,0 +1,5 @@
+== Publication Template ==
+
+This is a template for publications.
+
+[[Category:Publication]]

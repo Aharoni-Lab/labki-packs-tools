@@ -15,7 +15,6 @@ dependencies = [
 [project.scripts]
 labki = "labki_packs_tools.cli.main:main"
 labki-validate = "labki_packs_tools.validation.cli:main"
-labki-validate-old = "tools.validate_repo:main"
 labki-graph = "tools.graph_repo:main"
 
 [project.optional-dependencies]
@@ -34,6 +33,10 @@ build-backend = "pdm.backend"
 
 [tool.pdm]
 distribution = true
+
+[tool.pdm.build]
+includes = ["src/labki_packs_tools", "schema"]
+
 
 [tool.pdm.scripts]
 test = "pytest"

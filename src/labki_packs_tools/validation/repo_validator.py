@@ -3,79 +3,71 @@ from __future__ import annotations
 from pathlib import Path
 
 from labki_packs_tools.utils import load_json, load_yaml
-
-from .pack_validator import detect_cycles, validate_packs
-from .page_validator import detect_orphans, validate_pages
-from .repo_schema_resolver import resolve_schema
-from .result_types import ValidationResult
-from .schema_validator import validate_schema
+from labki_packs_tools.validation.result_types import ValidationItem, ValidationResults
+from labki_packs_tools.validation.schema_resolver import resolve_schema
+from labki_packs_tools.validation.validators.base import Validator
 
 
-def validate_repo(manifest_path: Path | str) -> tuple[int, ValidationResult]:
+def validate_repo(manifest_path: Path | str) -> tuple[int, ValidationResults]:
     """
     Validate a Labki content repository manifest.
 
-    Orchestrates all validation stages:
-      1. Resolve and load the correct JSON Schema.
-      2. Run JSON Schema validation.
-      3. Run page-level checks (file existence, namespaces, orphans).
-      4. Run pack-level checks (semver, dependencies, cycles).
+    Orchestrates all validator subclasses:
+      1. Loads manifest and schema.
+      2. Applies all Validator subclasses for applicable schema_version.
 
     Returns:
-        (exit_code, ValidationResult)
+        (exit_code, ValidationResults)
     """
     manifest_path = Path(manifest_path)
-    result = ValidationResult()
+    results = ValidationResults()
 
     # ───────────────────────────────
-    # Load manifest and schema files
+    # Load manifest
     # ───────────────────────────────
     try:
         manifest = load_yaml(manifest_path)
     except Exception as e:
-        raise ValueError(f"Failed to read manifest {manifest_path}: {e}") from e
+        results.add(ValidationItem(level="error", message=f"Failed to read manifest: {e}"))
+        return results.rc, results
 
     # ───────────────────────────────
     # Resolve and load schema
     # ───────────────────────────────
-    schema_path = resolve_schema(manifest)
-    schema = load_json(schema_path)
+    try:
+        schema_path = resolve_schema(manifest)
+        schema = load_json(schema_path)
+    except Exception as e:
+        results.add(ValidationItem(level="error", message=f"Failed to resolve schema: {e}"))
+        return results.rc, results
 
     # ───────────────────────────────
-    # 1. JSON Schema validation
+    # Extract manifest fields
     # ───────────────────────────────
-    schema_result = validate_schema(manifest, schema)
-    result.merge(schema_result)
+    pages = manifest.get("pages", {})
+    packs = manifest.get("packs", {})
+    schema_version = str(manifest.get("schema_version", "0.0.0"))
 
     # ───────────────────────────────
-    # 2. Page validation
+    # Apply all registered validators
     # ───────────────────────────────
-    pages = manifest.get("pages")
-    if not isinstance(pages, dict):
-        result.add_error("'pages' must be a mapping of titles to objects")
-        return result.rc, result
+    for validator_cls in Validator.registry:
+        if validator_cls.applies_to_version(schema_version):
+            validator = validator_cls()
+            try:
+                items = validator.validate(
+                    manifest=manifest,
+                    pages=pages,
+                    packs=packs,
+                    schema=schema,  # optional for schema-aware checks
+                    manifest_path=manifest_path,  # optional for file-path-based checks
+                )
+                results.extend(items)
+            except Exception as e:
+                results.add(
+                    ValidationItem(
+                        level="error", message=f"Validator {validator_cls.__name__} failed: {e}"
+                    )
+                )
 
-    page_result, referenced_paths = validate_pages(manifest_path, pages)
-    result.merge(page_result)
-
-    orphan_result = detect_orphans(manifest_path, referenced_paths)
-    result.merge(orphan_result)
-
-    # ───────────────────────────────
-    # 3. Pack validation
-    # ───────────────────────────────
-    packs = manifest.get("packs")
-    if not isinstance(packs, dict):
-        result.add_error("'packs' must be a mapping of pack_id to metadata")
-        return result.rc, result
-
-    pack_result, dep_edges = validate_packs(pages, packs)
-    result.merge(pack_result)
-
-    cycle_result = detect_cycles(packs, dep_edges)
-    result.merge(cycle_result)
-
-    # ───────────────────────────────
-    # Final result and exit code
-    # ───────────────────────────────
-    return result.rc, result
+    return results.rc, results
