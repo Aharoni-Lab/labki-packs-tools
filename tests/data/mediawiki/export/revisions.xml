@@ -1,0 +1,572 @@
+<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mediawiki.org/xml/export-0.11/ http://www.mediawiki.org/xml/export-0.11.xsd" version="0.11" xml:lang="en">
+  <siteinfo>
+    <sitename>Example Wiki</sitename>
+    <dbname>wikidb</dbname>
+    <base>https://wiki.example.com/Main_Page</base>
+    <generator>MediaWiki 1.39.1</generator>
+    <case>first-letter</case>
+    <namespaces>
+      <namespace key="-2" case="first-letter">Media</namespace>
+      <namespace key="-1" case="first-letter">Special</namespace>
+      <namespace key="0" case="first-letter" />
+      <namespace key="1" case="first-letter">Talk</namespace>
+      <namespace key="2" case="first-letter">User</namespace>
+      <namespace key="3" case="first-letter">User talk</namespace>
+      <namespace key="4" case="first-letter">Example Wiki</namespace>
+      <namespace key="5" case="first-letter">Example Wiki talk</namespace>
+      <namespace key="6" case="first-letter">File</namespace>
+      <namespace key="7" case="first-letter">File talk</namespace>
+      <namespace key="8" case="first-letter">MediaWiki</namespace>
+      <namespace key="9" case="first-letter">MediaWiki talk</namespace>
+      <namespace key="10" case="first-letter">Template</namespace>
+      <namespace key="11" case="first-letter">Template talk</namespace>
+      <namespace key="12" case="first-letter">Help</namespace>
+      <namespace key="13" case="first-letter">Help talk</namespace>
+      <namespace key="14" case="first-letter">Category</namespace>
+      <namespace key="15" case="first-letter">Category talk</namespace>
+      <namespace key="102" case="first-letter">Property</namespace>
+      <namespace key="103" case="first-letter">Property talk</namespace>
+      <namespace key="106" case="first-letter">Form</namespace>
+      <namespace key="107" case="first-letter">Form talk</namespace>
+      <namespace key="108" case="first-letter">Concept</namespace>
+      <namespace key="109" case="first-letter">Concept talk</namespace>
+    </namespaces>
+  </siteinfo>
+  <page>
+    <title>Category:Supply</title>
+    <ns>14</ns>
+    <id>1219</id>
+    <revision>
+      <id>4424</id>
+      <timestamp>2025-10-17T20:55:19Z</timestamp>
+      <contributor>
+        <username>Jonny</username>
+        <id>1</id>
+      </contributor>
+      <origin>4424</origin>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+      <text bytes="2715" sha1="rcwt0681x75nkviuya4jlahxu2ft992" xml:space="preserve">&lt;PageSchema&gt;
+  &lt;pageforms_Form name="Supply"&gt;
+    &lt;standardInputs inputFreeText="1" freeTextLabel="Free text"/&gt;
+  &lt;/pageforms_Form&gt;
+  &lt;Template name="Supply" format="standard"&gt;
+    &lt;pageforms_TemplateDetails/&gt;
+    &lt;semanticmediawiki_ConnectingProperty name=""/&gt;
+    &lt;Field name=""&gt;
+      &lt;pageforms_FormInput/&gt;
+      &lt;semanticmediawiki_Property name=""&gt;
+        &lt;Type&gt;Page&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="Name"&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;text&lt;/InputType&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Has Name"&gt;
+        &lt;Type&gt;Text&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="Description"&gt;
+      &lt;Label&gt;Description LABEL&lt;/Label&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;textarea&lt;/InputType&gt;
+        &lt;Description&gt;Description of the description field&lt;/Description&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Has Description"&gt;
+        &lt;Type&gt;Text&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="Price" display="nonempty"&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;text&lt;/InputType&gt;
+        &lt;Description&gt;USD (without $)&lt;/Description&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Price"&gt;
+        &lt;Type&gt;Quantity&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="Suppliers" list="list" display="nonempty"&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;text with autocomplete&lt;/InputType&gt;
+        &lt;Parameter name="values from category"&gt;Supplier&lt;/Parameter&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Supplied By"&gt;
+        &lt;Type&gt;Page&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="Product ID"&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;text&lt;/InputType&gt;
+        &lt;Description&gt;The number used to identify the product within a supplier's catalogue, etc.&lt;/Description&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Has Product ID"&gt;
+        &lt;Type&gt;Text&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="Orders" display="hidden"&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;text with autocomplete&lt;/InputType&gt;
+        &lt;Parameter name="values from category"&gt;Purchase Order&lt;/Parameter&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Has Order"&gt;
+        &lt;Type&gt;Page&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="URL"&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;text&lt;/InputType&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Has URL"&gt;
+        &lt;Type&gt;URL&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+  &lt;/Template&gt;
+&lt;/PageSchema&gt;</text>
+      <sha1>rcwt0681x75nkviuya4jlahxu2ft992</sha1>
+    </revision>
+    <revision>
+      <id>4434</id>
+      <parentid>4424</parentid>
+      <timestamp>2025-10-17T22:41:35Z</timestamp>
+      <contributor>
+        <username>Jonny</username>
+        <id>1</id>
+      </contributor>
+      <origin>4434</origin>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+      <text bytes="2781" sha1="6b74ahbqktsg19qssy87mo7rz9hhs9t" xml:space="preserve">&lt;PageSchema&gt;
+  &lt;pageforms_Form name="Supply"&gt;
+    &lt;standardInputs inputFreeText="1" freeTextLabel="Free text"/&gt;
+  &lt;/pageforms_Form&gt;
+  &lt;Template name="Supply" format="standard"&gt;
+    &lt;pageforms_TemplateDetails/&gt;
+    &lt;semanticmediawiki_ConnectingProperty name=""/&gt;
+    &lt;Field name=""&gt;
+      &lt;pageforms_FormInput/&gt;
+      &lt;semanticmediawiki_Property name=""&gt;
+        &lt;Type&gt;Page&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="Name"&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;text&lt;/InputType&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Has Name"&gt;
+        &lt;Type&gt;Text&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="Description"&gt;
+      &lt;Label&gt;Description LABEL&lt;/Label&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;textarea&lt;/InputType&gt;
+        &lt;Description&gt;Description of the description field&lt;/Description&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Has Description"&gt;
+        &lt;Type&gt;Text&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="Price" display="nonempty"&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;text&lt;/InputType&gt;
+        &lt;Description&gt;USD (without $)&lt;/Description&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Price"&gt;
+        &lt;Type&gt;Quantity&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="Suppliers" list="list" display="nonempty"&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;text with autocomplete&lt;/InputType&gt;
+        &lt;Parameter name="values from category"&gt;Supplier&lt;/Parameter&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Supplied By"&gt;
+        &lt;Type&gt;Page&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="Product ID"&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;text&lt;/InputType&gt;
+        &lt;Description&gt;The number used to identify the product within a supplier's catalogue, etc.&lt;/Description&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Has Product ID"&gt;
+        &lt;Type&gt;Text&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="Orders" display="hidden"&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;text with autocomplete&lt;/InputType&gt;
+        &lt;Parameter name="values from category"&gt;Purchase Order&lt;/Parameter&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Has Order"&gt;
+        &lt;Type&gt;Page&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="URL"&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;text&lt;/InputType&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Has URL"&gt;
+        &lt;Type&gt;URL&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+  &lt;/Template&gt;
+&lt;/PageSchema&gt;
+
+An item that may be part of a standing inventory of lab supplies</text>
+      <sha1>6b74ahbqktsg19qssy87mo7rz9hhs9t</sha1>
+    </revision>
+    <revision>
+      <id>4435</id>
+      <parentid>4434</parentid>
+      <timestamp>2025-10-17T22:41:57Z</timestamp>
+      <contributor>
+        <username>Jonny</username>
+        <id>1</id>
+      </contributor>
+      <origin>4435</origin>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+      <text bytes="2833" sha1="7ih5xo94wtqba8xjs55t3rjk82vm95p" xml:space="preserve">&lt;PageSchema&gt;
+  &lt;pageforms_Form name="Supply"&gt;
+    &lt;standardInputs inputFreeText="1" freeTextLabel="Free text"/&gt;
+  &lt;/pageforms_Form&gt;
+  &lt;Template name="Supply" format="standard"&gt;
+    &lt;pageforms_TemplateDetails/&gt;
+    &lt;semanticmediawiki_ConnectingProperty name=""/&gt;
+    &lt;Field name=""&gt;
+      &lt;pageforms_FormInput/&gt;
+      &lt;semanticmediawiki_Property name=""&gt;
+        &lt;Type&gt;Page&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="Name"&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;text&lt;/InputType&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Has Name"&gt;
+        &lt;Type&gt;Text&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="Description"&gt;
+      &lt;Label&gt;Description LABEL&lt;/Label&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;textarea&lt;/InputType&gt;
+        &lt;Description&gt;Description of the description field&lt;/Description&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Has Description"&gt;
+        &lt;Type&gt;Text&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="Price" display="nonempty"&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;text&lt;/InputType&gt;
+        &lt;Description&gt;USD (without $)&lt;/Description&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Price"&gt;
+        &lt;Type&gt;Quantity&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="Suppliers" list="list" display="nonempty"&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;text with autocomplete&lt;/InputType&gt;
+        &lt;Parameter name="values from category"&gt;Supplier&lt;/Parameter&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Supplied By"&gt;
+        &lt;Type&gt;Page&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="Product ID"&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;text&lt;/InputType&gt;
+        &lt;Description&gt;The number used to identify the product within a supplier's catalogue, etc.&lt;/Description&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Has Product ID"&gt;
+        &lt;Type&gt;Text&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="Orders" display="hidden"&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;text with autocomplete&lt;/InputType&gt;
+        &lt;Parameter name="values from category"&gt;Purchase Order&lt;/Parameter&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Has Order"&gt;
+        &lt;Type&gt;Page&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+    &lt;Field name="URL"&gt;
+      &lt;pageforms_FormInput&gt;
+        &lt;InputType&gt;text&lt;/InputType&gt;
+      &lt;/pageforms_FormInput&gt;
+      &lt;semanticmediawiki_Property name="Has URL"&gt;
+        &lt;Type&gt;URL&lt;/Type&gt;
+      &lt;/semanticmediawiki_Property&gt;
+    &lt;/Field&gt;
+  &lt;/Template&gt;
+&lt;/PageSchema&gt;
+
+An item that may be part of a standing inventory of lab supplies
+
+See also:
+
+* [[Template:Supply]]
+* [[Form:Supply]]</text>
+      <sha1>7ih5xo94wtqba8xjs55t3rjk82vm95p</sha1>
+    </revision>
+  </page>
+  <page>
+    <title>Template:Supply</title>
+    <ns>10</ns>
+    <id>1223</id>
+    <revision>
+      <id>4428</id>
+      <timestamp>2025-10-17T20:58:03Z</timestamp>
+      <contributor>
+        <username>Jonny</username>
+        <id>1</id>
+      </contributor>
+      <comment>Generated from a page schema</comment>
+      <origin>4428</origin>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+      <text bytes="809" sha1="88hwzq2c7tia8mc2qik1mctdooh4ogc" xml:space="preserve">&lt;noinclude&gt;
+{{#template_params:|Name (property=Has Name)|Description (label=Description LABEL;property=Has Description)|Price (property=Price;display=nonempty)|Suppliers (list;property=Supplied By;display=nonempty)|Product ID (property=Has Product ID)|Orders (property=Has Order;display=hidden)|URL (property=Has URL)}}
+&lt;/noinclude&gt;&lt;includeonly&gt;{{#set:Has Order=0:{{{Orders|}}}|}}
+{| class="wikitable"
+|-
+! Name
+| [[Has Name::{{{Name|}}}]]
+|-
+! Description LABEL
+| [[Has Description::{{{Description|}}}]]
+{{#if:{{{Price|}}}|
+{{!}}-
+! Price
+{{!}} [[Price::{{{Price|}}}]]
+}}
+{{#if:{{{Suppliers|}}}|
+{{!}}-
+! Suppliers
+{{!}} {{#arraymap:{{{Suppliers|}}}|,|x|[[Supplied By::x]]}}
+
+}}
+|-
+! Product ID
+| [[Has Product ID::{{{Product ID|}}}]]
+|-
+! URL
+| [[Has URL::{{{URL|}}}]]
+|}
+
+[[Category:Supply]]
+&lt;/includeonly&gt;</text>
+      <sha1>88hwzq2c7tia8mc2qik1mctdooh4ogc</sha1>
+    </revision>
+    <revision>
+      <id>4436</id>
+      <parentid>4428</parentid>
+      <timestamp>2025-10-17T22:42:31Z</timestamp>
+      <contributor>
+        <username>Jonny</username>
+        <id>1</id>
+      </contributor>
+      <origin>4436</origin>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+      <text bytes="774" sha1="74r0pr0u0j83bav7nb67mrelrwnlwf8" xml:space="preserve">&lt;noinclude&gt;
+{{#template_params:|Name (property=Has Name)|Description (label=Description LABEL;property=Has Description)|Price (property=Price;display=nonempty)|Suppliers (list;property=Supplied By;display=nonempty)|Product ID (property=Has Product ID)|Orders (property=Has Order;display=hidden)|URL (property=Has URL)}}
+&lt;/noinclude&gt;&lt;includeonly&gt;
+{| class="wikitable"
+|-
+! Name
+| [[Has Name::{{{Name|}}}]]
+|-
+! Description LABEL
+| [[Has Description::{{{Description|}}}]]
+{{#if:{{{Price|}}}|
+{{!}}-
+! Price
+{{!}} [[Price::{{{Price|}}}]]
+}}
+{{#if:{{{Suppliers|}}}|
+{{!}}-
+! Suppliers
+{{!}} {{#arraymap:{{{Suppliers|}}}|,|x|[[Supplied By::x]]}}
+
+}}
+|-
+! Product ID
+| [[Has Product ID::{{{Product ID|}}}]]
+|-
+! URL
+| [[Has URL::{{{URL|}}}]]
+|}
+
+[[Category:Supply]]
+&lt;/includeonly&gt;</text>
+      <sha1>74r0pr0u0j83bav7nb67mrelrwnlwf8</sha1>
+    </revision>
+  </page>
+  <page>
+    <title>Form:Supply</title>
+    <ns>106</ns>
+    <id>1222</id>
+    <revision>
+      <id>4427</id>
+      <timestamp>2025-10-17T20:58:03Z</timestamp>
+      <contributor>
+        <username>Jonny</username>
+        <id>1</id>
+      </contributor>
+      <comment>Generated from a page schema</comment>
+      <origin>4427</origin>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+      <text bytes="1395" sha1="pjejvyq163gippa3dsqe6fs4zvs58zt" xml:space="preserve">&lt;noinclude&gt;
+This is the "Supply" form.
+To create a page with this form, enter the page name below;
+if a page with that name already exists, you will be sent to a form to edit that page.
+
+{{#forminput:form=Supply|autocomplete on category=Supply}}
+
+&lt;/noinclude&gt;&lt;includeonly&gt;
+&lt;div id="wikiPreview" style="display: none; padding-bottom: 25px; margin-bottom: 25px; border-bottom: 1px solid #AAAAAA;"&gt;&lt;/div&gt;
+{{{for template|Supply}}}
+{| class="formtable"
+! : 
+| {{{field|}}}
+|-
+! Name: 
+| {{{field|Name|input type=text}}}
+|-
+! Description LABEL: &lt;br&gt;&lt;p class="pfFieldDescription" style="font-size:0.7em; color:gray;"&gt;Description of the description field&lt;/p&gt;
+| {{{field|Description|input type=textarea}}}
+|-
+! Price: &lt;br&gt;&lt;p class="pfFieldDescription" style="font-size:0.7em; color:gray;"&gt;USD (without $)&lt;/p&gt;
+| {{{field|Price|input type=text}}}
+|-
+! Suppliers: 
+| {{{field|Suppliers|input type=text with autocomplete|values from category=Supplier}}}
+|-
+! Product ID: &lt;br&gt;&lt;p class="pfFieldDescription" style="font-size:0.7em; color:gray;"&gt;The number used to identify the product within a supplier's catalogue, etc.&lt;/p&gt;
+| {{{field|Product ID|input type=text}}}
+|-
+! Orders: 
+| {{{field|Orders|input type=text with autocomplete|values from category=Purchase Order}}}
+|-
+! URL: 
+| {{{field|URL|input type=text}}}
+|}
+{{{end template}}}
+
+'''Free text:'''
+
+{{{standard input|free text|rows=10}}}
+&lt;/includeonly&gt;</text>
+      <sha1>pjejvyq163gippa3dsqe6fs4zvs58zt</sha1>
+    </revision>
+    <revision>
+      <id>4431</id>
+      <parentid>4427</parentid>
+      <timestamp>2025-10-17T21:01:57Z</timestamp>
+      <contributor>
+        <username>Jonny</username>
+        <id>1</id>
+      </contributor>
+      <origin>4431</origin>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+      <text bytes="1372" sha1="kvpxtb6j4tpddh9eb6zln910b1iqoir" xml:space="preserve">&lt;noinclude&gt;
+This is the "Supply" form.
+To create a page with this form, enter the page name below;
+if a page with that name already exists, you will be sent to a form to edit that page.
+
+{{#forminput:form=Supply|autocomplete on category=Supply}}
+
+&lt;/noinclude&gt;&lt;includeonly&gt;
+&lt;div id="wikiPreview" style="display: none; padding-bottom: 25px; margin-bottom: 25px; border-bottom: 1px solid #AAAAAA;"&gt;&lt;/div&gt;
+{{{for template|Supply}}}
+{| class="formtable"
+! Name: 
+| {{{field|Name|input type=text}}}
+|-
+! Description LABEL: &lt;br&gt;&lt;p class="pfFieldDescription" style="font-size:0.7em; color:gray;"&gt;Description of the description field&lt;/p&gt;
+| {{{field|Description|input type=textarea}}}
+|-
+! Price: &lt;br&gt;&lt;p class="pfFieldDescription" style="font-size:0.7em; color:gray;"&gt;USD (without $)&lt;/p&gt;
+| {{{field|Price|input type=text}}}
+|-
+! Suppliers: 
+| {{{field|Suppliers|input type=text with autocomplete|values from category=Supplier}}}
+|-
+! Product ID: &lt;br&gt;&lt;p class="pfFieldDescription" style="font-size:0.7em; color:gray;"&gt;The number used to identify the product within a supplier's catalogue, etc.&lt;/p&gt;
+| {{{field|Product ID|input type=text}}}
+|-
+! Orders: 
+| {{{field|Orders|input type=text with autocomplete|values from category=Purchase Order}}}
+|-
+! URL: 
+| {{{field|URL|input type=text}}}
+|}
+{{{end template}}}
+
+'''Free text:'''
+
+{{{standard input|free text|rows=10}}}
+&lt;/includeonly&gt;</text>
+      <sha1>kvpxtb6j4tpddh9eb6zln910b1iqoir</sha1>
+    </revision>
+  </page>
+  <page>
+    <title>Buffalo</title>
+    <ns>0</ns>
+    <id>1226</id>
+    <revision>
+      <id>4432</id>
+      <timestamp>2025-10-17T21:05:47Z</timestamp>
+      <contributor>
+        <username>Jonny</username>
+        <id>1</id>
+      </contributor>
+      <comment>Created page with "{{Supply |Name=Buffalonio Bites |Description=A nutritious snack heatable in the [[Microwave]] |Price=4.50 |Suppliers=Buffaloni-o's |Product ID=1234-buf-z |URL=http://example.com/bz-crisps }} eifjserlifusrhlgiuh"</comment>
+      <origin>4432</origin>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+      <text bytes="210" sha1="ej96l292xm42hacsu0wqxmragvmshw4" xml:space="preserve">{{Supply
+|Name=Buffalonio Bites
+|Description=A nutritious snack heatable in the [[Microwave]]
+|Price=4.50
+|Suppliers=Buffaloni-o's
+|Product ID=1234-buf-z
+|URL=http://example.com/bz-crisps
+}}
+eifjserlifusrhlgiuh</text>
+      <sha1>ej96l292xm42hacsu0wqxmragvmshw4</sha1>
+    </revision>
+    <revision>
+      <id>4437</id>
+      <parentid>4432</parentid>
+      <timestamp>2025-10-17T22:43:26Z</timestamp>
+      <contributor>
+        <username>Jonny</username>
+        <id>1</id>
+      </contributor>
+      <origin>4437</origin>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+      <text bytes="221" sha1="gv772gh87fcluljod96w5yinubgeldn" xml:space="preserve">{{Supply
+|Name=Buffalonio Bites
+|Description=A nutritious snack heatable in the [[Microwave]]
+|Price=4.50
+|Suppliers=Buffaloni-o's
+|Product ID=1234-buf-z
+|URL=http://example.com/bz-crisps
+}}
+eifjserlifusrhlgiuh
+
+more text</text>
+      <sha1>gv772gh87fcluljod96w5yinubgeldn</sha1>
+    </revision>
+  </page>
+</mediawiki>

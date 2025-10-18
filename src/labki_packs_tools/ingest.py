@@ -29,7 +29,7 @@ class ExportPage(BaseModel):
         Args:
             tree (ET.ElementTree): A `page` element from a mediawiki export
         """
-        title = tree.find("export:title", MW_XML_NS).text
+        name = tree.find("export:title", MW_XML_NS).text
 
         # find latest revision
         # revisions are usually exported in chronological order, ascending, but sort to be sure
@@ -39,7 +39,7 @@ class ExportPage(BaseModel):
 
         last_updated = _revision_timestamp(latest)
         content = latest.find("export:text", MW_XML_NS).text
-        return cls(title=title, last_updated=last_updated, content=content)
+        return cls(name=name, last_updated=last_updated, content=content)
 
     @property
     def safe_name(self) -> str:
@@ -47,6 +47,7 @@ class ExportPage(BaseModel):
         return re.sub(r"[^a-z0-9]", "_", self.name.lower()) + ".wiki"
 
     def write(self, path: Path) -> None:
+        path.parent.mkdir(exist_ok=True, parents=True)
         with open(path, "w", encoding="utf-8") as f:
             f.write(self.content)
 
