@@ -79,10 +79,37 @@ jobs:
           cp -r tools-cache/schema/* "$site/labki_packs_tools/schema/"
 
       - name: Validate manifest
+        id: validate
         run: |
           # schema_version field inside manifest.yml determines which schema is used
           export LABKI_SCHEMA_DIR=$GITHUB_WORKSPACE/tools-cache/schema
-          labki validate manifest.yml
+          set -o pipefail
+          labki validate manifest.yml | tee validation.txt
+        continue-on-error: true
+
+      - name: Comment on PR with validation results
+        if: ${{ github.event_name == 'pull_request' && steps.validate.outcome != 'success' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('validation.txt', 'utf8');
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: [
+                '### Labki validator output',
+                '',
+                '```',
+                body.trim(),
+                '```'
+              ].join('\n')
+            });
+
+      - name: Fail if validation failed
+        if: ${{ steps.validate.outcome != 'success' }}
+        run: exit 1
 ```
 
 ### Repository Health Badge
