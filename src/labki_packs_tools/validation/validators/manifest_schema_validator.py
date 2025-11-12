@@ -25,7 +25,13 @@ MESSAGES: dict[Tuple[str, str], str] = {
         "Page '{1}' last_updated must match YYYY-MM-DDThh:mm:ssZ"
     ),
     ("pattern", "last_updated"): "'last_updated' must match YYYY-MM-DDThh:mm:ssZ",
-    ("pattern", "pages/*/file"): "Page '{1}' file path must not contain ':'",
+    (
+        "pattern",
+        "pages/*/file",
+    ): (
+        "Page '{1}' file path must stay under 'pages/' and use only lowercase letters, digits, "
+        "hyphens, underscores, and '/' before ending with .wiki, .lua, .js, or .css"
+    ),
     ("pattern", "name"): "'name' may include letters, digits, spaces, hyphens, colons, underscores",
     # UniqueItems validator
     ("uniqueItems", "packs/*/tags"): "Pack '{1}' has duplicate tags",

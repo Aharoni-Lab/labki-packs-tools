@@ -38,6 +38,14 @@ class DummyValidationError(ValidationError):
             ["pages", "Template_Page", "last_updated"],
             "Page 'Template_Page' last_updated must match YYYY-MM-DDThh:mm:ssZ",
         ),
+        (
+            "pattern",
+            ["pages", "alpha_page", "file"],
+            (
+                "Page 'alpha_page' file path must stay under 'pages/' and use only lowercase letters, "
+                "digits, hyphens, underscores, and '/' before ending with .wiki, .lua, .js, or .css"
+            ),
+        ),
         ("uniqueItems", ["packs", "imaging", "tags"], "Pack 'imaging' has duplicate tags"),
         ("required", ["pages", "Missing_Page"], "Page 'Missing_Page' is missing required field(s)"),
     ],
