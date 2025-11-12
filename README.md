@@ -82,7 +82,7 @@ jobs:
         run: |
           # schema_version field inside manifest.yml determines which schema is used
           export LABKI_SCHEMA_DIR=$GITHUB_WORKSPACE/tools-cache/schema
-          labki validate manifest.yml --json
+          labki validate manifest.yml
 ```
 
 ### Repository Health Badge
